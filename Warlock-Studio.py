@@ -5,6 +5,7 @@ from functools import cache
 from itertools import repeat
 from json import dumps as json_dumps
 from json import load as json_load
+from math import cos, pi  # For smooth fade effect
 from multiprocessing import Process
 from multiprocessing import Queue as multiprocessing_Queue
 from multiprocessing import freeze_support as multiprocessing_freeze_support
@@ -83,7 +84,7 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock Studio"
-version = "1.0.0"
+version = "1.1"
 
 background_color = "#121212"  # Negro grisáceo profundo
 app_name_color = "#FFFFFF"  # Blanco puro para el nombre de la app
@@ -1854,7 +1855,8 @@ def upscale_image(
     upscaled_image_path = prepare_output_image_filename(
         image_path, selected_output_path, selected_AI_model, input_resize_factor, output_resize_factor, selected_image_extension, selected_blending_factor)
 
-    write_process_status(process_status_q, f"{file_number}. Upscaling image")
+    write_process_status(
+        process_status_q, f"{file_number}. Upscaling image. Be patient")
     upscaled_image = AI_instance.AI_orchestration(starting_image)
 
     if selected_blending_factor > 0:
@@ -1920,7 +1922,7 @@ def upscale_video(
             percent_complete = (
                 frames_already_upscaled_counter / total_frames_counter) * 100
             write_process_status(
-                process_status_q, f"{file_number}. Upscaling video {percent_complete:.2f}% ({remaining_time})")
+                process_status_q, f"{file_number}. Upscaling video. Be patient {percent_complete:.2f}% ({remaining_time})")
 
     def save_multiple_upscaled_frame_async(
         starting_frames_to_save: list[numpy_ndarray],
@@ -2044,7 +2046,7 @@ def upscale_video(
                                       for i in range(0, len(upscaled_frame_paths), chunk_size)]
 
         write_process_status(
-            process_status_q, f"{file_number}. Upscaling video ({threads_number} threads)")
+            process_status_q, f"{file_number}. Upscaling video. Be patient ({threads_number} threads)")
         with ThreadPool(threads_number) as pool:
             pool.starmap(
                 upscale_video_frames_async,
@@ -2997,6 +2999,124 @@ class App():
         place_upscale_button()
 
 
+# Splash Screen class for application startup
+class SplashScreen(CTkToplevel):
+    def __init__(self):
+        super().__init__()
+
+        # Configure window
+        self.title("")
+        self.overrideredirect(True)  # Remove window decorations
+        self.attributes('-topmost', True)
+
+        # Calculate window position for center of screen
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        # Set default window size
+        window_width = 500
+        window_height = 300
+
+        # Try to load banner image
+        banner_path = find_by_relative_path(f"rsc{os_separator}banner.png")
+        try:
+            self.banner_image = CTkImage(
+                pillow_image_open(banner_path),
+                size=(450, 200)  # Adjust size as needed
+            )
+            has_banner = True
+        except Exception as e:
+            print(f"Could not load splash banner: {e}")
+            has_banner = False
+            window_height = 200  # Smaller height if no banner
+
+        # Center window
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+        # Configure appearance to match app
+        self.configure(fg_color="#212325")  # background_color
+
+        # Create banner or title
+        if has_banner:
+            self.banner_label = CTkLabel(
+                self,
+                image=self.banner_image,
+                text=""
+            )
+            self.banner_label.pack(pady=(30, 15))
+        else:
+            # Fallback to text title if image not found
+            title_label = CTkLabel(
+                self,
+                text="Warlock Studio",
+                font=CTkFont(family="Segoe UI", size=28, weight="bold"),
+                text_color="#2F73DD"  # app_name_color
+            )
+            title_label.pack(pady=(50, 20))
+
+        # Create status frame with progress messages
+        status_frame = CTkFrame(
+            self,
+            fg_color="#343638",  # widget_background_color
+            corner_radius=10
+        )
+        status_frame.pack(pady=10, padx=20, fill="x")
+
+        self.status_label = CTkLabel(
+            status_frame,
+            text="Loading AI-ONNX models...",
+            font=CTkFont(family="Segoe UI", size=12, weight="bold"),
+            text_color="white"  # text_color
+        )
+        self.status_label.pack(pady=10, padx=10)
+
+        # Define enough messages to fill 15 seconds (~1.5s por mensaje)
+        self.messages = [
+            "Loading AI-ONNX models...",
+            "Initializing FFmpeg...",
+            "Preparing environment...",
+            "Setting up GPU acceleration...",
+            "Loading image enhancement filters...",
+            "Optimizing runtime performance...",
+            "Warming up deep learning models...",
+            "Finalizing system check...",
+            "Cleaning temporary buffers...",
+            "Almost ready..."
+        ]
+
+        # Start loading animation
+        self._loading_step = 0
+        self.update_loading_text()
+
+        # Splash duration: 15 seconds
+        self.after(15000, self.start_fade_out)
+
+    def update_loading_text(self):
+        """Update the loading message every 1.5 seconds"""
+        if self._loading_step < len(self.messages):
+            self.status_label.configure(text=self.messages[self._loading_step])
+            self._loading_step += 1
+            self.after(1500, self.update_loading_text)
+
+    def start_fade_out(self):
+        """Start the fade out animation"""
+        self._fade_step = 1.0
+        self.fade_out()
+
+    def fade_out(self):
+        """Smoothly fade out the splash screen"""
+        if self._fade_step > 0:
+            # Use cosine for smooth fade
+            opacity = cos((1.0 - self._fade_step) * pi/2)
+            self.attributes('-alpha', opacity)
+            self._fade_step -= 0.05
+            self.after(40, self.fade_out)
+        else:
+            self.destroy()
+
+
 if __name__ == "__main__":
     multiprocessing_freeze_support()
     set_appearance_mode("Dark")
@@ -3004,7 +3124,15 @@ if __name__ == "__main__":
 
     process_status_q = multiprocessing_Queue(maxsize=1)
 
+    # Create main window but keep it hidden initially
     window = CTk()
+    window.withdraw()  # Hide main window temporarily
+
+    # Create and show splash screen
+    splash = SplashScreen()
+
+    # Schedule showing the main window after splash finishes
+    window.after(6000, window.deiconify)  # 5s + fade time
 
     info_message = StringVar()
     selected_output_path = StringVar()
