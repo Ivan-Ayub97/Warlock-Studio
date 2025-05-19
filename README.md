@@ -2,7 +2,7 @@
 
 ![Warlock-Studio logo](rsc/banner.png)
 
-### AI-Powered Media Enhancement & Upscaling Suite 1.0.0
+### AI-Powered Media Enhancement & Upscaling Suite 1.1
 
 Warlock-Studio is an **open-source desktop application** that unifies the power of [**MedIA-Witch**](https://github.com/Ivan-Ayub97/MedIA-Witch.git) and [**MedIA-Wizard**](https://github.com/Ivan-Ayub97/MedIA-Wizard.git) into a single, seamless platform for AI-driven image and video enhancement. Featuring support for the latest upscaling and restoration models and a sleek, intuitive interface, Warlock-Studio brings professional-grade media processing to everyone.
 
