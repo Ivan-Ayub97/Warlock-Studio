@@ -12,7 +12,7 @@ Warlock-Studio is an **open-source desktop application** that unifies the power 
 
 ---
 
-## 🚀 Installation
+## Installation
 
 Follow these steps to get up and running with Warlock-Studio:
 
@@ -24,7 +24,7 @@ Warlock-Studio leverages [PyInstaller](https://www.pyinstaller.org/) and [Inno S
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - **State-of-the-Art AI Models:**
   Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, and more for noise reduction, resolution boost, and high-fidelity restoration.
@@ -43,7 +43,7 @@ Warlock-Studio leverages [PyInstaller](https://www.pyinstaller.org/) and [Inno S
 
 ---
 
-## 🛠️ How to Use
+## How to Use
 
 1. **Run as Administrator** (optional but recommended for best performance).
 2. **Load Media:** drag & drop images, videos, or folders into the app.
@@ -55,13 +55,13 @@ Warlock-Studio leverages [PyInstaller](https://www.pyinstaller.org/) and [Inno S
 
 ---
 
-## 🔍 Quality Comparison
+## Quality Comparison
 
 ![Quality Comparison](rsc/Image_comparison.png)
 
 ---
 
-## 📊 System Requirements
+## System Requirements
 
 - **OS:** Windows 10 or later
 - **RAM:** 4 GB minimum (8 GB+ recommended)
@@ -70,7 +70,7 @@ Warlock-Studio leverages [PyInstaller](https://www.pyinstaller.org/) and [Inno S
 
 ---
 
-### 🚀 Integrated Technologies & Licenses
+### Integrated Technologies & Licenses
 
 | Technology    | License                   |
 | ------------- | ------------------------- |
@@ -89,7 +89,7 @@ Warlock-Studio leverages [PyInstaller](https://www.pyinstaller.org/) and [Inno S
 
 ---
 
-## 🤝 Contributions
+## Contributions
 
 We welcome your contributions!
 
@@ -99,4 +99,4 @@ We welcome your contributions!
 
 For bug reports, suggestions or questions, reach out at **<negroayub97@gmail.com>**.
 
-Warlock-Studio combines cutting-edge AI with a powerful yet user-friendly interface—take your media to the next level! 🧙‍♂️✨
+Warlock-Studio combines cutting-edge AI with a powerful yet user-friendly interface—take your media to the next level! 🧙‍♂
