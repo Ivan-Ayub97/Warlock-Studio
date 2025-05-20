@@ -1,22 +1,22 @@
-# 📝 **CHANGELOG — Warlock-Studio v1.1**
+# **CHANGELOG — Warlock-Studio v1.1**
 
 **Release Date:** May 20, 2025
 
 ---
 
-## ✨ Major Improvements
+##  Major Improvements
 
-- ⚡ **Program Startup Optimization:**
+-  **Program Startup Optimization:**
   Startup time has been significantly reduced.
 
-- 📦 **Model Loading Improvements:**
+-  **Model Loading Improvements:**
   Improved loading speed for models.
 
-- 🔧 **General Performance Optimization:**
+-  **General Performance Optimization:**
   Refactored core components. Background processing is now more efficient and uses fewer resources.
 
 ---
 
-## 🐛 Minor Fixes
+##  Minor Fixes
 
 - Minor UI adjustments to improve accessibility.
