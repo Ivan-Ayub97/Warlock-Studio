@@ -9,7 +9,7 @@ Warlock-Studio is an **open-source desktop application** that unifies the power 
 Now with advanced **AI-based frame interpolation** (RIFE), support for **slow-motion video generation**, refined **GPU management**, and a more modular, scalable UI—Warlock-Studio 2.0 is built for the future of creative enhancement.
 
 ### New icon
-![icon](Assets/icon.png)
+![icon](Assets/logo.ico)
 
 ---
 
