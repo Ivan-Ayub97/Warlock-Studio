@@ -26,9 +26,11 @@ from os.path import exists as os_path_exists
 from os.path import expanduser as os_path_expanduser
 from os.path import join as os_path_join
 from os.path import splitext as os_path_splitext
+from shutil import move as shutil_move
 from shutil import rmtree as remove_directory
+from subprocess import CalledProcessError
 from subprocess import run as subprocess_run
-from threading import Thread
+from threading import Event, Thread
 from time import sleep
 from timeit import default_timer as timer
 # GUI imports
@@ -71,6 +73,13 @@ from onnxruntime import InferenceSession
 from PIL.Image import fromarray as pillow_image_fromarray
 from PIL.Image import open as pillow_image_open
 
+# Define supported file extensions
+supported_image_extensions = [".jpg", ".jpeg",
+                              ".png", ".bmp", ".tiff", ".tif", ".webp"]
+supported_video_extensions = [".mp4", ".avi",
+                              ".mkv", ".mov", ".wmv", ".flv", ".webm"]
+supported_file_extensions = supported_image_extensions + supported_video_extensions
+
 if sys.stdout is None:
     sys.stdout = open(os_devnull, "w")
 if sys.stderr is None:
@@ -84,12 +93,12 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "2.0"
+version = "2.1"
 
 background_color = "#121212"  # Negro grisáceo profundo
-app_name_color = "#FF0E0E"  # Blanco puro para el nombre de la app
-widget_background_color = "#454242"  # Rojo oscuro (Dark Red)
-text_color = "#FFFFFF"  # Blanco opaco para texto legible
+app_name_color = "#ECD125"  # Blanco puro para el nombre de la app
+widget_background_color = "#960707"  # Rojo oscuro (Dark Red)
+text_color = "#F0EEEE"  # Blanco opaco para texto legible
 
 VRAM_model_usage = {
     'RealESR_Gx4':     2.2,
@@ -219,21 +228,7 @@ little_textbox_width = 74
 little_menu_width = 98
 
 
-supported_file_extensions = [
-    '.heic', '.jpg', '.jpeg', '.JPG', '.JPEG', '.png',
-    '.PNG', '.webp', '.WEBP', '.bmp', '.BMP', '.tif',
-    '.tiff', '.TIF', '.TIFF', '.mp4', '.MP4', '.webm',
-    '.WEBM', '.mkv', '.MKV', '.flv', '.FLV', '.gif',
-    '.GIF', '.m4v', ',M4V', '.avi', '.AVI', '.mov',
-    '.MOV', '.qt', '.3gp', '.mpg', '.mpeg', ".vob"
-]
-
-supported_video_extensions = [
-    '.mp4', '.MP4', '.webm', '.WEBM', '.mkv', '.MKV',
-    '.flv', '.FLV', '.gif', '.GIF', '.m4v', ',M4V',
-    '.avi', '.AVI', '.mov', '.MOV', '.qt', '.3gp',
-    '.mpg', '.mpeg', ".vob"
-]
+# Remove duplicate definitions - using the ones defined earlier
 
 
 # AI -------------------
@@ -273,23 +268,35 @@ class AI_upscale:
             return 4
 
     def _load_inferenceSession(self) -> None:
+        try:
+            # Check if model file exists
+            if not os_path_exists(self.AI_model_path):
+                raise FileNotFoundError(
+                    f"AI model file not found: {self.AI_model_path}")
 
-        providers = ['DmlExecutionProvider']
+            providers = ['DmlExecutionProvider']
 
-        match self.directml_gpu:
-            case 'Auto':  provider_options = [{"performance_preference": "high_performance"}]
-            case 'GPU 1': provider_options = [{"device_id": "0"}]
-            case 'GPU 2': provider_options = [{"device_id": "1"}]
-            case 'GPU 3': provider_options = [{"device_id": "2"}]
-            case 'GPU 4': provider_options = [{"device_id": "3"}]
+            match self.directml_gpu:
+                case 'Auto':  provider_options = [{"performance_preference": "high_performance"}]
+                case 'GPU 1': provider_options = [{"device_id": "0"}]
+                case 'GPU 2': provider_options = [{"device_id": "1"}]
+                case 'GPU 3': provider_options = [{"device_id": "2"}]
+                case 'GPU 4': provider_options = [{"device_id": "3"}]
 
-        inference_session = InferenceSession(
-            path_or_bytes=self.AI_model_path,
-            providers=providers,
-            provider_options=provider_options,
-        )
+            inference_session = InferenceSession(
+                path_or_bytes=self.AI_model_path,
+                providers=providers,
+                provider_options=provider_options,
+            )
 
-        self.inferenceSession = inference_session
+            self.inferenceSession = inference_session
+            print(
+                f"[AI] Successfully loaded model: {os_path_basename(self.AI_model_path)}")
+
+        except Exception as e:
+            error_msg = f"Failed to load AI model {os_path_basename(self.AI_model_path)}: {str(e)}"
+            print(f"[AI ERROR] {error_msg}")
+            raise RuntimeError(error_msg)
 
     # INTERNAL CLASS FUNCTIONS
 
@@ -593,34 +600,48 @@ class AI_interpolation:
         self.inferenceSession = self._load_inferenceSession()
 
     def _load_inferenceSession(self) -> InferenceSession:
+        try:
+            # Check if model file exists
+            if not os_path_exists(self.AI_model_path):
+                raise FileNotFoundError(
+                    f"AI model file not found: {self.AI_model_path}")
 
-        providers = ['DmlExecutionProvider']
+            providers = ['DmlExecutionProvider']
 
-        match self.directml_gpu:
-            case 'Auto':        provider_options = [{"performance_preference": "high_performance"}]
-            case 'GPU 1':       provider_options = [{"device_id": "0"}]
-            case 'GPU 2':       provider_options = [{"device_id": "1"}]
-            case 'GPU 3':       provider_options = [{"device_id": "2"}]
-            case 'GPU 4':       provider_options = [{"device_id": "3"}]
+            match self.directml_gpu:
+                case 'Auto':        provider_options = [{"performance_preference": "high_performance"}]
+                case 'GPU 1':       provider_options = [{"device_id": "0"}]
+                case 'GPU 2':       provider_options = [{"device_id": "1"}]
+                case 'GPU 3':       provider_options = [{"device_id": "2"}]
+                case 'GPU 4':       provider_options = [{"device_id": "3"}]
 
-        inference_session = InferenceSession(
-            path_or_bytes=self.AI_model_path,
-            providers=providers,
-            provider_options=provider_options
-        )
+            inference_session = InferenceSession(
+                path_or_bytes=self.AI_model_path,
+                providers=providers,
+                provider_options=provider_options
+            )
 
-        return inference_session
+            print(
+                f"[AI] Successfully loaded interpolation model: {os_path_basename(self.AI_model_path)}")
+            return inference_session
+
+        except Exception as e:
+            error_msg = f"Failed to load AI interpolation model {os_path_basename(self.AI_model_path)}: {str(e)}"
+            print(f"[AI ERROR] {error_msg}")
+            raise RuntimeError(error_msg)
 
     # INTERNAL CLASS FUNCTIONS
 
     def get_image_mode(self, image: numpy_ndarray) -> str:
-        match image.shape:
-            case (rows, cols):
-                return "Grayscale"
-            case (rows, cols, channels) if channels == 3:
-                return "RGB"
-            case (rows, cols, channels) if channels == 4:
-                return "RGBA"
+        shape = image.shape
+        if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
+            return "Grayscale"
+        # RGB: 3D array with 3 channels
+        elif len(shape) == 3 and shape[2] == 3:
+            return "RGB"
+        # RGBA: 3D array with 4 channels
+        elif len(shape) == 3 and shape[2] == 4:
+            return "RGBA"
 
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
         height = image.shape[0]
@@ -1137,14 +1158,14 @@ def get_values_for_file_widget() -> tuple:
     try:
         input_resize_factor = int(
             float(str(selected_input_resize_factor.get())))
-    except:
+    except (ValueError, TypeError):
         input_resize_factor = 0
 
     # Output resolution %
     try:
         output_resize_factor = int(
             float(str(selected_output_resize_factor.get())))
-    except:
+    except (ValueError, TypeError):
         output_resize_factor = 0
 
     return upscale_factor, input_resize_factor, output_resize_factor
@@ -1152,9 +1173,8 @@ def get_values_for_file_widget() -> tuple:
 
 def update_file_widget(a, b, c) -> None:
     try:
-        global file_widget
-        file_widget
-    except:
+        selected_file_list = file_widget.get_selected_file_list()
+    except Exception:
         return
 
     upscale_factor, input_resize_factor, output_resize_factor = get_values_for_file_widget()
@@ -1303,7 +1323,7 @@ def create_active_button(
         icon: CTkImage = None,
         width: int = 140,
         height: int = 30,
-        border_color: str = "#0096FF"
+        border_color: str = "#C11919"
 ) -> CTkButton:
 
     return CTkButton(
@@ -1331,7 +1351,10 @@ def create_dir(name_dir: str) -> None:
         os_makedirs(name_dir, mode=0o777)
 
 
-def stop_thread() -> None: stop = 1 + "x"
+def stop_thread() -> None:
+    """Notifica al hilo de monitoreo que debe detenerse de forma segura."""
+    global stop_thread_flag
+    stop_thread_flag.set()
 
 
 def image_read(file_path: str) -> numpy_ndarray:
@@ -1344,23 +1367,42 @@ def image_write(file_path: str, file_data: numpy_ndarray, file_extension: str = 
 
 
 def copy_file_metadata(original_file_path: str, upscaled_file_path: str) -> None:
-
-    exiftool_cmd = [
-        EXIFTOOL_EXE_PATH,
-        '-fast',
-        '-TagsFromFile',
-        original_file_path,
-        '-overwrite_original',
-        '-all:all',
-        '-unsafe',
-        '-largetags',
-        upscaled_file_path
-    ]
-
     try:
-        subprocess_run(exiftool_cmd, check=True, shell="False")
-    except:
-        pass
+        # Check if exiftool exists
+        if not os_path_exists(EXIFTOOL_EXE_PATH):
+            print("[ExifTool] ExifTool not found, skipping metadata copy")
+            return
+
+        # Check if files exist
+        if not os_path_exists(original_file_path):
+            print(f"[ExifTool] Original file not found: {original_file_path}")
+            return
+
+        if not os_path_exists(upscaled_file_path):
+            print(f"[ExifTool] Upscaled file not found: {upscaled_file_path}")
+            return
+
+        exiftool_cmd = [
+            EXIFTOOL_EXE_PATH,
+            '-fast',
+            '-TagsFromFile',
+            original_file_path,
+            '-overwrite_original',
+            '-all:all',
+            '-unsafe',
+            '-largetags',
+            upscaled_file_path
+        ]
+
+        result = subprocess_run(exiftool_cmd, check=True,
+                                shell=False, capture_output=True, text=True)
+        print(f"[ExifTool] Successfully copied metadata")
+
+    except CalledProcessError as e:
+        print(
+            f"[ExifTool] ExifTool failed: {e.stderr if e.stderr else str(e)}")
+    except Exception as e:
+        print(f"[ExifTool] Could not copy metadata: {str(e)}")
 
 
 def prepare_output_image_filename(
@@ -1547,45 +1589,88 @@ def extract_video_frames(
     selected_image_extension: str
 ) -> list[str]:
     # FluidFrames-compatible implementation
-    create_dir(target_directory)
+    try:
+        create_dir(target_directory)
 
-    frames_number_to_save = cpu_number * ECTRACTION_FRAMES_FOR_CPU
-    video_capture = opencv_VideoCapture(video_path)
-    frame_count = int(video_capture.get(CAP_PROP_FRAME_COUNT))
+        # Check if video file exists
+        if not os_path_exists(video_path):
+            raise FileNotFoundError(f"Video file not found: {video_path}")
 
-    extracted_frames = []
-    extracted_frames_paths = []
-    video_frames_list = []
-    frame_index = 0
+        frames_number_to_save = cpu_number * ECTRACTION_FRAMES_FOR_CPU
+        video_capture = opencv_VideoCapture(video_path)
 
-    for frame_number in range(frame_count):
-        success, frame = video_capture.read()
-        if not success:
-            break
-        frame_path = f"{target_directory}{os_separator}frame_{frame_number:03d}{selected_image_extension}"
-        frame = AI_instance.resize_with_input_factor(frame)
-        extracted_frames.append(frame)
-        extracted_frames_paths.append(frame_path)
-        video_frames_list.append(frame_path)
+        # Check if video was opened successfully
+        if not video_capture.isOpened():
+            raise ValueError(f"Could not open video file: {video_path}")
 
-        if len(extracted_frames) == frames_number_to_save:
-            percentage_extraction = (frame_number / frame_count) * 100
-            write_process_status(
-                process_status_q, f"{file_number}. Extracting video frames ({round(percentage_extraction, 2)}%)")
-            save_extracted_frames(extracted_frames_paths,
-                                  extracted_frames, cpu_number)
-            extracted_frames = []
-            extracted_frames_paths = []
+        frame_count = int(video_capture.get(CAP_PROP_FRAME_COUNT))
 
-        frame_index += 1
+        # Check if frame count is valid
+        if frame_count <= 0:
+            raise ValueError(
+                f"Invalid frame count ({frame_count}) for video: {video_path}")
 
-    video_capture.release()
+        extracted_frames = []
+        extracted_frames_paths = []
+        video_frames_list = []
+        frame_index = 0
 
-    if len(extracted_frames) > 0:
-        save_extracted_frames(extracted_frames_paths,
-                              extracted_frames, cpu_number)
+        for frame_number in range(frame_count):
+            success, frame = video_capture.read()
+            if not success:
+                if frame_number == 0:
+                    raise ValueError(
+                        f"Could not read any frames from video: {video_path}")
+                print(
+                    f"Warning: Could not read frame {frame_number}, stopping extraction")
+                break
 
-    return video_frames_list
+            try:
+                frame_path = f"{target_directory}{os_separator}frame_{frame_number:03d}{selected_image_extension}"
+                frame = AI_instance.resize_with_input_factor(frame)
+                extracted_frames.append(frame)
+                extracted_frames_paths.append(frame_path)
+                video_frames_list.append(frame_path)
+            except Exception as e:
+                print(
+                    f"Warning: Error processing frame {frame_number}: {str(e)}")
+                continue
+
+            if len(extracted_frames) == frames_number_to_save:
+                percentage_extraction = (frame_number / frame_count) * 100
+                write_process_status(
+                    process_status_q, f"{file_number}. Extracting video frames ({round(percentage_extraction, 2)}%)")
+                try:
+                    save_extracted_frames(extracted_frames_paths,
+                                          extracted_frames, cpu_number)
+                except Exception as e:
+                    print(f"Warning: Error saving frames batch: {str(e)}")
+                extracted_frames = []
+                extracted_frames_paths = []
+
+            frame_index += 1
+
+        video_capture.release()
+
+        if len(extracted_frames) > 0:
+            try:
+                save_extracted_frames(extracted_frames_paths,
+                                      extracted_frames, cpu_number)
+            except Exception as e:
+                print(f"Warning: Error saving final frames batch: {str(e)}")
+
+        if len(video_frames_list) == 0:
+            raise ValueError(
+                f"No frames were successfully extracted from video: {video_path}")
+
+        return video_frames_list
+
+    except Exception as e:
+        if 'video_capture' in locals():
+            video_capture.release()
+        write_process_status(
+            process_status_q, f"{ERROR_STATUS}Error extracting frames from {os_path_basename(video_path)}: {str(e)}")
+        raise
 
 
 def video_encoding(
@@ -1595,76 +1680,154 @@ def video_encoding(
         upscaled_frame_paths: list[str],
         selected_video_codec: str,
 ) -> None:
-
-    if "x264" in selected_video_codec:
-        codec = "libx264"
-    elif "x265" in selected_video_codec:
-        codec = "libx265"
-    else:
-        codec = selected_video_codec
-
-    txt_path = f"{os_path_splitext(video_output_path)[0]}.txt"
-    no_audio_path = f"{os_path_splitext(video_output_path)[0]}_no_audio{os_path_splitext(video_output_path)[1]}"
-    video_fps = str(get_video_fps(video_path))
-
-    # Cleaning files from previous encoding
-    if os_path_exists(no_audio_path):
-        os_remove(no_audio_path)
-    if os_path_exists(txt_path):
-        os_remove(txt_path)
-
-    # Create a file .txt with all upscaled video frames paths || this file is essential
-    with os_fdopen(os_open(txt_path, O_WRONLY | O_CREAT, 0o777), 'w', encoding="utf-8") as txt:
-        for frame_path in upscaled_frame_paths:
-            txt.write(f"file '{frame_path}' \n")
-
-    # Create the upscaled video without audio
-    print(f"[FFMPEG] ENCODING ({codec})")
     try:
-        encoding_command = [
-            FFMPEG_EXE_PATH,
-            "-y",
-            "-loglevel",    "error",
-            "-f",           "concat",
-            "-safe",        "0",
-            "-r",           video_fps,
-            "-i",           txt_path,
-            "-c:v",         codec,
-            "-vf",          "scale=in_range=full:out_range=limited,format=yuv420p",
-            "-color_range", "tv",
-            "-b:v",         "12000k",
-            no_audio_path
-        ]
-        subprocess_run(encoding_command, check=True, shell="False")
+        # Validate inputs
+        if not upscaled_frame_paths:
+            raise ValueError("No frame paths provided for video encoding")
+
+        # Check if all frame files exist
+        missing_frames = [
+            path for path in upscaled_frame_paths if not os_path_exists(path)]
+        if missing_frames:
+            raise FileNotFoundError(
+                f"Missing {len(missing_frames)} frame files. First missing: {missing_frames[0]}")
+
+        if "x264" in selected_video_codec:
+            codec = "libx264"
+        elif "x265" in selected_video_codec:
+            codec = "libx265"
+        else:
+            codec = selected_video_codec
+
+        txt_path = f"{os_path_splitext(video_output_path)[0]}.txt"
+        no_audio_path = f"{os_path_splitext(video_output_path)[0]}_no_audio{os_path_splitext(video_output_path)[1]}"
+
+        try:
+            video_fps = str(get_video_fps(video_path))
+            if float(video_fps) <= 0:
+                raise ValueError(f"Invalid frame rate: {video_fps}")
+        except Exception as e:
+            print(
+                f"Warning: Could not get video FPS, using default 30.0: {str(e)}")
+            video_fps = "30.0"
+
+        # Cleaning files from previous encoding
+        if os_path_exists(no_audio_path):
+            os_remove(no_audio_path)
         if os_path_exists(txt_path):
             os_remove(txt_path)
 
-    except:
+        # Create a file .txt with all upscaled video frames paths || this file is essential
+        try:
+            with os_fdopen(os_open(txt_path, O_WRONLY | O_CREAT, 0o777), 'w', encoding="utf-8") as txt:
+                for frame_path in upscaled_frame_paths:
+                    # Ensure the path exists before writing to file
+                    if os_path_exists(frame_path):
+                        txt.write(f"file '{frame_path}' \n")
+                    else:
+                        print(f"Warning: Frame file not found: {frame_path}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to create frame list file: {str(e)}")
+
+        # Create the upscaled video without audio
+        print(f"[FFMPEG] ENCODING ({codec})")
+        try:
+            # Check if ffmpeg exists
+            if not os_path_exists(FFMPEG_EXE_PATH):
+                raise FileNotFoundError("FFmpeg executable not found")
+
+            encoding_command = [
+                FFMPEG_EXE_PATH,
+                "-y",
+                "-loglevel",    "error",
+                "-f",           "concat",
+                "-safe",        "0",
+                "-r",           video_fps,
+                "-i",           txt_path,
+                "-c:v",         codec,
+                "-vf",          "scale=in_range=full:out_range=limited,format=yuv420p",
+                "-color_range", "tv",
+                "-movflags",    "+faststart",
+                "-b:v",         "12000k",
+                no_audio_path
+            ]
+
+            result = subprocess_run(
+                encoding_command, check=True, shell=False, capture_output=True, text=True)
+
+            # Check if output file was created successfully
+            if not os_path_exists(no_audio_path):
+                raise RuntimeError(
+                    "Video encoding completed but output file was not created")
+
+            if os_path_exists(txt_path):
+                os_remove(txt_path)
+
+            print(f"[FFMPEG] Video encoding completed successfully")
+
+        except subprocess.CalledProcessError as e:
+            error_msg = f"FFmpeg encoding failed: {e.stderr if e.stderr else str(e)}"
+            write_process_status(
+                process_status_q,
+                f"{ERROR_STATUS}{error_msg}\nHave you selected a codec compatible with your GPU? If the issue persists, try selecting 'x264'."
+            )
+            return
+        except Exception as e:
+            write_process_status(
+                process_status_q,
+                f"{ERROR_STATUS}An error occurred during video encoding: {str(e)} \nHave you selected a codec compatible with your GPU? If the issue persists, try selecting 'x264'."
+            )
+            return
+
+        # Copy the audio from original video
+        print("[FFMPEG] AUDIO PASSTHROUGH")
+        audio_passthrough_command = [
+            FFMPEG_EXE_PATH,
+            "-y",
+            "-loglevel", "error",
+            "-i",        video_path,
+            "-i",        no_audio_path,
+            "-c:v",      "copy",
+            "-map",      "1:v:0",
+            "-map",      "0:a?",
+            "-c:a",      "copy",
+            video_output_path
+        ]
+        try:
+            result = subprocess_run(
+                audio_passthrough_command, check=True, shell=False, capture_output=True, text=True)
+            if os_path_exists(no_audio_path):
+                os_remove(no_audio_path)
+            print(f"[FFMPEG] Audio passthrough completed successfully")
+        except subprocess.CalledProcessError as e:
+            print(
+                f"[FFMPEG] Audio passthrough error: {e.stderr if e.stderr else str(e)}")
+            # If audio passthrough fails, just copy the no-audio version
+            if os_path_exists(no_audio_path):
+                try:
+                    shutil_move(no_audio_path, video_output_path)
+                    print(
+                        f"[FFMPEG] Using video without audio due to passthrough failure")
+                except Exception as move_error:
+                    print(
+                        f"[FFMPEG] Failed to move no-audio file: {str(move_error)}")
+        except Exception as e:
+            print(f"[FFMPEG] Audio passthrough error: {str(e)}")
+            # If audio passthrough fails, just copy the no-audio version
+            if os_path_exists(no_audio_path):
+                try:
+                    shutil_move(no_audio_path, video_output_path)
+                    print(
+                        f"[FFMPEG] Using video without audio due to passthrough failure")
+                except Exception as move_error:
+                    print(
+                        f"[FFMPEG] Failed to move no-audio file: {str(move_error)}")
+
+    except Exception as e:
         write_process_status(
             process_status_q,
-            f"{ERROR_STATUS}An error occurred during video encoding. \n Have you selected a codec compatible with your GPU? If the issue persists, try selecting 'x264'."
+            f"{ERROR_STATUS}Video encoding failed: {str(e)}"
         )
-
-    # Copy the audio from original video
-    print("[FFMPEG] AUDIO PASSTHROUGH")
-    audio_passthrough_command = [
-        FFMPEG_EXE_PATH,
-        "-y",
-        "-loglevel", "error",
-        "-i",        video_path,
-        "-i",        no_audio_path,
-        "-c:v",      "copy",
-        "-map",      "1:v:0",
-        "-map",      "0:a?",
-        "-c:a",      "copy",
-        video_output_path
-    ]
-    try:
-        subprocess_run(audio_passthrough_command, check=True, shell="False")
-        if os_path_exists(no_audio_path):
-            os_remove(no_audio_path)
-    except:
-        pass
 
 
 def check_video_upscaling_resume(
@@ -1776,41 +1939,53 @@ def blend_images_and_save(
             starting_image, starting_image_importance, upscaled_image, upscaled_image_importance, 0)
         image_write(target_path, interpolated_image, file_extension)
 
-    except:
+    except Exception as e:
+        print(
+            f"[BLEND] Blending failed, saving original upscaled image: {str(e)}")
         image_write(target_path, upscaled_image, file_extension)
 
 
 # Core functions ------------------------
 
 def check_upscale_steps() -> None:
+    """Monitorea el estado del proceso de escalado en un hilo separado."""
+    global stop_thread_flag
     sleep(1)
 
-    try:
-        while True:
+    while not stop_thread_flag.is_set():
+        try:
             actual_step = read_process_status()
 
             if actual_step == COMPLETED_STATUS:
                 info_message.set(f"All files completed!")
                 stop_upscale_process()
-                stop_thread()
+                stop_thread_flag.set()  # Señaliza la finalización del hilo
+                break  # Sal del bucle
 
             elif actual_step == STOP_STATUS:
                 info_message.set(f"Magic stopped")
                 stop_upscale_process()
-                stop_thread()
+                stop_thread_flag.set()  # Señaliza la finalización del hilo
+                break  # Sal del bucle
 
             elif ERROR_STATUS in actual_step:
                 info_message.set(f"Error while upscaling :(")
                 error_to_show = actual_step.replace(ERROR_STATUS, "")
                 show_error_message(error_to_show.strip())
-                stop_thread()
-
+                stop_thread_flag.set()  # Señaliza la finalización del hilo
+                break  # Sal del bucle
             else:
                 info_message.set(actual_step)
 
             sleep(1)
-    except:
-        place_upscale_button()
+        except Exception as e:
+            # Si hay un error al leer la cola, el proceso principal probablemente murió.
+            print(f"[MONITOR] Error reading process status: {str(e)}")
+            # Sal del bucle para terminar el hilo.
+            break
+
+    # Se asegura de que el botón de re-inicio aparezca al final
+    place_upscale_button()
 
 
 def read_process_status() -> str:
@@ -1829,7 +2004,7 @@ def stop_upscale_process() -> None:
     global process_upscale_orchestrator
     try:
         process_upscale_orchestrator
-    except:
+    except NameError:
         pass
     else:
         process_upscale_orchestrator.kill()
@@ -1925,19 +2100,26 @@ def fluidframes_interpolation_pipeline(
             current_file_number = file_number + 1
             # Branch between video and image: only video gets interpolation
             if check_if_file_is_video(file_path):
-                fluidframes_video_interpolate(
-                    process_status_q, file_path, current_file_number, selected_output_path, AI_instance,
-                    selected_AI_model, frame_gen_factor, slowmotion, selected_image_extension, selected_video_extension,
-                    selected_video_codec, input_resize_factor, output_resize_factor, cpu_number, selected_keep_frames
-                )
+                try:
+                    fluidframes_video_interpolate(
+                        process_status_q, file_path, current_file_number, selected_output_path, AI_instance,
+                        selected_AI_model, frame_gen_factor, slowmotion, selected_image_extension, selected_video_extension,
+                        selected_video_codec, input_resize_factor, output_resize_factor, cpu_number, selected_keep_frames
+                    )
+                except Exception as file_error:
+                    write_process_status(
+                        process_status_q, f"{ERROR_STATUS}Error processing {os_path_basename(file_path)}: {str(file_error)}")
+                    continue  # Continue with next file
             else:
                 # If an image, just no-op/fail, or could add image interpolation, but that's not FluidFrames
                 write_process_status(
-                    process_status_q, f"{current_file_number}. File is not a video; skipping.")
+                    process_status_q, f"{current_file_number}. File is not a video; skipping interpolation for image files.")
         write_process_status(process_status_q, f"{COMPLETED_STATUS}")
     except Exception as exception:
+        error_msg = str(exception)
+        print(f"Error in FluidFrames interpolation pipeline: {error_msg}")
         write_process_status(
-            process_status_q, f"{ERROR_STATUS} {str(exception)}")
+            process_status_q, f"{ERROR_STATUS}Interpolation error: {error_msg}")
 
 # Helper for generation options string -> factor/slowmotion
 # (straight copy from FluidFrames.py, rename as needed)
@@ -2046,71 +2228,24 @@ def fluidframes_video_interpolate(
         end_timer = timer()
         processing_time = end_timer - start_timer
         global_processing_times_list.append(processing_time)
-    # Step 5. Save/copy/cleanup
-    if not selected_keep_frames:
-        if os_path_exists(target_directory):
-            remove_directory(target_directory)
+    # Step 5. Save/copy/cleanup - cleanup handled at end of process
     # Step 6. Video encoding
     write_process_status(
         process_status_q, f"{file_number}. Encoding frame-generated video")
     video_encoding(
-        process_status_q, video_path, video_output_path, total_frames_paths, frame_gen_factor, slowmotion, selected_video_codec)
+        process_status_q, video_path, video_output_path, total_frames_paths, selected_video_codec)
     copy_file_metadata(video_path, video_output_path)
-    # Removed invalid global declarations (because they are parameters)
 
-    if user_input_checks():
-        info_message.set("Loading")
-
-        cpu_number = int(os_cpu_count()/2)
-
-        print("=" * 50)
-        print("> Starting upscale:")
-        print(f"  Files to upscale: {len(selected_file_list)}")
-        print(f"  Output path: {(selected_output_path.get())}")
-        print(f"  Selected AI model: {selected_AI_model}")
-        print(f"  Selected GPU: {selected_gpu}")
-        print(f"  AI multithreading: {selected_AI_multithreading}")
-        print(f"  Blending factor: {selected_blending_factor}")
-        print(f"  Selected image output extension: {selected_image_extension}")
-        print(f"  Selected video output extension: {selected_video_extension}")
-        print(f"  Selected video output codec: {selected_video_codec}")
-        print(
-            f"  Tiles resolution for selected GPU VRAM: {tiles_resolution}x{tiles_resolution}px")
-        print(f"  Input resize factor: {int(input_resize_factor * 100)}%")
-        print(f"  Output resize factor: {int(output_resize_factor * 100)}%")
-        print(f"  Cpu number: {cpu_number}")
-        print(f"  Save frames: {selected_keep_frames}")
-        print("=" * 50)
-
-        place_stop_button()
-
-        process_upscale_orchestrator = Process(
-            target=upscale_orchestrator,
-            args=(
-                process_status_q,
-                selected_file_list,
-                selected_output_path.get(),
-                selected_AI_model,
-                selected_AI_multithreading,
-                input_resize_factor,
-                output_resize_factor,
-                selected_gpu,
-                tiles_resolution,
-                selected_blending_factor,
-                selected_keep_frames,
-                selected_image_extension,
-                selected_video_extension,
-                selected_video_codec,
-                cpu_number,
-            )
-        )
-        process_upscale_orchestrator.start()
-
-        thread_wait = Thread(target=check_upscale_steps)
-        thread_wait.start()
-
+    # Step 7. Cleanup after video interpolation processing
+    if not selected_keep_frames and os_path_exists(target_directory):
+        try:
+            remove_directory(target_directory)
+        except Exception as e:
+            print(
+                f"Warning: Could not remove directory {target_directory}: {str(e)}")
 
 # ORCHESTRATOR
+
 
 def upscale_orchestrator(
         process_status_q: multiprocessing_Queue,
@@ -2267,7 +2402,7 @@ def upscale_video(
 
         try:
             average_processing_time = numpy_mean(global_processing_times_list)
-        except:
+        except Exception:
             average_processing_time = 0.0
 
         remaining_frames = frames_to_upscale_counter
@@ -2455,9 +2590,9 @@ def upscale_video(
 
     # 1.Preparation
     target_directory = prepare_output_video_directory_name(
-        video_path, selected_output_path, selected_AI_model, input_resize_factor, output_resize_factor, selected_blending_factor)
+        video_path, selected_output_path, selected_AI_model, 1, False, input_resize_factor, output_resize_factor)
     video_output_path = prepare_output_video_filename(video_path, selected_output_path, selected_AI_model,
-                                                      input_resize_factor, output_resize_factor, selected_video_extension, selected_blending_factor)
+                                                      1, False, input_resize_factor, output_resize_factor, selected_video_extension)
 
     # 2. Resume upscaling OR Extract video frames
     video_upscale_continue = check_video_upscaling_resume(
@@ -2471,7 +2606,7 @@ def upscale_video(
         write_process_status(
             process_status_q, f"{file_number}. Extracting video frames")
         extracted_frames_paths = extract_video_frames(
-            process_status_q, file_number, target_directory, video_path, cpu_number, half_frames=False)
+            process_status_q, file_number, target_directory, AI_upscale_instance_list[0], video_path, cpu_number, ".jpg")
 
     upscaled_frame_paths = [prepare_output_video_frame_filename(
         frame_path, selected_AI_model, input_resize_factor, output_resize_factor, selected_blending_factor) for frame_path in extracted_frames_paths]
@@ -2503,7 +2638,11 @@ def upscale_video(
     # 7. Delete frames folder
     if selected_keep_frames == False:
         if os_path_exists(target_directory):
-            remove_directory(target_directory)
+            try:
+                remove_directory(target_directory)
+            except Exception as e:
+                print(
+                    f"Warning: Could not remove directory {target_directory}: {str(e)}")
 
 
 # GUI utils function ---------------------------
@@ -2523,7 +2662,7 @@ def user_input_checks() -> bool:
     # Selected files
     try:
         selected_file_list = file_widget.get_selected_file_list()
-    except:
+    except Exception:
         info_message.set("Please select a file")
         return False
 
@@ -2540,7 +2679,7 @@ def user_input_checks() -> bool:
     try:
         input_resize_factor = int(
             float(str(selected_input_resize_factor.get())))
-    except:
+    except (ValueError, TypeError):
         info_message.set("Input resolution % must be a number")
         return False
 
@@ -2554,7 +2693,7 @@ def user_input_checks() -> bool:
     try:
         output_resize_factor = int(
             float(str(selected_output_resize_factor.get())))
-    except:
+    except (ValueError, TypeError):
         info_message.set("Output resolution % must be a number")
         return False
 
@@ -2564,22 +2703,25 @@ def user_input_checks() -> bool:
         info_message.set("Output resolution % must be a value > 0")
         return False
 
-    # VRAM limiter
+# VRAM limiter
     try:
-        tiles_resolution = 100 * int(float(str(selected_VRAM_limiter.get())))
-    except:
-        info_message.set("GPU VRAM value must be a number")
-        return False
+        vram_gb = int(float(str(selected_VRAM_limiter.get())))
+        if vram_gb <= 0:
+            info_message.set("GPU VRAM value must be a value > 0")
+            return False
 
-    if tiles_resolution > 0:
         vram_multiplier = VRAM_model_usage.get(selected_AI_model)
         if vram_multiplier is None:
             vram_multiplier = 1  # Default for interpolation models or unknowns
-        selected_vram = (vram_multiplier *
-                         int(float(str(selected_VRAM_limiter.get()))))
-        tiles_resolution = int(selected_vram * 100)
-    else:
-        info_message.set("GPU VRAM value must be a value > 0")
+
+        # El cálculo original parece confuso. Esta es una interpretación más clara:
+        # Se asume que el VRAM Limiter es la VRAM en GB y se multiplica por un factor y 100.
+        # Si el modelo 'RealESR_Gx4' (factor 2.2) y VRAM es 4GB, tiles_resolution sería ~880.
+        selected_vram_factor = vram_multiplier * vram_gb
+        tiles_resolution = int(selected_vram_factor * 100)
+
+    except (ValueError, TypeError):
+        info_message.set("GPU VRAM value must be a number")
         return False
 
     return True
@@ -2694,7 +2836,7 @@ def clear_dynamic_menus() -> None:
             widget_info = widget.place_info()
             if widget_info and float(widget_info.get('rely', 0)) == row2:
                 widget.place_forget()
-    except:
+    except Exception:
         pass
 
 
@@ -3507,7 +3649,7 @@ class SplashScreen(CTkToplevel):
             )
             has_banner = True
         except Exception as e:
-            print(f"Could not load splash banner: {e}")
+            print(f"[SPLASH] Could not load splash banner: {e}")
             has_banner = False
             window_height = 200  # Smaller height if no banner
 
@@ -3650,6 +3792,21 @@ if __name__ == "__main__":
                                 "Medium": 0.5, "High": 0.7}.get(default_blending)
 
     selected_frame_generation_option = "OFF"  # Initialize frame generation option
+
+    # Initialize global variables that are used in video processing
+    global stop_thread_flag
+    global global_processing_times_list
+    global global_upscaled_frames_paths
+    global global_can_i_update_status
+    global output_resize_factor
+    global tiles_resolution
+
+    stop_thread_flag = Event()
+    global_processing_times_list = []
+    global_upscaled_frames_paths = []
+    global_can_i_update_status = False
+    output_resize_factor = 1.0
+    tiles_resolution = 800  # Default value
 
     selected_input_resize_factor.set(default_input_resize_factor)
     selected_output_resize_factor.set(default_output_resize_factor)

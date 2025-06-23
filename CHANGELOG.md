@@ -1,3 +1,52 @@
+# 📝 CHANGELOG — Warlock-Studio v2.1
+
+**Release Date:** June 23, 2025
+
+---
+
+## 🚀 Major Enhancements & Stability Overhaul
+
+This version focuses on massive improvements to stability, error handling, and code robustness, ensuring a smoother and more reliable user experience.
+
+- 🛡️ **Robust Error Handling:**
+
+  - Implemented comprehensive `try...except` blocks for AI model loading (`AI_upscale` & `AI_interpolation`) to prevent crashes if a model file is missing or corrupt.
+  - Enhanced video frame extraction (`extract_video_frames`) with checks for file existence, successful video opening, and valid frame counts.
+  - Made video encoding (`video_encoding`) more resilient by handling FFmpeg subprocess errors gracefully and providing clearer error messages.
+  - Added a fallback for audio passthrough failures; the application now saves the video without audio instead of failing the entire process.
+
+- 🧵 **Safe Thread & Process Management:**
+
+  - Replaced the unsafe thread-stopping mechanism (which intentionally raised an error) with a modern, safe `threading.Event` (`stop_thread_flag`).
+  - Ensures clean and predictable termination of background monitoring threads.
+
+- ⚙️ **Resilient Core Processing:**
+  - Added pre-flight checks to the metadata copy function (`copy_file_metadata`) to ensure `exiftool.exe` and source/destination files exist before execution.
+
+---
+
+## 🎨 UI/UX Refinements
+
+- 🎨 **Refined Color Palette:**
+  - Updated the main application theme for a new aesthetic.
+  - App Name Color (`app_name_color`) changed to a golden yellow (`#ECD125`).
+  - Widget Background Color (`widget_background_color`) changed to a deep red (`#960707`).
+  - Default active button border color updated to red to match the new theme.
+
+---
+
+## 🔧 Code & Maintainability Improvements
+
+- 🧹 **Improved Code Organization:**
+
+  - Refactored file extension lists into clearer, separate categories: `supported_image_extensions` and `supported_video_extensions`.
+
+- 📦 **Dependency and Initialization:**
+  - Added new standard library imports (`shutil.move`, `subprocess.CalledProcessError`, `threading.Event`) to support the stability enhancements.
+  - Ensured safer initialization of global variables at startup.
+
+---
+
 # 📝 **CHANGELOG — Warlock-Studio v2.0**
 
 **Release Date:** June 6, 2025
@@ -13,7 +62,6 @@
   - Enables temporal upscaling of video via AI.
 
 - 🎥 **RIFE Models Integration:**
-
   - Added `RIFE` and `RIFE_Lite` to supported models.
   - Interpolation model list introduced: `RIFE_models_list`.
   - Extended `AI_models_list` to include all model types: SRVGGNetCompact, BSRGAN, IRCNN, and RIFE.
@@ -45,7 +93,6 @@
   - Ensures broader compatibility with input formats.
 
 - 🚀 **Improved GPU Execution Support:**
-
   - Enhanced logic for selecting GPU via `DirectML`.
   - Supports up to 4 GPUs (`Auto`, `GPU 1` to `GPU 4`) via `provider_options`.
 
@@ -63,7 +110,6 @@
   - Support for dynamic multi-frame generation with tree-based logic (e.g. A-B-C from D).
 
 - 📊 **Improved Numeric Precision and Postprocessing:**
-
   - Improved handling of floating-point range and normalization.
   - Enhanced logic for RGB/RGBA conversion and alpha blending.
 
@@ -76,7 +122,6 @@
   - MessageBox window can now be resized by the user (`resizable(True, True)`).
 
 - 👌 **Improved Dialog Formatting:**
-
   - Better spacing and ordering of message elements.
   - Cleaner font use and default value display.
 

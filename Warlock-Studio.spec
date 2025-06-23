@@ -1,16 +1,16 @@
-# -*- mode: python ; coding: utf-8 -*-
+#  -*- mode: python ; coding: utf-8 -*-
 
 
 a = Analysis(
     ['Warlock-Studio.py'],
     pathex=[],
     binaries=[],
-    datas=[('AI-onnx', 'AI-onnx'),('rsc', 'rsc'), ('Assets', 'Assets')],
+    datas=[('AI-onnx', 'AI-onnx'), ('Assets', 'Assets'), ('rsc', 'rsc')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['nltk', 'scipy', 'scipy.stats', 'scipy.stats.distributions', 'scipy.stats._distn_infrastructure'],
     noarchive=False,
     optimize=0,
 )

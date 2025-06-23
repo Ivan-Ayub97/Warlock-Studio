@@ -1,7 +1,7 @@
 [Setup]
 ; Basic installation configuration
-AppName=Warlock-Studio
-AppVersion=2.0
+AppName=Warlock-Studio 2.1
+AppVersion=2.1
 DefaultDirName={pf}\Warlock-Studio  
 DefaultGroupName=Warlock-Studio  
 OutputDir=.\Output
@@ -49,11 +49,11 @@ begin
   MsgBox('© 2025 Iván Eduardo Chavez Ayub'#13#10 +
          'Licensed under the MIT License. Additional conditions are described in the NOTICE file.'#13#10#13#10 +
 
-         'This software, Warlock-Studio, is distributed under the MIT License and extended with an additional NOTICE file.'#13#10 +
+         'This software, Warlock-Studio 2.1, is distributed under the MIT License and extended with an additional NOTICE file.'#13#10 +
          'By installing or using this software, you agree to comply with both the MIT License and the additional terms specified in the NOTICE document.'#13#10#13#10 +
 
          '*** PROJECT OVERVIEW ***'#13#10 +
-         'Warlock-Studio unifies the MedIA-Wizard and MedIA-Witch tools. It is developed by Iván Eduardo Chavez Ayub ("Ivan-Ayub97"), and is inspired by tools such as QualityScaler, FluidFrames, and RealScaler (originally developed by Djdefrag).'#13#10 +
+         'Warlock-Studio unifies the MedIA-Wizard and MedIA-Witch tools. It is developed by Iván Eduardo Chavez Ayub (@Ivan-Ayub97 on GitHub), and is based on tools such as QualityScaler, FluidFrames, and RealScaler originally developed by Djdefrag (@Djdefrag on GitHub).'#13#10 +
          'Its main goal is to improve image resolution using AI-powered models with an intuitive interface.'#13#10#13#10 +
 
          '*** INTEGRATED TECHNOLOGIES & LICENSES ***'#13#10 +
