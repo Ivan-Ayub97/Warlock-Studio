@@ -165,7 +165,7 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 ## How to Use
 
 1. **Run as Administrator** (optional but recommended for optimal performance).
-2. **Load your media**: drag and drop images, videos, or folders directly into the app.
+2. **Load your media**: select your images and videos into the app.
 3. **Configure settings**:
 
    - Select an **AI Model** (e.g., Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, RIFE)
