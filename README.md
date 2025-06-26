@@ -33,9 +33,6 @@ You can download the .exe file (latest version **2.1**) from any of this platfor
 
 ---
 
-¿Quieres que también incluya una versión en español más pulida para acompañarla?
-
-
 It features integration with state-of-the-art models for upscaling, restoration, and frame interpolation—all within an intuitive and streamlined user interface. Warlock-Studio delivers **professional-grade media processing** capabilities to everyone.
 
 Version 2.1 introduces major improvements, including:
