@@ -29,9 +29,7 @@ You can download the .exe file (latest version **2.1**) from any of this platfor
 
 ### AI-Powered Media Enhancement & Upscaling Suite 2.1
 
-**Warlock-Studio** is a powerful **open-source desktop application** inspired by the remarkable work of Djdefrag, integrating tools like **QualityScaler**, **RealScaler**, and **FluidFrames**. Built with performance and usability in mind, Warlock-Studio brings together the best of these technologies into a unified and user-friendly interface.
-
-Credit and special thanks to [Djdefrag](https://github.com/Djdefrag) for his outstanding contributions.
+**Warlock-Studio** is a powerful **open-source desktop application** inspired by the remarkable work of [Djdefrag](https://github.com/Djdefrag), integrating tools like **QualityScaler**, **RealScaler**, and **FluidFrames**. Built with performance and usability in mind, Warlock-Studio brings together the best of these technologies into a unified and user-friendly interface.
 
 ---
 
