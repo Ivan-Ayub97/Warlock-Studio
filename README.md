@@ -1,6 +1,6 @@
 ### 🚀Get Warlock-Studio Installer
 
-You can download the latest version **2.1** from any of this platforms:
+You can download the .exe file (latest version **2.1**) from any of this platforms:
 
 <table>
   <tr>
