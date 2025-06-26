@@ -29,7 +29,14 @@ You can download the .exe file (latest version **2.1**) from any of this platfor
 
 ### AI-Powered Media Enhancement & Upscaling Suite 2.1
 
-**Warlock-Studio** is an **open-source desktop application** that consolidates the power of [**MedIA-Witch**](https://github.com/Ivan-Ayub97/MedIA-Witch.git) and [**MedIA-Wizard**](https://github.com/Ivan-Ayub97/MedIA-Wizard.git) into a single, seamless platform for AI-driven image and video enhancement.
+**Warlock-Studio** is a powerful **open-source desktop application** inspired by the remarkable work of Djdefrag, integrating tools like **QualityScaler**, **RealScaler**, and **FluidFrames**. Built with performance and usability in mind, Warlock-Studio brings together the best of these technologies into a unified and user-friendly interface.
+
+Credit and special thanks to [Djdefrag](https://github.com/Djdefrag) for his outstanding contributions.
+
+---
+
+¿Quieres que también incluya una versión en español más pulida para acompañarla?
+
 
 It features integration with state-of-the-art models for upscaling, restoration, and frame interpolation—all within an intuitive and streamlined user interface. Warlock-Studio delivers **professional-grade media processing** capabilities to everyone.
 
