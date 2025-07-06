@@ -97,6 +97,7 @@ Warlock-Studio/
       ├──RealSRx4_Anime_fp16.onnx
       ├──RIFE_fp32.onnx
       └──RIFE_Lite_fp32.onnx
+│
 ├──Assets/
    │
    └──├──clear_icon.png
