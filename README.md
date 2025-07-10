@@ -121,7 +121,6 @@ Warlock-Studio/
       ├──google_drive-logo.png
       ├──Installation_window.png
       └──Installation_window2.png
-│
 ├──Manual/
    │
    └──├──Manual_EN.pdf
