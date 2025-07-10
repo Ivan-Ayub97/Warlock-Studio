@@ -14,7 +14,6 @@ You can download the installer (latest version **2.2**) from any of this platfor
       </a>
     </td>
     <td align="center">
-    <td align="center">
       <a href="https://drive.google.com/file/d/1nqlBuxZKsk3FX_nWUqUnDUKUTfMSfjB4/view?usp=sharing">
         <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
       </a>
