@@ -1,4 +1,4 @@
-#  -*- mode: python ; coding: utf-8 -*-
+# -*- mode: python ; coding: utf-8 -*-
 
 
 a = Analysis(
@@ -10,7 +10,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['nltk', 'scipy', 'scipy.stats', 'scipy.stats.distributions', 'scipy.stats._distn_infrastructure'],
+    excludes=[],
     noarchive=False,
     optimize=0,
 )

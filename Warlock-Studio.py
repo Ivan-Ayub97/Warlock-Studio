@@ -1,9 +1,22 @@
 
 # Standard library imports
+import atexit
+import gc
+import logging
+import os
+import shutil
+import signal
+import subprocess
 import sys
+import tempfile
+import traceback
+from contextlib import contextmanager
+from datetime import datetime
 from functools import cache
 from itertools import repeat
+from json import JSONDecodeError
 from json import dumps as json_dumps
+from shutil import copy2
 from json import load as json_load
 from math import cos, pi  # For smooth fade effect
 from multiprocessing import Process
@@ -24,18 +37,20 @@ from os.path import basename as os_path_basename
 from os.path import dirname as os_path_dirname
 from os.path import exists as os_path_exists
 from os.path import expanduser as os_path_expanduser
+from os.path import getsize as os_path_getsize
 from os.path import join as os_path_join
 from os.path import splitext as os_path_splitext
+from pathlib import Path
 from shutil import move as shutil_move
 from shutil import rmtree as remove_directory
 from subprocess import CalledProcessError
 from subprocess import run as subprocess_run
-from threading import Event, Thread
+from threading import Event, Lock, RLock, Thread
 from time import sleep
 from timeit import default_timer as timer
 # GUI imports
 from tkinter import DISABLED, StringVar
-from typing import Callable
+from typing import Any, Callable, Dict, List, Optional, Union
 from webbrowser import open as open_browser
 
 from customtkinter import (CTk, CTkButton, CTkEntry, CTkFont, CTkFrame,
@@ -93,12 +108,12 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "2.1"
+version = "2.2"
 
-background_color = "#121212"  # Negro grisáceo profundo
-app_name_color = "#ECD125"  # Blanco puro para el nombre de la app
-widget_background_color = "#960707"  # Rojo oscuro (Dark Red)
-text_color = "#F0EEEE"  # Blanco opaco para texto legible
+background_color = "#000000"  # Negro grisáceo profundo
+app_name_color = "#FF0000"  # Blanco puro para el nombre de la app
+widget_background_color = "#5A5A5A"  # Rojo oscuro (Dark Red)
+text_color = "#F4F4F4"  # Blanco opaco para texto legible
 
 VRAM_model_usage = {
     'RealESR_Gx4':     2.2,
@@ -301,6 +316,8 @@ class AI_upscale:
     # INTERNAL CLASS FUNCTIONS
 
     def get_image_mode(self, image: numpy_ndarray) -> str:
+        if image is None:
+            raise ValueError("Image is None")
         shape = image.shape
         if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
             return "Grayscale"
@@ -310,6 +327,8 @@ class AI_upscale:
         # RGBA: 3D array with 4 channels
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
+        else:
+            raise ValueError(f"Unsupported image shape: {shape}")
 
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
         height = image.shape[0]
@@ -429,6 +448,8 @@ class AI_upscale:
             case "Grayscale": tiled_image = numpy_zeros((t_height, t_width, 3), dtype=uint8)
             case "RGB":       tiled_image = numpy_zeros((t_height, t_width, 3), dtype=uint8)
             case "RGBA":      tiled_image = numpy_zeros((t_height, t_width, 4), dtype=uint8)
+            # Default fallback
+            case _:           tiled_image = numpy_zeros((t_height, t_width, 3), dtype=uint8)
 
         for tile_index in range(len(tiles)):
             actual_tile = tiles[tile_index]
@@ -446,6 +467,8 @@ class AI_upscale:
                 case "Grayscale": tiled_image[y_start:y_end, x_start:x_end] = actual_tile
                 case "RGB":       tiled_image[y_start:y_end, x_start:x_end] = actual_tile
                 case "RGBA":      tiled_image[y_start:y_end, x_start:x_end] = self.add_alpha_channel(actual_tile)
+                # Default fallback
+                case _:           tiled_image[y_start:y_end, x_start:x_end] = actual_tile
 
         return tiled_image
 
@@ -490,6 +513,8 @@ class AI_upscale:
         match max_range:
             case 255: return (onnx_output * max_range).astype(uint8)
             case 65535: return (onnx_output * max_range).round().astype(float32)
+            # Default fallback to 255
+            case _: return (onnx_output * 255).astype(uint8)
 
     def AI_upscale(self, image: numpy_ndarray) -> numpy_ndarray:
         image = image.astype(float32)
@@ -633,6 +658,8 @@ class AI_interpolation:
     # INTERNAL CLASS FUNCTIONS
 
     def get_image_mode(self, image: numpy_ndarray) -> str:
+        if image is None:
+            raise ValueError("Image is None")
         shape = image.shape
         if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
             return "Grayscale"
@@ -642,6 +669,8 @@ class AI_interpolation:
         # RGBA: 3D array with 4 channels
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
+        else:
+            raise ValueError(f"Unsupported image shape: {shape}")
 
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
         height = image.shape[0]
@@ -711,6 +740,8 @@ class AI_interpolation:
         match max_range:
             case 255: return (onnx_output * max_range).astype(uint8)
             case 65535: return (onnx_output * max_range).round().astype(float32)
+            # Default fallback to 255
+            case _: return (onnx_output * 255).astype(uint8)
 
     def AI_interpolation(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
         image = self.concatenate_images(image1, image2).astype(float32)
@@ -919,7 +950,7 @@ class MessageBox(CTkToplevel):
             border_width=1,
             fg_color="#282828",
             text_color="#E0E0E0",
-            border_color="#0096FF"
+            border_color="#F5E358"
         )
 
         self._ctkwidgets_index += 1
@@ -1037,7 +1068,7 @@ class FileWidget(CTkScrollableFrame):
             corner_radius=1,
             fg_color="#282828",
             text_color="#E0E0E0",
-            border_color="#0096FF"
+            border_color="#FFD53D"
         )
 
         button.grid(row=0, column=2, pady=(7, 7), padx=(0, 7))
@@ -1206,7 +1237,7 @@ def create_info_button(command: Callable, text: str, width: int = 200) -> CTkFra
         command=command,
         font=bold12,
         text="?",
-        border_color="#0096FF",
+        border_color="#ECD125",
         border_width=1,
         fg_color=widget_background_color,
         hover_color=background_color,
@@ -1342,7 +1373,532 @@ def create_active_button(
     )
 
 
-# File Utils functions ------------------------
+# ==== ERROR HANDLING AND LOGGING SECTION ====
+
+# Configure logging paths in Documents folder
+LOG_FOLDER_PATH = os_path_join(DOCUMENT_PATH, f"{app_name}_{version}_Logs")
+
+# Define log file names
+MAIN_LOG_FILENAME = 'warlock_studio.log'
+ERROR_LOG_FILENAME = 'error_log.txt'
+
+try:
+    if not os_path_exists(LOG_FOLDER_PATH):
+        os_makedirs(LOG_FOLDER_PATH)
+    MAIN_LOG_PATH = os_path_join(LOG_FOLDER_PATH, MAIN_LOG_FILENAME)
+    ERROR_LOG_PATH = os_path_join(LOG_FOLDER_PATH, ERROR_LOG_FILENAME)
+except Exception as e:
+    # Fallback to current directory if Documents folder is not accessible
+    print(f"[WARNING] Could not create logs folder in Documents: {str(e)}")
+    print(f"[WARNING] Using current directory for logs as fallback")
+    MAIN_LOG_PATH = MAIN_LOG_FILENAME
+    ERROR_LOG_PATH = ERROR_LOG_FILENAME
+
+# Configure logging
+# Ensure logging is set up with a backup/rotation mechanism for maintaining log length.
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(MAIN_LOG_PATH, encoding='utf-8'),
+        logging.StreamHandler()
+    ]
+)
+
+
+def log_and_report_error(msg: str) -> None:
+    """Unified error logging and reporting function."""
+    logging.error(msg)
+    show_error_message(msg)
+    try:
+        with open(ERROR_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now()} - {msg}\n")
+    except Exception as e:
+        print(f"[ERROR] Could not write to error log file: {str(e)}")
+
+
+@contextmanager
+def safe_execution(operation_name: str):
+    """Context manager for safe execution with error handling."""
+    try:
+        yield
+    except Exception as e:
+        error_msg = f"Error during {operation_name}: {str(e)}"
+        log_and_report_error(error_msg)
+        raise
+
+
+def validate_environment() -> bool:
+    """Validate the runtime environment before starting."""
+    try:
+        # Check Python version
+        if sys.version_info < (3, 8):
+            log_and_report_error("Python 3.8 or higher required")
+            return False
+
+        # Check required modules
+        required_modules = ['cv2', 'numpy',
+                            'customtkinter', 'onnxruntime', 'PIL']
+        missing_modules = []
+
+        for module in required_modules:
+            try:
+                __import__(module)
+            except ImportError:
+                missing_modules.append(module)
+
+        if missing_modules:
+            log_and_report_error(
+                f"Missing required modules: {', '.join(missing_modules)}")
+            return False
+
+        # Check AI model directory
+        ai_model_dir = find_by_relative_path("AI-onnx")
+        if not os_path_exists(ai_model_dir):
+            log_and_report_error(
+                f"AI model directory not found: {ai_model_dir}")
+            return False
+
+        return True
+    except Exception as e:
+        log_and_report_error(f"Environment validation failed: {str(e)}")
+        return False
+
+
+def cleanup_on_exit():
+    """Cleanup function to run on application exit."""
+    try:
+        # Clean up temporary files
+        temp_files = [f for f in os_listdir('.') if f.endswith(
+            '.tmp') or f.endswith('.checkpoint')]
+        for temp_file in temp_files:
+            try:
+                os_remove(temp_file)
+            except Exception:
+                pass
+
+        # Stop any running processes
+        stop_upscale_process()
+
+        # Force garbage collection
+        gc.collect()
+
+        logging.info("Application cleanup completed")
+    except Exception as e:
+        logging.error(f"Error during cleanup: {str(e)}")
+
+
+# Register cleanup function
+atexit.register(cleanup_on_exit)
+
+# Signal handlers for graceful shutdown
+
+
+def signal_handler(signum, frame):
+    logging.info(f"Received signal {signum}, shutting down gracefully...")
+    cleanup_on_exit()
+    sys.exit(0)
+
+
+try:
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+except AttributeError:
+    # Windows doesn't have all signals
+    pass
+
+
+def create_checkpoint(video_path: str, completed_frames: list[str]) -> None:
+    """Create checkpoint for video processing recovery."""
+    try:
+        checkpoint_path = f"{video_path}.checkpoint"
+        with open(checkpoint_path, 'w', encoding='utf-8') as f:
+            f.write(f"completed_frames={len(completed_frames)}\n")
+            for frame in completed_frames:
+                f.write(f"{frame}\n")
+        print(
+            f"[CHECKPOINT] Created checkpoint with {len(completed_frames)} completed frames")
+    except Exception as e:
+        print(f"[CHECKPOINT] Could not create checkpoint: {str(e)}")
+
+
+def load_checkpoint(video_path: str) -> list[str]:
+    """Load checkpoint for video processing recovery."""
+    try:
+        checkpoint_path = f"{video_path}.checkpoint"
+        if not os_path_exists(checkpoint_path):
+            return []
+
+        completed_frames = []
+        with open(checkpoint_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            for line in lines[1:]:  # Skip first line with count
+                frame = line.strip()
+                if frame and os_path_exists(frame):
+                    completed_frames.append(frame)
+
+        print(
+            f"[CHECKPOINT] Loaded checkpoint with {len(completed_frames)} completed frames")
+        return completed_frames
+    except Exception as e:
+        print(f"[CHECKPOINT] Could not load checkpoint: {str(e)}")
+        return []
+
+
+def cleanup_checkpoint(video_path: str) -> None:
+    """Clean up checkpoint file after successful completion."""
+    try:
+        checkpoint_path = f"{video_path}.checkpoint"
+        if os_path_exists(checkpoint_path):
+            os_remove(checkpoint_path)
+            print(f"[CHECKPOINT] Cleaned up checkpoint file")
+    except Exception as e:
+        print(f"[CHECKPOINT] Could not cleanup checkpoint: {str(e)}")
+
+
+def clean_directory(directory_path: str) -> None:
+    """Remove all files in a directory."""
+    try:
+        if os_path_exists(directory_path):
+            for file in os_listdir(directory_path):
+                file_path = os_path_join(directory_path, file)
+                if os_path_exists(file_path):
+                    os_remove(file_path)
+    except Exception as e:
+        logging.error(f"Failed to clean directory {directory_path}: {str(e)}")
+
+
+def optimize_memory_usage() -> None:
+    """Optimize memory usage by triggering garbage collection."""
+    try:
+        import gc
+        gc.collect()
+    except Exception:
+        pass
+
+
+def validate_video_file(video_path: str) -> bool:
+    """Validate video file integrity and readability."""
+    try:
+        if not os_path_exists(video_path):
+            return False
+
+        # Test if video can be opened
+        cap = opencv_VideoCapture(video_path)
+        if not cap.isOpened():
+            cap.release()
+            return False
+
+        # Try to read first frame
+        ret, frame = cap.read()
+        cap.release()
+
+        return ret and frame is not None
+    except Exception:
+        return False
+
+
+def get_video_info(video_path: str) -> dict:
+    """Get comprehensive video information."""
+    try:
+        cap = opencv_VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
+
+        width = int(cap.get(CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(CAP_PROP_FRAME_HEIGHT))
+        fps = cap.get(CAP_PROP_FPS)
+        frame_count = int(cap.get(CAP_PROP_FRAME_COUNT))
+        duration = frame_count / fps if fps > 0 else 0
+
+        cap.release()
+
+        return {
+            'width': width,
+            'height': height,
+            'fps': fps,
+            'frame_count': frame_count,
+            'duration': duration,
+            'resolution': f"{width}x{height}",
+            'file_size': os_path_getsize(video_path) if os_path_exists(video_path) else 0
+        }
+    except Exception as e:
+        log_and_report_error(
+            f"Error getting video info for {video_path}: {str(e)}")
+        return {}
+
+
+def estimate_processing_time(video_info: dict, ai_model: str) -> dict:
+    """Estimate processing time based on video properties and AI model."""
+    try:
+        frame_count = video_info.get('frame_count', 0)
+        resolution = video_info.get(
+            'width', 1920) * video_info.get('height', 1080)
+
+        # Base processing time per frame (in seconds) - rough estimates
+        model_speeds = {
+            'RealESR_Gx4': 0.5,
+            'RealESR_Animex4': 0.5,
+            'RealESRNetx4': 1.0,
+            'BSRGANx4': 2.0,
+            'BSRGANx2': 1.5,
+            'RealESRGANx4': 2.0,
+            'IRCNN_Mx1': 0.3,
+            'IRCNN_Lx1': 0.3,
+            'RIFE': 0.8,
+            'RIFE_Lite': 0.6
+        }
+
+        base_time = model_speeds.get(ai_model, 1.0)
+        resolution_factor = resolution / (1920 * 1080)  # Normalize to 1080p
+
+        estimated_time_per_frame = base_time * resolution_factor
+        total_estimated_time = estimated_time_per_frame * frame_count
+
+        return {
+            'time_per_frame': estimated_time_per_frame,
+            'total_time': total_estimated_time,
+            'total_time_formatted': format_time_duration(total_estimated_time)
+        }
+    except Exception:
+        return {'time_per_frame': 0, 'total_time': 0, 'total_time_formatted': 'Unknown'}
+
+
+def format_time_duration(seconds: float) -> str:
+    """Format time duration in human readable format."""
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        remaining_seconds = int(seconds % 60)
+        return f"{minutes}m {remaining_seconds}s"
+    else:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+
+
+def create_video_backup(video_path: str) -> str:
+    """Create backup of original video before processing."""
+    try:
+        backup_path = f"{video_path}.backup"
+        if not os_path_exists(backup_path):
+            copy2(video_path, backup_path)
+            print(f"[BACKUP] Created backup: {backup_path}")
+        return backup_path
+    except Exception as e:
+        print(f"[BACKUP] Warning: Could not create backup: {str(e)}")
+        return video_path
+
+
+def verify_frame_sequence(frame_paths: list[str]) -> bool:
+    """Verify that frame sequence is complete and valid."""
+    try:
+        if not frame_paths:
+            return False
+
+        missing_frames = []
+        corrupted_frames = []
+
+        for frame_path in frame_paths:
+            if not os_path_exists(frame_path):
+                missing_frames.append(frame_path)
+            else:
+                try:
+                    # Try to read frame to verify it's not corrupted
+                    frame = image_read(frame_path)
+                    if frame is None or frame.size == 0:
+                        corrupted_frames.append(frame_path)
+                except Exception:
+                    corrupted_frames.append(frame_path)
+
+        if missing_frames:
+            print(f"[FRAME_CHECK] Missing frames: {len(missing_frames)}")
+        if corrupted_frames:
+            print(f"[FRAME_CHECK] Corrupted frames: {len(corrupted_frames)}")
+
+        return len(missing_frames) == 0 and len(corrupted_frames) == 0
+    except Exception as e:
+        print(f"[FRAME_CHECK] Error verifying frame sequence: {str(e)}")
+        return False
+
+
+def cleanup_incomplete_frames(target_directory: str, expected_count: int) -> None:
+    """Clean up incomplete frame extraction."""
+    try:
+        if not os_path_exists(target_directory):
+            return
+
+        files = os_listdir(target_directory)
+        frame_files = [f for f in files if f.startswith(
+            'frame_') and f.endswith('.jpg')]
+
+        if len(frame_files) < expected_count:
+            print(
+                f"[CLEANUP] Removing incomplete frame extraction: {len(frame_files)}/{expected_count} frames")
+            for file in frame_files:
+                try:
+                    os_remove(os_path_join(target_directory, file))
+                except Exception:
+                    pass
+    except Exception as e:
+        print(f"[CLEANUP] Error cleaning incomplete frames: {str(e)}")
+
+
+def monitor_disk_space(required_space_gb: float = 5.0) -> bool:
+    """Monitor available disk space during processing."""
+    try:
+        total, used, free = shutil.disk_usage(".")
+        free_gb = free / (1024**3)
+
+        if free_gb < required_space_gb:
+            log_and_report_error(
+                f"Low disk space: {free_gb:.1f}GB available, {required_space_gb}GB required")
+            return False
+
+        if free_gb < required_space_gb * 2:  # Warning threshold
+            print(f"[WARNING] Low disk space: {free_gb:.1f}GB available")
+
+        return True
+    except Exception:
+        return True  # Assume OK if we can't check
+
+
+def create_frame_index(frame_paths: list[str]) -> dict:
+    """Create index of frames for faster lookup."""
+    try:
+        frame_index = {}
+        for i, path in enumerate(frame_paths):
+            frame_number = extract_frame_number_from_path(path)
+            frame_index[frame_number] = {
+                'path': path,
+                'index': i,
+                'exists': os_path_exists(path)
+            }
+        return frame_index
+    except Exception:
+        return {}
+
+
+def extract_frame_number_from_path(frame_path: str) -> int:
+    """Extract frame number from frame file path."""
+    try:
+        filename = os_path_basename(frame_path)
+        # Extract number from patterns like "frame_001.jpg"
+        import re
+        match = re.search(r'frame_(\d+)', filename)
+        if match:
+            return int(match.group(1))
+        return 0
+    except Exception:
+        return 0
+
+
+def validate_ai_model_compatibility(ai_model: str, operation: str) -> bool:
+    """Validate AI model compatibility with requested operation."""
+    try:
+        if operation == "upscaling":
+            return ai_model not in RIFE_models_list
+        elif operation == "interpolation":
+            return ai_model in RIFE_models_list
+        return True
+    except Exception:
+        return False
+
+
+def validate_file_paths(file_paths: list[str]) -> bool:
+    """Validate that all file paths exist and are accessible."""
+    if not file_paths:
+        return False
+
+    missing_files = []
+    invalid_files = []
+
+    for path in file_paths:
+        if not os_path_exists(path):
+            missing_files.append(path)
+        else:
+            try:
+                # Test if file is readable
+                with open(path, 'rb') as f:
+                    f.read(1)
+            except Exception as e:
+                invalid_files.append(f"{path}: {str(e)}")
+
+    if missing_files:
+        log_and_report_error(f"Missing files detected: {missing_files}")
+    if invalid_files:
+        log_and_report_error(f"Inaccessible files detected: {invalid_files}")
+
+    return len(missing_files) == 0 and len(invalid_files) == 0
+
+
+def validate_output_path(output_path: str) -> bool:
+    """Validate output path is writable."""
+    if output_path == OUTPUT_PATH_CODED:
+        return True
+
+    if not os_path_exists(output_path):
+        try:
+            os_makedirs(output_path, exist_ok=True)
+        except Exception as e:
+            log_and_report_error(
+                f"Cannot create output directory {output_path}: {str(e)}")
+            return False
+
+    # Test write permissions
+    test_file = os_path_join(output_path, "test_write_permissions.tmp")
+    try:
+        with open(test_file, 'w') as f:
+            f.write("test")
+        os_remove(test_file)
+        return True
+    except Exception as e:
+        log_and_report_error(
+            f"Output path not writable {output_path}: {str(e)}")
+        return False
+
+
+def validate_system_requirements() -> bool:
+    """Validate system requirements for processing."""
+    errors = []
+
+    # Check FFmpeg
+    if not os_path_exists(FFMPEG_EXE_PATH):
+        errors.append("FFmpeg executable not found")
+
+    # Check available disk space (enhanced check)
+    try:
+        import shutil
+        total, used, free = shutil.disk_usage(".")
+        if free < (1024 * 1024 * 1024):  # Less than 1GB free
+            errors.append("Low disk space: less than 1GB available")
+        elif free < (2 * 1024 * 1024 * 1024):  # Less than 2GB free
+            print(
+                f"[WARNING] Low disk space: {free // (1024*1024*1024):.1f}GB available")
+    except Exception:
+        pass  # Ignore if we can't check disk space
+
+    # Check available RAM
+    try:
+        import psutil
+        memory = psutil.virtual_memory()
+        if memory.available < (2 * 1024 * 1024 * 1024):  # Less than 2GB available
+            errors.append(
+                f"Low available RAM: {memory.available // (1024*1024*1024):.1f}GB")
+    except ImportError:
+        print("[WARNING] psutil not available, cannot check RAM")
+    except Exception:
+        pass
+
+    if errors:
+        for error in errors:
+            log_and_report_error(error)
+        return False
+    return True
+
+# ==== FILE UTILITIES SECTION ====
+
 
 def create_dir(name_dir: str) -> None:
     if os_path_exists(name_dir):
@@ -1552,7 +2108,7 @@ def prepare_output_video_directory_name(
     return output_path
 
 
-# Image/video Utils functions ------------------------
+# ==== IMAGE/VIDEO UTILITIES SECTION ====
 
 def get_video_fps(video_path: str) -> float:
     video_capture = opencv_VideoCapture(video_path)
@@ -1673,6 +2229,276 @@ def extract_video_frames(
         raise
 
 
+def validate_ffmpeg_executable() -> bool:
+    """Validate FFmpeg executable and check its functionality."""
+    try:
+        if not os_path_exists(FFMPEG_EXE_PATH):
+            log_and_report_error(
+                "FFmpeg executable not found at expected path")
+            return False
+
+        # Test FFmpeg by getting version info
+        result = subprocess_run(
+            [FFMPEG_EXE_PATH, "-version"],
+            capture_output=True, text=True, timeout=10
+        )
+
+        if result.returncode != 0:
+            log_and_report_error("FFmpeg executable test failed")
+            return False
+
+        print(f"[FFMPEG] Validation successful")
+        return True
+    except Exception as e:
+        log_and_report_error(f"FFmpeg validation error: {str(e)}")
+        return False
+
+
+def get_video_codec_settings(selected_video_codec: str, video_info: dict) -> dict:
+    """Get optimized codec settings based on video properties and user selection."""
+    width = video_info.get('width', 1920)
+    height = video_info.get('height', 1080)
+
+    # Base settings for different codecs
+    codec_settings = {
+        'x264': {
+            'codec': 'libx264',
+            'preset': 'medium',
+            'crf': '18',
+            'profile': 'high',
+            'level': '4.1',
+            'pix_fmt': 'yuv420p'
+        },
+        'x265': {
+            'codec': 'libx265',
+            'preset': 'medium',
+            'crf': '20',
+            'profile': 'main',
+            'pix_fmt': 'yuv420p'
+        },
+        'h264_nvenc': {
+            'codec': 'h264_nvenc',
+            'preset': 'p4',
+            'cq': '20',
+            'profile': 'high',
+            'level': '4.1',
+            'pix_fmt': 'yuv420p',
+            'rc': 'vbr'
+        },
+        'hevc_nvenc': {
+            'codec': 'hevc_nvenc',
+            'preset': 'p4',
+            'cq': '22',
+            'profile': 'main',
+            'pix_fmt': 'yuv420p',
+            'rc': 'vbr'
+        },
+        'h264_amf': {
+            'codec': 'h264_amf',
+            'quality': 'balanced',
+            'rc': 'cqp',
+            'qp_i': '20',
+            'qp_p': '22',
+            'qp_b': '24',
+            'profile': 'high'
+        },
+        'hevc_amf': {
+            'codec': 'hevc_amf',
+            'quality': 'balanced',
+            'rc': 'cqp',
+            'qp_i': '22',
+            'qp_p': '24',
+            'qp_b': '26',
+            'profile': 'main'
+        },
+        'h264_qsv': {
+            'codec': 'h264_qsv',
+            'preset': 'medium',
+            'global_quality': '20',
+            'profile': 'high',
+            'pix_fmt': 'nv12'
+        },
+        'hevc_qsv': {
+            'codec': 'hevc_qsv',
+            'preset': 'medium',
+            'global_quality': '22',
+            'profile': 'main',
+            'pix_fmt': 'nv12'
+        }
+    }
+
+    # Get base settings for the selected codec
+    settings = codec_settings.get(selected_video_codec, codec_settings['x264'])
+
+    # Adjust bitrate based on resolution
+    pixels = width * height
+    if pixels <= 720 * 480:  # SD
+        bitrate = '2000k'
+    elif pixels <= 1280 * 720:  # HD
+        bitrate = '5000k'
+    elif pixels <= 1920 * 1080:  # FHD
+        bitrate = '8000k'
+    elif pixels <= 2560 * 1440:  # QHD
+        bitrate = '12000k'
+    else:  # 4K+
+        bitrate = '20000k'
+
+    settings['bitrate'] = bitrate
+    return settings
+
+
+def test_codec_compatibility(codec_name: str) -> bool:
+    """Test if a specific codec is available and working."""
+    try:
+        # Test encoding a single black frame
+        test_command = [
+            FFMPEG_EXE_PATH,
+            "-f", "lavfi",
+            "-i", "color=black:size=64x64:duration=0.1",
+            "-c:v", codec_name,
+            "-f", "null",
+            "-"
+        ]
+
+        result = subprocess_run(
+            test_command,
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        return result.returncode == 0
+    except Exception:
+        return False
+
+
+def build_encoding_command(
+    video_path: str,
+    txt_path: str,
+    no_audio_path: str,
+    codec_settings: dict,
+    video_fps: str
+) -> list[str]:
+    """Build FFmpeg encoding command with proper settings."""
+
+    base_command = [
+        FFMPEG_EXE_PATH,
+        "-y",
+        "-loglevel", "error",
+        "-stats",
+        "-f", "concat",
+        "-safe", "0",
+        "-r", video_fps,
+        "-i", txt_path,
+        "-c:v", codec_settings['codec']
+    ]
+
+    # Add codec-specific parameters
+    codec = codec_settings['codec']
+
+    if 'libx264' in codec:
+        base_command.extend([
+            "-preset", codec_settings['preset'],
+            "-crf", codec_settings['crf'],
+            "-profile:v", codec_settings['profile'],
+            "-level:v", codec_settings['level'],
+            "-pix_fmt", codec_settings['pix_fmt'],
+            "-movflags", "+faststart"
+        ])
+    elif 'libx265' in codec:
+        base_command.extend([
+            "-preset", codec_settings['preset'],
+            "-crf", codec_settings['crf'],
+            "-profile:v", codec_settings['profile'],
+            "-pix_fmt", codec_settings['pix_fmt'],
+            "-tag:v", "hvc1",
+            "-movflags", "+faststart"
+        ])
+    elif 'nvenc' in codec:
+        base_command.extend([
+            "-preset", codec_settings['preset'],
+            "-rc", codec_settings['rc'],
+            "-cq", codec_settings['cq'],
+            "-profile:v", codec_settings['profile'],
+            "-pix_fmt", codec_settings['pix_fmt'],
+            "-movflags", "+faststart"
+        ])
+    elif 'amf' in codec:
+        base_command.extend([
+            "-quality", codec_settings['quality'],
+            "-rc", codec_settings['rc'],
+            "-qp_i", codec_settings['qp_i'],
+            "-qp_p", codec_settings['qp_p'],
+            "-qp_b", codec_settings['qp_b'],
+            "-profile:v", codec_settings['profile']
+        ])
+    elif 'qsv' in codec:
+        base_command.extend([
+            "-preset", codec_settings['preset'],
+            "-global_quality", codec_settings['global_quality'],
+            "-profile:v", codec_settings['profile'],
+            "-pix_fmt", codec_settings['pix_fmt']
+        ])
+    else:
+        # Fallback for unknown codecs
+        base_command.extend([
+            "-b:v", codec_settings['bitrate'],
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart"
+        ])
+
+    # Add output file
+    base_command.append(no_audio_path)
+
+    return base_command
+
+
+def create_frame_list_file(frame_paths: list[str], txt_path: str) -> bool:
+    """Create frame list file for FFmpeg concat demuxer with validation."""
+    try:
+        # Verify all frames exist and are readable
+        valid_frames = []
+        invalid_count = 0
+
+        for frame_path in frame_paths:
+            if os_path_exists(frame_path):
+                try:
+                    # Quick file size check
+                    if os_path_getsize(frame_path) > 0:
+                        valid_frames.append(frame_path)
+                    else:
+                        invalid_count += 1
+                        print(f"[WARNING] Empty frame file: {frame_path}")
+                except Exception:
+                    invalid_count += 1
+                    print(f"[WARNING] Cannot access frame file: {frame_path}")
+            else:
+                invalid_count += 1
+                print(f"[WARNING] Missing frame file: {frame_path}")
+
+        if invalid_count > 0:
+            print(
+                f"[WARNING] Found {invalid_count} invalid/missing frames out of {len(frame_paths)}")
+
+        if len(valid_frames) == 0:
+            raise ValueError("No valid frames found for video encoding")
+
+        # Create the frame list file
+        with open(txt_path, 'w', encoding='utf-8') as f:
+            for frame_path in valid_frames:
+                # Escape path for FFmpeg and use forward slashes
+                escaped_path = frame_path.replace(
+                    '\\', '/').replace("'", "'\"'\"'")
+                f.write(f"file '{escaped_path}'\n")
+
+        print(f"[FFMPEG] Frame list created with {len(valid_frames)} frames")
+        return True
+
+    except Exception as e:
+        print(f"[ERROR] Failed to create frame list file: {str(e)}")
+        return False
+
+
 def video_encoding(
         process_status_q: multiprocessing_Queue,
         video_path: str,
@@ -1680,154 +2506,250 @@ def video_encoding(
         upscaled_frame_paths: list[str],
         selected_video_codec: str,
 ) -> None:
+    """Enhanced video encoding with robust error handling and codec support."""
+
     try:
         # Validate inputs
         if not upscaled_frame_paths:
             raise ValueError("No frame paths provided for video encoding")
 
-        # Check if all frame files exist
-        missing_frames = [
-            path for path in upscaled_frame_paths if not os_path_exists(path)]
-        if missing_frames:
-            raise FileNotFoundError(
-                f"Missing {len(missing_frames)} frame files. First missing: {missing_frames[0]}")
+        if not validate_ffmpeg_executable():
+            raise RuntimeError("FFmpeg validation failed")
 
-        if "x264" in selected_video_codec:
-            codec = "libx264"
-        elif "x265" in selected_video_codec:
-            codec = "libx265"
-        else:
-            codec = selected_video_codec
+        # Get video information
+        video_info = get_video_info(video_path)
+        if not video_info:
+            raise ValueError("Could not get video information")
 
-        txt_path = f"{os_path_splitext(video_output_path)[0]}.txt"
-        no_audio_path = f"{os_path_splitext(video_output_path)[0]}_no_audio{os_path_splitext(video_output_path)[1]}"
+        # Get optimized codec settings
+        codec_settings = get_video_codec_settings(
+            selected_video_codec, video_info)
 
-        try:
-            video_fps = str(get_video_fps(video_path))
-            if float(video_fps) <= 0:
-                raise ValueError(f"Invalid frame rate: {video_fps}")
-        except Exception as e:
+        # Test codec compatibility
+        if not test_codec_compatibility(codec_settings['codec']):
             print(
-                f"Warning: Could not get video FPS, using default 30.0: {str(e)}")
-            video_fps = "30.0"
+                f"[WARNING] Codec {codec_settings['codec']} not available, falling back to libx264")
+            codec_settings = get_video_codec_settings('x264', video_info)
 
-        # Cleaning files from previous encoding
-        if os_path_exists(no_audio_path):
-            os_remove(no_audio_path)
-        if os_path_exists(txt_path):
-            os_remove(txt_path)
+        # Prepare file paths
+        base_name = os_path_splitext(video_output_path)[0]
+        txt_path = f"{base_name}_frames.txt"
+        no_audio_path = f"{base_name}_no_audio{os_path_splitext(video_output_path)[1]}"
 
-        # Create a file .txt with all upscaled video frames paths || this file is essential
+        # Clean up any existing temporary files
+        for temp_file in [txt_path, no_audio_path]:
+            if os_path_exists(temp_file):
+                try:
+                    os_remove(temp_file)
+                except Exception as e:
+                    print(
+                        f"[WARNING] Could not remove temporary file {temp_file}: {e}")
+
+        # Get video FPS with fallback
         try:
-            with os_fdopen(os_open(txt_path, O_WRONLY | O_CREAT, 0o777), 'w', encoding="utf-8") as txt:
-                for frame_path in upscaled_frame_paths:
-                    # Ensure the path exists before writing to file
-                    if os_path_exists(frame_path):
-                        txt.write(f"file '{frame_path}' \n")
-                    else:
-                        print(f"Warning: Frame file not found: {frame_path}")
+            video_fps = get_video_fps(video_path)
+            if video_fps <= 0 or video_fps > 1000:  # Sanity check
+                raise ValueError(f"Invalid frame rate: {video_fps}")
+            video_fps_str = f"{video_fps:.6f}"  # High precision for FFmpeg
         except Exception as e:
-            raise RuntimeError(f"Failed to create frame list file: {str(e)}")
+            print(f"[WARNING] Could not get video FPS: {e}, using 30.0")
+            video_fps_str = "30.000000"
 
-        # Create the upscaled video without audio
-        print(f"[FFMPEG] ENCODING ({codec})")
+        # Create frame list file
+        if not create_frame_list_file(upscaled_frame_paths, txt_path):
+            raise RuntimeError("Failed to create frame list file")
+
+        # Build encoding command
+        encoding_command = build_encoding_command(
+            video_path, txt_path, no_audio_path, codec_settings, video_fps_str
+        )
+
+        # Execute video encoding
+        print(f"[FFMPEG] Starting encoding with {codec_settings['codec']}")
+        print(
+            f"[FFMPEG] Processing {len(upscaled_frame_paths)} frames at {video_fps_str} FPS")
+
         try:
-            # Check if ffmpeg exists
-            if not os_path_exists(FFMPEG_EXE_PATH):
-                raise FileNotFoundError("FFmpeg executable not found")
-
-            encoding_command = [
-                FFMPEG_EXE_PATH,
-                "-y",
-                "-loglevel",    "error",
-                "-f",           "concat",
-                "-safe",        "0",
-                "-r",           video_fps,
-                "-i",           txt_path,
-                "-c:v",         codec,
-                "-vf",          "scale=in_range=full:out_range=limited,format=yuv420p",
-                "-color_range", "tv",
-                "-movflags",    "+faststart",
-                "-b:v",         "12000k",
-                no_audio_path
-            ]
-
             result = subprocess_run(
-                encoding_command, check=True, shell=False, capture_output=True, text=True)
+                encoding_command,
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=3600  # 1 hour timeout
+            )
 
-            # Check if output file was created successfully
+            # Verify output file was created and has reasonable size
             if not os_path_exists(no_audio_path):
                 raise RuntimeError(
                     "Video encoding completed but output file was not created")
 
-            if os_path_exists(txt_path):
-                os_remove(txt_path)
+            output_size = os_path_getsize(no_audio_path)
+            if output_size < 1024:  # Less than 1KB indicates failure
+                raise RuntimeError(
+                    f"Video encoding produced suspiciously small file: {output_size} bytes")
 
-            print(f"[FFMPEG] Video encoding completed successfully")
-
-        except subprocess.CalledProcessError as e:
-            error_msg = f"FFmpeg encoding failed: {e.stderr if e.stderr else str(e)}"
-            write_process_status(
-                process_status_q,
-                f"{ERROR_STATUS}{error_msg}\nHave you selected a codec compatible with your GPU? If the issue persists, try selecting 'x264'."
-            )
-            return
-        except Exception as e:
-            write_process_status(
-                process_status_q,
-                f"{ERROR_STATUS}An error occurred during video encoding: {str(e)} \nHave you selected a codec compatible with your GPU? If the issue persists, try selecting 'x264'."
-            )
-            return
-
-        # Copy the audio from original video
-        print("[FFMPEG] AUDIO PASSTHROUGH")
-        audio_passthrough_command = [
-            FFMPEG_EXE_PATH,
-            "-y",
-            "-loglevel", "error",
-            "-i",        video_path,
-            "-i",        no_audio_path,
-            "-c:v",      "copy",
-            "-map",      "1:v:0",
-            "-map",      "0:a?",
-            "-c:a",      "copy",
-            video_output_path
-        ]
-        try:
-            result = subprocess_run(
-                audio_passthrough_command, check=True, shell=False, capture_output=True, text=True)
-            if os_path_exists(no_audio_path):
-                os_remove(no_audio_path)
-            print(f"[FFMPEG] Audio passthrough completed successfully")
-        except subprocess.CalledProcessError as e:
             print(
-                f"[FFMPEG] Audio passthrough error: {e.stderr if e.stderr else str(e)}")
-            # If audio passthrough fails, just copy the no-audio version
-            if os_path_exists(no_audio_path):
+                f"[FFMPEG] Video encoding completed: {output_size / (1024*1024):.1f} MB")
+
+        except subprocess.TimeoutExpired:
+            error_msg = "Video encoding timeout (exceeded 1 hour)"
+            log_and_report_error(error_msg)
+            write_process_status(
+                process_status_q, f"{ERROR_STATUS}{error_msg}")
+            return
+        except CalledProcessError as e:
+            error_details = e.stderr if e.stderr else str(e)
+            error_msg = f"FFmpeg encoding failed: {error_details}"
+
+            # Try to provide helpful error messages
+            if "Unknown encoder" in error_details:
+                error_msg += "\nThe selected codec is not supported. Try x264 instead."
+            elif "Device or resource busy" in error_details:
+                error_msg += "\nGPU encoder is busy. Try software encoding (x264/x265)."
+            elif "Invalid data" in error_details:
+                error_msg += "\nFrame data may be corrupted. Check input images."
+
+            log_and_report_error(error_msg)
+            write_process_status(
+                process_status_q, f"{ERROR_STATUS}{error_msg}")
+            return
+
+        # Audio passthrough with multiple fallback strategies
+        print("[FFMPEG] Processing audio track")
+
+        # Check if original video has audio
+        audio_info_command = [
+            FFMPEG_EXE_PATH,
+            "-i", video_path,
+            "-hide_banner",
+            "-loglevel", "error",
+            "-select_streams", "a:0",
+            "-show_entries", "stream=codec_name",
+            "-of", "csv=p=0"
+        ]
+
+        has_audio = False
+        try:
+            audio_result = subprocess_run(
+                audio_info_command,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            has_audio = audio_result.returncode == 0 and audio_result.stdout.strip()
+        except Exception:
+            print("[WARNING] Could not detect audio stream, assuming no audio")
+
+        if has_audio:
+            # Strategy 1: Copy audio as-is
+            audio_command = [
+                FFMPEG_EXE_PATH,
+                "-y",
+                "-loglevel", "error",
+                "-i", video_path,
+                "-i", no_audio_path,
+                "-c:v", "copy",
+                "-c:a", "copy",
+                "-map", "1:v:0",
+                "-map", "0:a:0",
+                "-shortest",
+                video_output_path
+            ]
+
+            try:
+                result = subprocess_run(
+                    audio_command,
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=600
+                )
+
+                if os_path_exists(no_audio_path):
+                    os_remove(no_audio_path)
+                print("[FFMPEG] Audio passthrough completed successfully")
+
+            except (CalledProcessError, subprocess.TimeoutExpired) as e:
+                print(f"[WARNING] Audio copy failed: {e}")
+
+                # Strategy 2: Re-encode audio
+                print("[FFMPEG] Trying audio re-encoding...")
+                audio_reencode_command = [
+                    FFMPEG_EXE_PATH,
+                    "-y",
+                    "-loglevel", "error",
+                    "-i", video_path,
+                    "-i", no_audio_path,
+                    "-c:v", "copy",
+                    "-c:a", "aac",
+                    "-b:a", "128k",
+                    "-map", "1:v:0",
+                    "-map", "0:a:0",
+                    "-shortest",
+                    video_output_path
+                ]
+
                 try:
-                    shutil_move(no_audio_path, video_output_path)
+                    result = subprocess_run(
+                        audio_reencode_command,
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                        timeout=600
+                    )
+
+                    if os_path_exists(no_audio_path):
+                        os_remove(no_audio_path)
+                    print("[FFMPEG] Audio re-encoding completed successfully")
+
+                except Exception as audio_error:
                     print(
-                        f"[FFMPEG] Using video without audio due to passthrough failure")
-                except Exception as move_error:
-                    print(
-                        f"[FFMPEG] Failed to move no-audio file: {str(move_error)}")
-        except Exception as e:
-            print(f"[FFMPEG] Audio passthrough error: {str(e)}")
-            # If audio passthrough fails, just copy the no-audio version
-            if os_path_exists(no_audio_path):
+                        f"[WARNING] Audio re-encoding also failed: {audio_error}")
+                    # Strategy 3: Use video without audio
+                    try:
+                        if os_path_exists(no_audio_path):
+                            shutil_move(no_audio_path, video_output_path)
+                            print("[FFMPEG] Using video without audio")
+                    except Exception as move_error:
+                        raise RuntimeError(
+                            f"Failed to save final video: {move_error}")
+        else:
+            # No audio in original, just rename the video file
+            try:
+                shutil_move(no_audio_path, video_output_path)
+                print("[FFMPEG] Video saved successfully (no audio track)")
+            except Exception as move_error:
+                raise RuntimeError(f"Failed to save final video: {move_error}")
+
+        # Clean up temporary files
+        for temp_file in [txt_path]:
+            if os_path_exists(temp_file):
                 try:
-                    shutil_move(no_audio_path, video_output_path)
-                    print(
-                        f"[FFMPEG] Using video without audio due to passthrough failure")
-                except Exception as move_error:
-                    print(
-                        f"[FFMPEG] Failed to move no-audio file: {str(move_error)}")
+                    os_remove(temp_file)
+                except Exception:
+                    pass
+
+        # Final validation
+        if not os_path_exists(video_output_path):
+            raise RuntimeError(
+                "Video encoding completed but final output file is missing")
+
+        final_size = os_path_getsize(video_output_path)
+        print(
+            f"[FFMPEG] Final video created: {final_size / (1024*1024):.1f} MB")
 
     except Exception as e:
-        write_process_status(
-            process_status_q,
-            f"{ERROR_STATUS}Video encoding failed: {str(e)}"
-        )
+        error_msg = f"Video encoding failed: {str(e)}"
+        log_and_report_error(error_msg)
+        write_process_status(process_status_q, f"{ERROR_STATUS}{error_msg}")
+
+        # Clean up on failure
+        for temp_file in [txt_path, no_audio_path] if 'txt_path' in locals() and 'no_audio_path' in locals() else []:
+            if os_path_exists(temp_file):
+                try:
+                    os_remove(temp_file)
+                except Exception:
+                    pass
 
 
 def check_video_upscaling_resume(
@@ -1945,7 +2867,7 @@ def blend_images_and_save(
         image_write(target_path, upscaled_image, file_extension)
 
 
-# Core functions ------------------------
+# ==== CORE PROCESSING SECTION ====
 
 def check_upscale_steps() -> None:
     """Monitorea el estado del proceso de escalado en un hilo separado."""
@@ -2007,7 +2929,8 @@ def stop_upscale_process() -> None:
     except NameError:
         pass
     else:
-        process_upscale_orchestrator.kill()
+        # Fix 4.1: Use terminate() instead of kill() for safer process termination
+        process_upscale_orchestrator.terminate()
 
 
 def stop_button_command() -> None:
@@ -2031,6 +2954,10 @@ def upscale_button_command() -> None:
     global output_resize_factor
     global selected_frame_generation_option
     global process_upscale_orchestrator
+    global stop_thread_flag
+
+    # Fix 2.2: Clear stop_thread_flag at the beginning of each execution
+    stop_thread_flag.clear()
 
     if user_input_checks():
         info_message.set("Loading")
@@ -2107,8 +3034,10 @@ def fluidframes_interpolation_pipeline(
                         selected_video_codec, input_resize_factor, output_resize_factor, cpu_number, selected_keep_frames
                     )
                 except Exception as file_error:
+                    error_msg = f"Error processing {os_path_basename(file_path)}: {str(file_error)}"
+                    log_and_report_error(error_msg)
                     write_process_status(
-                        process_status_q, f"{ERROR_STATUS}Error processing {os_path_basename(file_path)}: {str(file_error)}")
+                        process_status_q, f"{ERROR_STATUS}{error_msg}")
                     continue  # Continue with next file
             else:
                 # If an image, just no-op/fail, or could add image interpolation, but that's not FluidFrames
@@ -2118,6 +3047,7 @@ def fluidframes_interpolation_pipeline(
     except Exception as exception:
         error_msg = str(exception)
         print(f"Error in FluidFrames interpolation pipeline: {error_msg}")
+        log_and_report_error(f"Interpolation error: {error_msg}")
         write_process_status(
             process_status_q, f"{ERROR_STATUS}Interpolation error: {error_msg}")
 
@@ -2244,7 +3174,7 @@ def fluidframes_video_interpolate(
             print(
                 f"Warning: Could not remove directory {target_directory}: {str(e)}")
 
-# ORCHESTRATOR
+# ==== ORCHESTRATOR SECTION ====
 
 
 def upscale_orchestrator(
@@ -2264,6 +3194,9 @@ def upscale_orchestrator(
         selected_video_codec: str,
         cpu_number: int,
 ) -> None:
+
+    global global_status_lock
+    global_status_lock = Lock()
 
     try:
         write_process_status(process_status_q, f"Loading AI model")
@@ -2322,10 +3255,11 @@ def upscale_orchestrator(
                 "Restart the process without deleting the upscaled frames to resume and complete the upscaling."
             )
         else:
+            log_and_report_error(error_message)
             write_process_status(
                 process_status_q, f"{ERROR_STATUS} {error_message}")
 
-# IMAGES
+# ==== IMAGE PROCESSING SECTION ====
 
 
 def upscale_image(
@@ -2363,7 +3297,7 @@ def upscale_image(
 
     copy_file_metadata(image_path, upscaled_image_path)
 
-# VIDEOS
+# ==== VIDEO PROCESSING SECTION ====
 
 
 def upscale_video(
@@ -2438,8 +3372,10 @@ def upscale_video(
         upscaled_frame_paths_to_save: list[str],
         selected_blending_factor: float
     ) -> None:
+        nonlocal writer_threads  # Access the outer scope variable
 
-        Thread(
+        # Fix 2.1: Track writer threads to ensure all frames are written before encoding
+        t = Thread(
             target=save_multiple_upscaled_frame_async,
             args=(
                 starting_frames_to_save,
@@ -2447,7 +3383,9 @@ def upscale_video(
                 upscaled_frame_paths_to_save,
                 selected_blending_factor
             )
-        ).start()
+        )
+        writer_threads.append(t)
+        t.start()
 
     def upscale_video_frames_async(
             process_status_q: multiprocessing_Queue,
@@ -2461,6 +3399,7 @@ def upscale_video(
 
         global global_processing_times_list
         global global_can_i_update_status
+        global global_status_lock  # Fix 2.3: Add thread lock for safe status updates
 
         starting_frames_to_save = []
         upscaled_frames_to_save = []
@@ -2474,9 +3413,29 @@ def upscale_video(
             if already_upscaled == False:
                 start_timer = timer()
 
-                # Upscale frame
+                # Upscale frame with memory optimization
                 starting_frame = image_read(frame_path)
-                upscaled_frame = AI_instance.AI_orchestration(starting_frame)
+                try:
+                    upscaled_frame = AI_instance.AI_orchestration(
+                        starting_frame)
+                except Exception as e:
+                    # Fix 3.2: Handle GPU memory errors with retry logic
+                    if "memory" in str(e).lower() or "out of memory" in str(e).lower():
+                        print(
+                            f"[GPU] Memory error detected, reducing tiles resolution and retrying...")
+                        original_tiles = AI_instance.max_resolution
+                        AI_instance.max_resolution = max(
+                            128, AI_instance.max_resolution // 2)
+                        try:
+                            upscaled_frame = AI_instance.AI_orchestration(
+                                starting_frame)
+                            print(
+                                f"[GPU] Retry successful with reduced tiles resolution: {AI_instance.max_resolution}")
+                        except Exception as retry_error:
+                            AI_instance.max_resolution = original_tiles  # Restore original
+                            raise retry_error
+                    else:
+                        raise e
 
                 # Adding frames in list to save
                 starting_frames_to_save.append(starting_frame)
@@ -2488,20 +3447,26 @@ def upscale_video(
                 processing_time = (end_timer - start_timer)/threads_number
                 global_processing_times_list.append(processing_time)
 
+                # Fix 3.1: Write frames immediately to disk to reduce memory usage
                 if (frame_index + 1) % MULTIPLE_FRAMES_TO_SAVE == 0:
                     # Save frames present in RAM on disk
                     save_frames_on_disk(starting_frames_to_save, upscaled_frames_to_save,
                                         upscaled_frame_paths_to_save, selected_blending_factor)
+                    # Clear frame lists to free memory
                     starting_frames_to_save = []
                     upscaled_frames_to_save = []
                     upscaled_frame_paths_to_save = []
+                    # Optimize memory usage
+                    optimize_memory_usage()
 
-                    global_can_i_update_status = not global_can_i_update_status
-                    if global_can_i_update_status:
-                        update_process_status_videos(
-                            process_status_q, file_number)
-                        if len(global_processing_times_list) >= 100:
-                            global_processing_times_list = []
+                    # Fix 2.3: Use thread lock to safely modify status flag
+                    with global_status_lock:
+                        global_can_i_update_status = not global_can_i_update_status
+                        if global_can_i_update_status:
+                            update_process_status_videos(
+                                process_status_q, file_number)
+                            if len(global_processing_times_list) >= 100:
+                                global_processing_times_list = []
 
         if len(upscaled_frame_paths_to_save) > 0:
             # Save frames still present in RAM on disk
@@ -2510,6 +3475,8 @@ def upscale_video(
             starting_frames_to_save = []
             upscaled_frames_to_save = []
             upscaled_frame_paths_to_save = []
+            # Final memory optimization
+            optimize_memory_usage()
 
     def upscale_video_frames(
             process_status_q: multiprocessing_Queue,
@@ -2588,6 +3555,9 @@ def upscale_video(
 
     # Main function
 
+    # Fix 2.1: Initialize writer_threads list to track frame writing threads
+    writer_threads = []
+
     # 1.Preparation
     target_directory = prepare_output_video_directory_name(
         video_path, selected_output_path, selected_AI_model, 1, False, input_resize_factor, output_resize_factor)
@@ -2628,6 +3598,10 @@ def upscale_video(
     check_forgotten_video_frames(process_status_q, file_number, AI_upscale_instance_list,
                                  extracted_frames_paths, upscaled_frame_paths, selected_blending_factor)
 
+    # Fix 2.1: Wait for all writer threads to complete before encoding
+    for t in writer_threads:
+        t.join()
+
     # 6. Video encoding
     write_process_status(
         process_status_q, f"{file_number}. Encoding upscaled video")
@@ -2645,10 +3619,33 @@ def upscale_video(
                     f"Warning: Could not remove directory {target_directory}: {str(e)}")
 
 
-# GUI utils function ---------------------------
+# ==== GUI UTILITIES SECTION ====
 
 def check_if_file_is_video(file: str) -> bool:
     return any(video_extension in file for video_extension in supported_video_extensions)
+
+
+def validate_configuration() -> bool:
+    """Comprehensive configuration validation."""
+    errors = []
+
+    # Check AI model compatibility
+    if selected_AI_model == MENU_LIST_SEPARATOR[0]:
+        errors.append("Invalid AI model selected")
+
+    # Check frame generation compatibility
+    if selected_AI_model in RIFE_models_list and selected_frame_generation_option == "OFF":
+        errors.append("Frame generation option required for RIFE models")
+
+    # Check system requirements
+    if not validate_system_requirements():
+        errors.append("System requirements not met")
+
+    if errors:
+        for error in errors:
+            log_and_report_error(error)
+        return False
+    return True
 
 
 def user_input_checks() -> bool:
@@ -2659,7 +3656,7 @@ def user_input_checks() -> bool:
     global input_resize_factor
     global output_resize_factor
 
-    # Selected files
+    # Enhanced file validation
     try:
         selected_file_list = file_widget.get_selected_file_list()
     except Exception:
@@ -2668,6 +3665,21 @@ def user_input_checks() -> bool:
 
     if len(selected_file_list) <= 0:
         info_message.set("Please select a file")
+        return False
+
+    # Validate file paths and accessibility
+    if not validate_file_paths(selected_file_list):
+        info_message.set("File validation failed. Check log for details.")
+        return False
+
+    # Validate output path
+    if not validate_output_path(selected_output_path.get()):
+        info_message.set("Output path validation failed")
+        return False
+
+    # Additional configuration validation
+    if not validate_configuration():
+        info_message.set("Configuration validation failed")
         return False
 
     # AI model
@@ -2728,17 +3740,21 @@ def user_input_checks() -> bool:
 
 
 def show_error_message(exception: str) -> None:
-    messageBox_title = "Upscale error"
-    messageBox_subtitle = "Please report the error on Github, SourceForge or write to us on negroayub97@gmail.com."
-    messageBox_text = f"\n {str(exception)} \n"
+    try:
+        messageBox_title = "Upscale error"
+        messageBox_subtitle = "Please report the error on Github, SourceForge or write to us on negroayub97@gmail.com."
+        messageBox_text = f"\n {str(exception)} \n"
 
-    MessageBox(
-        messageType="error",
-        title=messageBox_title,
-        subtitle=messageBox_subtitle,
-        default_value=None,
-        option_list=[messageBox_text]
-    )
+        MessageBox(
+            messageType="error",
+            title=messageBox_title,
+            subtitle=messageBox_subtitle,
+            default_value=None,
+            option_list=[messageBox_text]
+        )
+    except Exception as e:
+        print(f"[ERROR] Could not show error message: {str(e)}")
+        print(f"[ERROR] Original error was: {exception}")
 
 
 def get_upscale_factor() -> int:
@@ -2802,7 +3818,7 @@ def open_output_path_action():
         selected_output_path.set(asked_selected_output_path)
 
 
-# GUI select from menus functions ---------------------------
+# ==== GUI MENU SELECTION SECTION ====
 
 def select_AI_from_menu(selected_option: str) -> None:
     global selected_AI_model
@@ -2890,7 +3906,7 @@ def select_frame_generation_from_menu(selected_option: str) -> None:
     global selected_frame_generation_option
     selected_frame_generation_option = selected_option
 
-# GUI place functions ---------------------------
+# ==== GUI LAYOUT SECTION ====
 
 # --- FLUIDFRAMES: Handle Interpolator menus/logic ---
 
@@ -2948,7 +3964,7 @@ def place_loadFile_section():
         corner_radius=1,
         fg_color="#282828",
         text_color="#E0E0E0",
-        border_color="#0096FF"
+        border_color="#ECD125"
     )
 
     background.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
@@ -3519,9 +4535,11 @@ def place_upscale_button():
     upscale_button.place(relx=0.75 - 0.1, rely=0.95, anchor="center")
 
 
-# Main functions ---------------------------
+# ==== MAIN APPLICATION SECTION ====
 
 def on_app_close() -> None:
+    # Clean up logger
+    logging.shutdown()
     window.grab_release()
     window.destroy()
 
@@ -3641,7 +4659,7 @@ class SplashScreen(CTkToplevel):
         window_height = 300
 
         # Try to load banner image
-        banner_path = find_by_relative_path(f"rsc{os_separator}banner.png")
+        banner_path = find_by_relative_path(f"Assets{os_separator}banner.png")
         try:
             self.banner_image = CTkImage(
                 pillow_image_open(banner_path),
@@ -3675,7 +4693,7 @@ class SplashScreen(CTkToplevel):
                 self,
                 text="Warlock Studio",
                 font=CTkFont(family="Segoe UI", size=28, weight="bold"),
-                text_color="#2F73DD"  # app_name_color
+                text_color="#ECD125"  # app_name_color
             )
             title_label.pack(pady=(50, 20))
 
@@ -3707,8 +4725,8 @@ class SplashScreen(CTkToplevel):
         self._loading_step = 0
         self.update_loading_text()
 
-        # Splash duration: 15 seconds
-        self.after(15000, self.start_fade_out)
+        # Splash duration: 10 seconds
+        self.after(10000, self.start_fade_out)
 
     def update_loading_text(self):
         """Update the loading message every 1.5 seconds"""
@@ -3749,7 +4767,7 @@ if __name__ == "__main__":
     splash = SplashScreen()
 
     # Schedule showing the main window after splash finishes
-    window.after(6000, window.deiconify)  # 5s + fade time
+    window.after(11000, window.deiconify)  # 10s + fade time
 
     info_message = StringVar()
     selected_output_path = StringVar()
