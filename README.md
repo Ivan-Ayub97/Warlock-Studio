@@ -122,6 +122,13 @@ Warlock-Studio/
       ├──Installation_window.png
       └──Installation_window2.png
 │
+├──Manual/
+   │
+   └──├──Manual_EN.pdf
+      ├──Manual_EN.tex
+      ├──Manual_ES.pdf
+      └──Manual_ES.tex
+│
 ├──CHANGELOG.md
 ├──CODE_OF_CONDUCT.md
 ├──CONTRIBUTING.md
