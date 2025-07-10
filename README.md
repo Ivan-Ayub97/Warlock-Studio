@@ -196,7 +196,7 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 ## Quality Comparison
 
 **Comparison of an enhanced image using the BSRGANx2 model**
-![Quality Comparison](rsc/Image_comparison.png)
+![Quality Comparison](rsc/image_comparison.png)
 
 ---
 
