@@ -1,7 +1,6 @@
 ![Warlock-Studio banner](Assets/banner.png)
 ![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)
 ![Version](https://img.shields.io/badge/%20Version-2.2-darkred?style=for-the-badge)
-![Last Update](https://img.shields.io/badge/%2007%202025-purple?style=for-the-badge)
 
 ### Get Warlock-Studio Installer
 
@@ -15,9 +14,6 @@ You can download the installer (latest version **2.2**) from any of this platfor
       </a>
     </td>
     <td align="center">
-      <a href="https://ivanayub97.itch.io/warlock-studio">
-        <img src="rsc/badge-color.png" alt="Download from Itch.io" />
-      </a>
     </td>
     <td align="center">
       <a href="https://drive.google.com/file/d/1nqlBuxZKsk3FX_nWUqUnDUKUTfMSfjB4/view?usp=sharing">
