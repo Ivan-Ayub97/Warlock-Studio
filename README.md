@@ -1,7 +1,7 @@
 ![Warlock-Studio banner](Assets/banner.png)
 ![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)
 ![Version](https://img.shields.io/badge/%20Version-2.2-darkred?style=for-the-badge)
-![Last Update](https://img.shields.io/badge/Last%2007%202025-purple?style=for-the-badge)
+![Last Update](https://img.shields.io/badge/Last%2007%2010%202025-purple?style=for-the-badge)
 
 ### Get Warlock-Studio Installer
 
