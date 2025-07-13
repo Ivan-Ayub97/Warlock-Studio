@@ -58,6 +58,28 @@ Version 2.2 introduces critical improvements focused on reliability and performa
 
 ## ![Screenshot of Warlock-Studio](rsc/Installation_window2.png)
 
+---
+
+## AI-Models Workflow
+
+### 🔹 RIFE
+
+![Screenshot of Warlock-Studio](rsc/WorkflowRIFE.png)
+
+### 🔹 Real-ESRGAN
+
+![Screenshot of Warlock-Studio](rsc/WorkflowRealESRGAN.png)
+
+### 🔹 IRCNN
+
+![Screenshot of Warlock-Studio](rsc/WorkflowIRCNN.png)
+
+### 🔹 BSRGAN
+
+![Screenshot of Warlock-Studio](rsc/WorkflowBSRGAN.png)
+
+---
+
 ## 🛠️ Development Status — v2.2
 
 | Component                           | Status           | Notes                                                                     |
