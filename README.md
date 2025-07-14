@@ -52,12 +52,6 @@ Version 2.2 introduces critical improvements focused on reliability and performa
 
 ## ![Screenshot of Warlock-Studio](logo.ico)
 
-### 🔹 Installation Window
-
-## ![Screenshot of Warlock-Studio](rsc/Installation_window.png)
-
-## ![Screenshot of Warlock-Studio](rsc/Installation_window2.png)
-
 ---
 
 ## AI-Models Workflow
@@ -175,6 +169,14 @@ To get started with Warlock-Studio:
 3. **Begin enhancing** your images and videos with just a few clicks\!
 
 Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup](http://www.jrsoftware.org/isinfo.php) for a seamless packaging and installation experience.
+
+### 🔹 Installation Window
+
+## ![Screenshot of Warlock-Studio](rsc/Installation_window.png)
+
+## ![Screenshot of Warlock-Studio](rsc/Installation_window2.png)
+
+---
 
 ## Key Features
 
