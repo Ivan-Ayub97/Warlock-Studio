@@ -135,7 +135,11 @@ Warlock-Studio/
       ├──Capture.png
       ├──CaptureRIFE.png
       ├──google_drive-logo.png
-      ├──Installation_window.png
+      ├──WorkflowBSRGAN.png
+      ├──WorkflowIRCNN.png
+      ├──WorkflowRealESRGAN.png
+      ├──google_drive-logo.png
+      ├──WorkflowRIFE.png
       └──Installation_window2.png
 ├──Manual/
    │
