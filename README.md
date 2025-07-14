@@ -138,7 +138,6 @@ Warlock-Studio/
       ├──WorkflowBSRGAN.png
       ├──WorkflowIRCNN.png
       ├──WorkflowRealESRGAN.png
-      ├──google_drive-logo.png
       ├──WorkflowRIFE.png
       └──Installation_window2.png
 ├──Manual/
