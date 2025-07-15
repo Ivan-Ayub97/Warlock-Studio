@@ -10,7 +10,7 @@ You can download the installer (latest version **2.2**) from any of this platfor
   <tr>
     <td align="center">
       <a href="https://sourceforge.net/projects/warlock-studio/files/latest/download">
-        <img src="https://a.fsdn.com/con/app/sf-download-button" alt="Download from SourceForge"/>
+        <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width=200></a>
       </a>
     </td>
     <td align="center">
