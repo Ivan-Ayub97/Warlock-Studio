@@ -48,10 +48,6 @@ Version 2.2 introduces critical improvements focused on reliability and performa
 
 ![Screenshot of Warlock-Studio](rsc/CaptureRIFE.png)
 
-### 🔹 Icon App
-
-## ![Screenshot of Warlock-Studio](logo.ico)
-
 ---
 
 ## Key Features
