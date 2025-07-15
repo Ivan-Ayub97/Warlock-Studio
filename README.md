@@ -54,6 +54,80 @@ Version 2.2 introduces critical improvements focused on reliability and performa
 
 ---
 
+## Key Features
+
+- **State-of-the-Art AI Models**
+  Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, **RIFE**, and others for denoising, resolution enhancement, detail restoration, and smooth frame interpolation.
+
+- **AI Frame Interpolation & Slow Motion**
+  Generate new in-between frames using RIFE to create smooth **2x/4x/8x** motion or dramatic slow-motion effects.
+
+- **Batch Processing**
+  Simultaneously process multiple images or videos—ideal for large-scale media projects.
+
+- **Customizable Workflows**
+  Choose your preferred AI model, output resolution, format (PNG, JPEG, MP4, etc.), and quality settings for full creative control.
+
+- **Intuitive Interface**
+  Designed for both beginners and professionals—simple, clean, and efficient.
+
+- **Open-Source & Extensible**
+  Licensed under the MIT License. Additional usage terms can be found in the [NOTICE](https://www.google.com/search?q=NOTICE.md) file.
+
+---
+
+## Recent Enhancements (v2.2)
+
+- ✅ **Stability Overhaul:** Major improvements in error handling, including a comprehensive logging system and proactive environment validation to prevent crashes.
+- ✅ **Resilient Video Processing:** The video encoding pipeline now features automatic fallbacks for hardware codecs and audio stream processing, ensuring a valid output file is always created.
+- ✅ **Performance and Memory Optimization:** Implemented aggressive memory management to handle large video files without crashing and added dynamic GPU VRAM recovery for tiling-based tasks.
+- ✅ **Critical Bug Fixes:** Resolved race conditions in video encoding and GUI status updates, ensuring process integrity and predictable behavior.
+- ✅ **Safe Thread Management:** Upgraded to ensure processes are terminated gracefully and system resources are properly cleaned up on exit.
+
+---  
+
+## Installation
+
+To get started with Warlock-Studio:
+
+1. **Run the installer** and follow the setup instructions.
+2. **Launch the application** by opening `Warlock-Studio.exe`.
+3. **Begin enhancing** your images and videos with just a few clicks\!
+
+Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup](http://www.jrsoftware.org/isinfo.php) for a seamless packaging and installation experience.
+
+### 🔹 Installation Window
+
+## ![Screenshot of Warlock-Studio](rsc/Installation_window.png)
+
+## ![Screenshot of Warlock-Studio](rsc/Installation_window2.png)
+
+---
+
+## How to Use
+
+1. **Run as Administrator** (optional but recommended for optimal performance).
+
+2. **Load your media**: select your images and videos into the app.
+
+3. **Configure settings**:
+
+   - Select an **AI Model** (e.g., Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, RIFE)
+   - Set the **output resolution**, **file format**, and toggle features such as **interpolation** or **slow-motion**
+
+4. **Start Processing**: click **"Make Magic"** to begin enhancement.
+
+5. **Retrieve your files**: processed outputs will be saved in your chosen destination folder.
+
+---
+
+## Quality Comparison
+
+**Comparison of an enhanced image using the BSRGANx2 model**
+![Quality Comparison](rsc/image_comparison.png)
+
+---
+
 ## AI-Models Workflow
 
 ### 🔹 RIFE
@@ -84,16 +158,6 @@ Version 2.2 introduces critical improvements focused on reliability and performa
 | **User Interface (UI/UX)**          | 🟢 **Improved**  | Updated color palette and faster start-up time.                           |
 | **GPU Management**                  | 🟢 **Optimized** | Dynamic VRAM error recovery and graceful hardware codec fallbacks.        |
 | **Installer and Packaging**         | 🟢 **Stable**    | Easy-to-use installer for Windows platforms.                              |
-
----
-
-## Recent Enhancements (v2.2)
-
-- ✅ **Stability Overhaul:** Major improvements in error handling, including a comprehensive logging system and proactive environment validation to prevent crashes.
-- ✅ **Resilient Video Processing:** The video encoding pipeline now features automatic fallbacks for hardware codecs and audio stream processing, ensuring a valid output file is always created.
-- ✅ **Performance and Memory Optimization:** Implemented aggressive memory management to handle large video files without crashing and added dynamic GPU VRAM recovery for tiling-based tasks.
-- ✅ **Critical Bug Fixes:** Resolved race conditions in video encoding and GUI status updates, ensuring process integrity and predictable behavior.
-- ✅ **Safe Thread Management:** Upgraded to ensure processes are terminated gracefully and system resources are properly cleaned up on exit.
 
 ---
 
@@ -162,78 +226,6 @@ Warlock-Studio/
 └──Warlock-Studio.spec
 
 ```
-
-## Installation
-
-To get started with Warlock-Studio:
-
-1. **Run the installer** and follow the setup instructions.
-2. **Launch the application** by opening `Warlock-Studio.exe`.
-3. **Begin enhancing** your images and videos with just a few clicks\!
-
-Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup](http://www.jrsoftware.org/isinfo.php) for a seamless packaging and installation experience.
-
-### 🔹 Installation Window
-
-## ![Screenshot of Warlock-Studio](rsc/Installation_window.png)
-
-## ![Screenshot of Warlock-Studio](rsc/Installation_window2.png)
-
----
-
-## Key Features
-
-- **State-of-the-Art AI Models**
-  Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, **RIFE**, and others for denoising, resolution enhancement, detail restoration, and smooth frame interpolation.
-
-- **AI Frame Interpolation & Slow Motion**
-  Generate new in-between frames using RIFE to create smooth **2x/4x/8x** motion or dramatic slow-motion effects.
-
-- **Batch Processing**
-  Simultaneously process multiple images or videos—ideal for large-scale media projects.
-
-- **Customizable Workflows**
-  Choose your preferred AI model, output resolution, format (PNG, JPEG, MP4, etc.), and quality settings for full creative control.
-
-- **Intuitive Interface**
-  Designed for both beginners and professionals—simple, clean, and efficient.
-
-- **Open-Source & Extensible**
-  Licensed under the MIT License. Additional usage terms can be found in the [NOTICE](https://www.google.com/search?q=NOTICE.md) file.
-
----
-
-## How to Use
-
-1. **Run as Administrator** (optional but recommended for optimal performance).
-
-2. **Load your media**: select your images and videos into the app.
-
-3. **Configure settings**:
-
-   - Select an **AI Model** (e.g., Real-ESRGAN, SRGAN, BSRGAN, IRCNN, Waifu2x, Anime4K, RIFE)
-   - Set the **output resolution**, **file format**, and toggle features such as **interpolation** or **slow-motion**
-
-4. **Start Processing**: click **"Make Magic"** to begin enhancement.
-
-5. **Retrieve your files**: processed outputs will be saved in your chosen destination folder.
-
----
-
-## Quality Comparison
-
-**Comparison of an enhanced image using the BSRGANx2 model**
-![Quality Comparison](rsc/image_comparison.png)
-
----
-
-## System Requirements
-
-- **Operating System:** Windows 10 or later
-- **Memory (RAM):** Minimum 4 GB (8 GB or more recommended)
-- **Graphics Card:** NVIDIA or DirectML-compatible GPU highly recommended for performance
-- **Storage:** Sufficient disk space for input and output media files
-
 ---
 
 ### Integrated Technologies & Licenses
@@ -260,6 +252,14 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 | Python        | Python Software Foundation (PSF) | [Python Software Foundation](https://www.python.org/)   | [Official Site](https://www.python.org)                    |
 | PyInstaller   | GPLv2+                           | [PyInstaller Team](https://github.com/pyinstaller)      | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | Inno Setup    | Custom Inno License              | [Jordan Russell](http://www.jrsoftware.org/)            | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
+---
+## System Requirements
+
+- **Operating System:** Windows 10 or later
+- **Memory (RAM):** Minimum 4 GB (8 GB or more recommended)
+- **Graphics Card:** NVIDIA or DirectML-compatible GPU highly recommended for performance
+- **Storage:** Sufficient disk space for input and output media files
 
 ---
 
