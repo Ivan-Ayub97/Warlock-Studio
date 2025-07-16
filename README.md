@@ -2,7 +2,7 @@
 ![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)
 ![Version](https://img.shields.io/badge/%20Version-2.2-darkred?style=for-the-badge)
 
-## Download
+# Download
 ### Get Warlock-Studio Installer
 
 You can download the installer (latest version **2.2**) from any of this platforms:
@@ -28,7 +28,7 @@ You can download the installer (latest version **2.2**) from any of this platfor
   </tr>
 </table>
 
-
+---
 
 ### AI-Powered Media Enhancement & Upscaling Suite 2.2
 
