@@ -20,7 +20,7 @@ You can download the installer (latest version **2.2**) from any of this platfor
     </td>
     <td align="center">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v2.2/Warlock-Studio2.2Setup.zip" target="_blank">
-        <img src="GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
   </tr>
