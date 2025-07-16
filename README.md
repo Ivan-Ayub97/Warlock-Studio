@@ -9,6 +9,10 @@ You can download the installer (latest version **2.2**) from any of this platfor
 <table>
   <tr>
     <td align="center">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v2.2/Warlock-Studio2.2Setup.zip" target="_blank">
+        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+      </a>
+    <td align="center">
       <a href="https://sourceforge.net/projects/warlock-studio/files/latest/download">
         <img src="https://a.fsdn.com/con/app/sf-download-button" alt="Download from SourceForge" />
       </a>
@@ -18,9 +22,6 @@ You can download the installer (latest version **2.2**) from any of this platfor
         <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
       </a>
     </td>
-    <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v2.2/Warlock-Studio2.2Setup.zip" target="_blank">
-        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
   </tr>
