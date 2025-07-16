@@ -6,28 +6,26 @@
 
 You can download the installer (latest version **2.2**) from any of this platforms:
 
-<table border="1" cellpadding="10" cellspacing="0">
-  <thead>
-    <tr>
-      <th>Proyecto</th>
-      <th>Imagen</th>
-      <th>Descarga</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Warlock Studio v2.2</td>
-      <td>
-        <img src="GitHub_Lockup_Light.png" alt="GitHub Logo" width="200">
-      </td>
-      <td>
-        <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v2.2/Warlock-Studio2.2Setup.zip" target="_blank">
-          Descargar Warlock-Studio2.2Setup.zip
-        </a>
-      </td>
-    </tr>
-  </tbody>
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://sourceforge.net/projects/warlock-studio/files/latest/download">
+        <img src="https://a.fsdn.com/con/app/sf-download-button" alt="Download from SourceForge" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://drive.google.com/file/d/1nqlBuxZKsk3FX_nWUqUnDUKUTfMSfjB4/view?usp=sharing">
+        <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v2.2/Warlock-Studio2.2Setup.zip" target="_blank">
+        <img src="GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+      </a>
+    </td>
+  </tr>
 </table>
+
 
 
 ### AI-Powered Media Enhancement & Upscaling Suite 2.2
