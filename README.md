@@ -19,7 +19,7 @@ You can download the installer (latest version **2.2**) from any of this platfor
       </a>
     </td>
     <td align="center">
-      <a href="https://drive.google.com/file/d/1nqlBuxZKsk3FX_nWUqUnDUKUTfMSfjB4/view?usp=sharing">
+      <a href="https://sourceforge.net/p/warlock-studio/"><img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width=200></a>
         <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
       </a>
     </td>
