@@ -20,15 +20,23 @@ Get the latest stable release from any of the following platforms:
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://sourceforge.net/p/warlock-studio/"><img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width=200></a>
+      <a href="https://sourceforge.net/p/warlock-studio/">
+        <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width="200">
+      </a>
     </td>
     <td align="center" width="33%">
       <a href="https://drive.google.com/file/d/1m_YKY612EaMiYyxJDRj1WsCmcJnCSKC7/view?usp=sharing">
         <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
       </a>
     </td>
+    <td align="center" width="33%">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/3.0/Warlock-Studio3.0Setup.zip">
+        <img src="GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+      </a>
+    </td>
   </tr>
 </table>
+
 
 ---
 
