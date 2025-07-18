@@ -1,0 +1,121 @@
+SOFTWARE LICENSE AGREEMENT AND TERMS OF USE FOR WARLOCK-STUDIO 3.0
+
+---
+
+PREAMBLE
+
+This Software License Agreement ("Agreement") constitutes a legally binding
+contract between you, either as an individual or on behalf of an entity
+("USER"), and Iván Eduardo Chavez Ayub ("AUTHOR"), regarding the
+Warlock-Studio 3.0 software and all its associated files, documentation,
+and materials (collectively, the "SOFTWARE").
+By installing, copying, downloading, accessing, or otherwise using the
+SOFTWARE, the USER expressly consents to and agrees to be bound by all
+terms and conditions stipulated in this Agreement.
+IF THE USER DOES NOT AGREE WITH ALL THE TERMS OF THIS AGREEMENT, THEY MUST
+NOT INSTALL, USE, OR COPY THE SOFTWARE AND MUST IMMEDIATELY CANCEL THE
+INSTALLATION PROCESS.
+
+---
+
+SECTION I: THE MIT LICENSE
+
+The original and legally binding text of the MIT License is presented below.
+This text governs the use of the core SOFTWARE.
+
+MIT License
+
+Copyright (c) 2025 Iván Eduardo Chavez Ayub
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+---
+
+SECTION II: ADDITIONAL TERMS, NOTICES, AND ACKNOWLEDGEMENTS
+
+1.  Project Description
+    Warlock-Studio is a software application developed by Iván Eduardo Chavez
+    Ayub (GitHub profile: @Ivan-Ayub97).
+    The project is based on open-source
+    tools such as QualityScaler, FluidFrames, and RealScaler, originally
+    developed by Djdefrag (GitHub profile: @Djdefrag).
+    The main objective of
+    Warlock-Studio is to provide an intuitive graphical interface for
+    enhancing and upscaling image resolution through the use of artificial
+    intelligence models.
+2. Third-Party Components and Applicable Licenses
+    The SOFTWARE integrates various third-party technologies and components.
+    The use of the SOFTWARE is conditioned not only on compliance with this
+    Agreement but also with the license terms of each of these components.
+    The following is a list of components and their respective licenses:
+
+    -   QualityScaler, RealScaler, FluidFrames: MIT License (Djdefrag)
+    -   RIFE: Apache 2.0 License (hzwer, Megvii Research)
+    -   Real-ESRGAN, RealESRGAN-G, RealESR-Anime, RealESR-Net: BSD 3-Clause /
+        Apache 2.0 License (Xintao Wang)
+    -   GFPGAN: MIT License (TencentARC, Xintao Wang)
+    -   SRGAN: CC BY-NC-SA 4.0 License (TensorLayer Community)
+    -   BSRGAN: Apache 2.0 License (Kai Zhang)
+    -   IRCNN: BSD / Mixed License (Kai Zhang)
+    -   Anime4K: MIT License (Tianyang Zhang / bloc97)
+    -   ONNX Runtime: MIT License (Microsoft)
+    -   PyTorch: BSD 3-Clause License (Meta AI)
+    -   FFmpeg: LGPL-2.1 / GPL License (FFmpeg Team)
+    -   ExifTool: Perl Artistic License (Phil Harvey)
+    -   DirectML: MIT License (Microsoft)
+    -   Python: PSF License (Python Software Foundation)
+    -   PyInstaller: GPLv2+ License (PyInstaller Team)
+    -   Inno Setup: Custom Inno License (Jordan Russell)
+
+2.  Limitation of Liability Clause (Extended)
+    TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+    AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES; INCLUDING, BUT NOT LIMITED
+    TO, LOSS OF DATA, BUSINESS INTERRUPTION, OR HARDWARE OR SYSTEM FAILURE
+    ARISING FROM THE USE, MISUSE, OR INABILITY TO USE THE SOFTWARE.
+    THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL, CREATIVE, AND RESEARCH PURPOSES.
+    IT IS NOT CERTIFIED FOR IMPLEMENTATION IN CRITICAL OR COMMERCIAL
+    INFRASTRUCTURES WITHOUT PRIOR INDEPENDENT VALIDATION.
+    THE USER ASSUMES
+    ALL RISK ASSOCIATED WITH ITS USE.
+4. Intellectual Property Notice
+    The brand, the name "Warlock-Studio" and its associated logos are the
+    exclusive intellectual property of Iván Eduardo Chavez Ayub.
+The use of
+    these elements for commercial purposes is strictly prohibited without the
+    prior written consent of the AUTHOR.
+    Any redistribution or modification of
+    the source code must preserve the original copyright notices and all
+    references to the licenses contained herein.
+5. Acceptance of Terms
+    By proceeding with the installation and by using the SOFTWARE, the USER
+    acknowledges having read, understood, and accepted all the terms set forth
+    in the MIT License (Section I) and the Additional Terms (Section II) of
+    this Agreement.
+
+---
+
+CONTACT INFORMATION
+
+For any inquiries or communications related to this Agreement or the SOFTWARE,
+you may contact the Author:
+
+Name: Iván Eduardo Chavez Ayub
+Email: negroayub97@gmail.com
+GitHub: [https://github.com/Ivan-Ayub97](https://github.com/Ivan-Ayub97)

@@ -1,4 +1,3 @@
-
 # Standard library imports
 import atexit
 import gc
@@ -16,7 +15,6 @@ from functools import cache
 from itertools import repeat
 from json import JSONDecodeError
 from json import dumps as json_dumps
-from shutil import copy2
 from json import load as json_load
 from math import cos, pi  # For smooth fade effect
 from multiprocessing import Process
@@ -41,6 +39,7 @@ from os.path import getsize as os_path_getsize
 from os.path import join as os_path_join
 from os.path import splitext as os_path_splitext
 from pathlib import Path
+from shutil import copy2
 from shutil import move as shutil_move
 from shutil import rmtree as remove_directory
 from subprocess import CalledProcessError
@@ -54,13 +53,14 @@ from typing import Any, Callable, Dict, List, Optional, Union
 from webbrowser import open as open_browser
 
 from customtkinter import (CTk, CTkButton, CTkEntry, CTkFont, CTkFrame,
-                           CTkImage, CTkLabel, CTkOptionMenu,
+                           CTkImage, CTkLabel, CTkOptionMenu, CTkProgressBar,
                            CTkScrollableFrame, CTkToplevel, filedialog,
                            set_appearance_mode, set_default_color_theme)
+# CAMBIO 1: Añadir COLOR_BGRA2BGR a la lista
 from cv2 import (CAP_PROP_FPS, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_HEIGHT,
                  CAP_PROP_FRAME_WIDTH, COLOR_BGR2RGB, COLOR_BGR2RGBA,
-                 COLOR_GRAY2RGB, COLOR_RGB2GRAY, IMREAD_UNCHANGED, INTER_AREA,
-                 INTER_CUBIC)
+                 COLOR_BGRA2BGR, COLOR_GRAY2RGB, COLOR_RGB2GRAY,
+                 IMREAD_UNCHANGED, INTER_AREA, INTER_CUBIC)
 from cv2 import VideoCapture as opencv_VideoCapture
 from cv2 import addWeighted as opencv_addWeighted
 from cv2 import cvtColor as opencv_cvtColor
@@ -73,7 +73,7 @@ from numpy import ascontiguousarray as numpy_ascontiguousarray
 from numpy import clip as numpy_clip
 from numpy import concatenate as numpy_concatenate
 from numpy import expand_dims as numpy_expand_dims
-from numpy import float32
+from numpy import float16, float32
 from numpy import frombuffer as numpy_frombuffer
 from numpy import full as numpy_full
 from numpy import max as numpy_max
@@ -108,12 +108,22 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "2.2"
+version = "3.0-07.25"
 
-background_color = "#000000"  # Negro grisáceo profundo
-app_name_color = "#FF0000"  # Blanco puro para el nombre de la app
-widget_background_color = "#5A5A5A"  # Rojo oscuro (Dark Red)
-text_color = "#F4F4F4"  # Blanco opaco para texto legible
+
+# Esquema de colores mejorado - Rojo, Gris, Amarillo, Negro, Blanco
+background_color = "#1A1A1A"  # Negro profundo
+app_name_color = "#FF4444"  # Rojo brillante para el nombre de la app
+widget_background_color = "#2D2D2D"  # Gris oscuro para widgets
+text_color = "#FFFFFF"  # Blanco puro para texto principal
+secondary_text_color = "#E0E0E0"  # Gris claro para texto secundario
+accent_color = "#FFD700"  # Amarillo dorado para acentos
+button_hover_color = "#FF6666"  # Rojo claro para hover
+border_color = "#404040"  # Gris medio para bordes
+info_button_color = "#B22222"  # Rojo oscuro para botones de info
+warning_color = "#FF8C00"  # Naranja para advertencias
+success_color = "#32CD32"  # Verde para éxito
+error_color = "#DC143C"  # Rojo carmesí para errores
 
 VRAM_model_usage = {
     'RealESR_Gx4':     2.2,
@@ -124,16 +134,19 @@ VRAM_model_usage = {
     'RealESRGANx4':    0.6,
     'IRCNN_Mx1':       4,
     'IRCNN_Lx1':       4,
+    'GFPGAN':          1.8,
 }
 
 MENU_LIST_SEPARATOR = ["----"]
 SRVGGNetCompact_models_list = ["RealESR_Gx4", "RealESR_Animex4"]
 BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
+Face_restoration_models_list = ["GFPGAN"]
 RIFE_models_list = ["RIFE", "RIFE_Lite"]
 
 AI_models_list = (SRVGGNetCompact_models_list + MENU_LIST_SEPARATOR + BSRGAN_models_list +
-                  MENU_LIST_SEPARATOR + IRCNN_models_list + MENU_LIST_SEPARATOR + RIFE_models_list)
+                  MENU_LIST_SEPARATOR + IRCNN_models_list + MENU_LIST_SEPARATOR + Face_restoration_models_list +
+                  MENU_LIST_SEPARATOR + RIFE_models_list)
 frame_interpolation_models_list = RIFE_models_list
 frame_generation_options_list = [
     "x2", "x4", "x8", "Slowmotion x2", "Slowmotion x4", "Slowmotion x8"
@@ -483,6 +496,8 @@ class AI_upscale:
         return normalized_image, range
 
     def preprocess_image(self, image: numpy_ndarray) -> numpy_ndarray:
+        # Optimización: Usar ascontiguousarray para mejor rendimiento de memoria
+        image = numpy_ascontiguousarray(image)
         image = numpy_transpose(image, (2, 0, 1))
         image = numpy_expand_dims(image, axis=0)
 
@@ -517,7 +532,8 @@ class AI_upscale:
             case _: return (onnx_output * 255).astype(uint8)
 
     def AI_upscale(self, image: numpy_ndarray) -> numpy_ndarray:
-        image = image.astype(float32)
+        # Optimización: Usar memoria contigua antes de procesar
+        image = numpy_ascontiguousarray(image, dtype=float32)
         image_mode = self.get_image_mode(image)
         image, range = self.normalize_image(image)
 
@@ -715,8 +731,9 @@ class AI_interpolation:
     # AI CLASS FUNCTIONS
 
     def concatenate_images(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
-        image1 = image1 / 255
-        image2 = image2 / 255
+        # Optimización: Normalizar in-place para reducir uso de memoria
+        image1 = numpy_ascontiguousarray(image1, dtype=float32) / 255.0
+        image2 = numpy_ascontiguousarray(image2, dtype=float32) / 255.0
         concateneted_image = numpy_concatenate((image1, image2), axis=2)
         return concateneted_image
 
@@ -753,41 +770,281 @@ class AI_interpolation:
 
     # EXTERNAL FUNCTION
 
-    def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> list[numpy_ndarray]:
-        generated_images = []
 
-        # Generate 1 image [image1 / image_A / image2]
-        if self.frame_gen_factor == 2:
-            image_A = self.AI_interpolation(image1, image2)
-            generated_images.append(image_A)
+def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> list[numpy_ndarray]:
+    generated_images = []
 
-        # Generate 3 images [image1 / image_A / image_B / image_C / image2]
-        elif self.frame_gen_factor == 4:
-            image_B = self.AI_interpolation(image1, image2)
-            image_A = self.AI_interpolation(image1, image_B)
-            image_C = self.AI_interpolation(image_B, image2)
-            generated_images.append(image_A)
-            generated_images.append(image_B)
-            generated_images.append(image_C)
+    # Optimización: Usar memoria contigua para las imágenes de entrada
+    image1 = numpy_ascontiguousarray(image1)
+    image2 = numpy_ascontiguousarray(image2)
 
-        # Generate 7 images [image1 / image_A / image_B / image_C / image_D / image_E / image_F / image_G / image2]
-        elif self.frame_gen_factor == 8:
-            image_D = self.AI_interpolation(image1, image2)
-            image_B = self.AI_interpolation(image1, image_D)
-            image_A = self.AI_interpolation(image1, image_B)
-            image_C = self.AI_interpolation(image_B, image_D)
-            image_F = self.AI_interpolation(image_D, image2)
-            image_E = self.AI_interpolation(image_D, image_F)
-            image_G = self.AI_interpolation(image_F, image2)
-            generated_images.append(image_A)
-            generated_images.append(image_B)
-            generated_images.append(image_C)
-            generated_images.append(image_D)
-            generated_images.append(image_E)
-            generated_images.append(image_F)
-            generated_images.append(image_G)
+    # Generate 1 image [image1 / image_A / image2]
+    if self.frame_gen_factor == 2:
+        image_A = self.AI_interpolation(image1, image2)
+        generated_images.append(image_A)
 
-        return generated_images
+    # Generate 3 images [image1 / image_A / image_B / image_C / image2]
+    elif self.frame_gen_factor == 4:
+        image_B = self.AI_interpolation(image1, image2)
+        image_A = self.AI_interpolation(image1, image_B)
+        image_C = self.AI_interpolation(image_B, image2)
+        generated_images.append(image_A)
+        generated_images.append(image_B)
+        generated_images.append(image_C)
+
+    # Generate 7 images [image1 / image_A / image_B / image_C / image_D / image_E / image_F / image_G / image2]
+    elif self.frame_gen_factor == 8:
+        image_D = self.AI_interpolation(image1, image2)
+        image_B = self.AI_interpolation(image1, image_D)
+        image_A = self.AI_interpolation(image1, image_B)
+        image_C = self.AI_interpolation(image_B, image_D)
+        image_F = self.AI_interpolation(image_D, image2)
+        image_E = self.AI_interpolation(image_D, image_F)
+        image_G = self.AI_interpolation(image_F, image2)
+        generated_images.append(image_A)
+        generated_images.append(image_B)
+        generated_images.append(image_C)
+        generated_images.append(image_D)
+        generated_images.append(image_E)
+        generated_images.append(image_F)
+        generated_images.append(image_G)
+
+    return generated_images
+
+
+# AI FACE RESTORATION for face enhancement -----------------
+
+class AI_face_restoration:
+    """
+    Face restoration AI class for model like GFPGAN
+    These model are specialized for face enhancement and restoration tasks.
+    """
+
+    def __init__(
+            self,
+            AI_model_name: str,
+            directml_gpu: str,
+            input_resize_factor: float,
+            output_resize_factor: float,
+            max_resolution: int
+    ):
+        # Passed variables
+        self.AI_model_name = AI_model_name
+        self.directml_gpu = directml_gpu
+        self.input_resize_factor = input_resize_factor
+        self.output_resize_factor = output_resize_factor
+        self.max_resolution = max_resolution
+
+        # Model-specific configurations
+        self.model_configs = {
+            "GFPGAN": {
+                "input_size": (512, 512),
+                "scale_factor": 1,
+                "description": "GFPGAN v1.4 for face restoration",
+                "fp16": True
+            }
+        }
+
+        # Determine model path based on model name
+        self.AI_model_path = self._get_model_path()
+        self.model_config = self.model_configs.get(
+            AI_model_name, self.model_configs["GFPGAN"])
+        self.inferenceSession = None
+
+    def _get_model_path(self) -> str:
+        """
+        Get the appropriate model path based on the model name
+        """
+        if self.AI_model_name == "GFPGAN":
+            return find_by_relative_path(f"AI-onnx{os_separator}GFPGANv1.4.fp16.onnx")
+        else:
+            # Default fallback to GFPGAN
+            return find_by_relative_path(f"AI-onnx{os_separator}GFPGANv1.4.fp16.onnx")
+
+    def _load_inferenceSession(self) -> None:
+        """
+        Load the ONNX inference session for face restoration
+        """
+        try:
+            # Check if model file exists
+            if not os_path_exists(self.AI_model_path):
+                raise FileNotFoundError(
+                    f"Face restoration model file not found: {self.AI_model_path}")
+
+            providers = ['DmlExecutionProvider']
+
+            match self.directml_gpu:
+                case 'Auto':  provider_options = [{"performance_preference": "high_performance"}]
+                case 'GPU 1': provider_options = [{"device_id": "0"}]
+                case 'GPU 2': provider_options = [{"device_id": "1"}]
+                case 'GPU 3': provider_options = [{"device_id": "2"}]
+                case 'GPU 4': provider_options = [{"device_id": "3"}]
+
+            inference_session = InferenceSession(
+                path_or_bytes=self.AI_model_path,
+                providers=providers,
+                provider_options=provider_options,
+            )
+
+            self.inferenceSession = inference_session
+            print(
+                f"[AI] Successfully loaded face restoration model: {os_path_basename(self.AI_model_path)}")
+
+        except Exception as e:
+            error_msg = f"Failed to load face restoration model {os_path_basename(self.AI_model_path)}: {str(e)}"
+            print(f"[AI ERROR] {error_msg}")
+            raise RuntimeError(error_msg)
+
+    def get_image_mode(self, image: numpy_ndarray) -> str:
+        if image is None:
+            raise ValueError("Image is None")
+        shape = image.shape
+        if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
+            return "Grayscale"
+        # RGB: 3D array with 3 channels
+        elif len(shape) == 3 and shape[2] == 3:
+            return "RGB"
+        # RGBA: 3D array with 4 channels
+        elif len(shape) == 3 and shape[2] == 4:
+            return "RGBA"
+        else:
+            raise ValueError(f"Unsupported image shape: {shape}")
+
+    def get_image_resolution(self, image: numpy_ndarray) -> tuple:
+        height = image.shape[0]
+        width = image.shape[1]
+        return height, width
+
+    def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
+        old_height, old_width = self.get_image_resolution(image)
+        new_width = int(old_width * self.input_resize_factor)
+        new_height = int(old_height * self.input_resize_factor)
+
+        new_width = new_width if new_width % 2 == 0 else new_width + 1
+        new_height = new_height if new_height % 2 == 0 else new_height + 1
+
+        if self.input_resize_factor > 1:
+            return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
+        elif self.input_resize_factor < 1:
+            return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
+        else:
+            return image
+
+    def resize_with_output_factor(self, image: numpy_ndarray) -> numpy_ndarray:
+        old_height, old_width = self.get_image_resolution(image)
+        new_width = int(old_width * self.output_resize_factor)
+        new_height = int(old_height * self.output_resize_factor)
+
+        new_width = new_width if new_width % 2 == 0 else new_width + 1
+        new_height = new_height if new_height % 2 == 0 else new_height + 1
+
+        if self.output_resize_factor > 1:
+            return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
+        elif self.output_resize_factor < 1:
+            return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
+        else:
+            return image
+
+    def preprocess_face_image(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Preprocess image for face restoration models
+        Face restoration models typically expect normalized input in range [0, 1]
+        """
+        # Optimización: Asegurar memoria contigua al inicio
+        image = numpy_ascontiguousarray(image)
+
+        # --- NUEVO CÓDIGO PARA CORREGIR LOS CANALES ---
+        # Si la imagen tiene 4 canales (BGRA), conviértela a 3 (BGR)
+        if image.shape[2] == 4:
+            image = opencv_cvtColor(image, COLOR_BGRA2BGR)
+        # --- FIN DEL NUEVO CÓDIGO ---
+
+        # Resize to model's expected input size
+        target_size = self.model_config["input_size"]
+        image = opencv_resize(image, target_size, interpolation=INTER_AREA)
+
+        # Determinar el tipo de dato correcto (float16 o float32)
+        if self.model_config.get("fp16", False):
+            dtype = float16
+        else:
+            dtype = float32
+
+        # Optimización: Normalizar usando memoria contigua
+        image = numpy_ascontiguousarray(image, dtype=dtype) / 255.0
+
+        # Transpose to CHW format (channels, height, width)
+        image = numpy_transpose(image, (2, 0, 1))
+
+        # Add batch dimension
+        image = numpy_expand_dims(image, axis=0)
+
+        return image
+
+    def postprocess_face_image(self, output: numpy_ndarray, original_size: tuple) -> numpy_ndarray:
+        """
+        Postprocess face restoration model output
+        """
+        # Remove batch dimension
+        output = numpy_squeeze(output, axis=0)
+
+        # Clamp values to [0, 1]
+        output = numpy_clip(output, 0, 1)
+
+        # Transpose back to HWC format
+        output = numpy_transpose(output, (1, 2, 0))
+
+        # Convert back to uint8
+        output = (output * 255).astype(uint8)
+
+        # Resize back to original size
+        if original_size != self.model_config["input_size"]:
+            output = opencv_resize(
+                output, (original_size[1], original_size[0]), interpolation=INTER_CUBIC)
+
+        return output
+
+    def face_restoration(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Perform face restoration on the input image
+        """
+        if self.inferenceSession is None:
+            self._load_inferenceSession()
+
+        # Store original size for later restoration
+        original_size = (image.shape[0], image.shape[1])
+
+        # Apply input resizing
+        image = self.resize_with_input_factor(image)
+
+        # Preprocess for face restoration
+        preprocessed = self.preprocess_face_image(image)
+
+        # Run inference
+        input_name = self.inferenceSession.get_inputs()[0].name
+        output_name = self.inferenceSession.get_outputs()[0].name
+
+        result = self.inferenceSession.run(
+            [output_name], {input_name: preprocessed})[0]
+
+        # Postprocess the result
+        restored_face = self.postprocess_face_image(
+            result, (image.shape[0], image.shape[1]))
+
+        # Apply output resizing
+        restored_face = self.resize_with_output_factor(restored_face)
+
+        return restored_face
+
+    def AI_orchestration(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Main orchestration function for face restoration
+        """
+        try:
+            return self.face_restoration(image)
+        except Exception as e:
+            print(f"[FACE RESTORATION ERROR] {str(e)}")
+            # Return original image if restoration fails
+            return image
 
 
 # GUI utils ---------------------------
@@ -824,6 +1081,13 @@ class MessageBox(CTkToplevel):
         self.resizable(True, True)
         self.grab_set()                # make other windows not clickable
 
+        # Set minimum and maximum window sizes for better scrolling
+        self.minsize(700, 500)
+        self.maxsize(1000, 800)
+
+        # Set initial window size based on content
+        self.geometry("750x600")
+
     def _ok_event(
             self,
             event=None
@@ -852,9 +1116,9 @@ class MessageBox(CTkToplevel):
         spacingLabel2 = self.createEmptyLabel()
 
         if self._messageType == "info":
-            title_subtitle_text_color = "#FFD700"  # Amarillo dorado
+            title_subtitle_text_color = accent_color  # Amarillo dorado
         elif self._messageType == "error":
-            title_subtitle_text_color = "#FF3131"  # Rojo brillante
+            title_subtitle_text_color = error_color  # Rojo brillante
 
         titleLabel = CTkLabel(
             master=self,
@@ -874,7 +1138,7 @@ class MessageBox(CTkToplevel):
                 anchor='w',
                 justify="left",
                 fg_color="transparent",
-                text_color="#FFD700",  # Amarillo dorado
+                text_color=accent_color,  # Amarillo dorado
                 font=bold17,
                 text=f"Default: {self._default_value}"
             )
@@ -911,25 +1175,43 @@ class MessageBox(CTkToplevel):
                            columnspan=2, padx=0, pady=0, sticky="ew")
 
     def placeInfoMessageOptionsText(self) -> None:
+        # Create a scrollable frame for the options
+        from customtkinter import CTkScrollableFrame
 
-        for option_text in self._option_list:
+        self.scrollable_frame = CTkScrollableFrame(
+            master=self,
+            width=600,
+            height=300,  # Fixed height to enable scrolling
+            fg_color="transparent",
+            corner_radius=10,
+            scrollbar_button_color=border_color,
+            scrollbar_button_hover_color=button_hover_color
+        )
+
+        self._ctkwidgets_index += 1
+        self.scrollable_frame.grid(row=self._ctkwidgets_index, column=0,
+                                   columnspan=2, padx=25, pady=10, sticky="ew")
+
+        # Add options to the scrollable frame
+        for i, option_text in enumerate(self._option_list):
             optionLabel = CTkLabel(
-                master=self,
-                width=600,
-                height=45,
+                master=self.scrollable_frame,
+                width=550,  # Slightly smaller to account for scrollbar
                 anchor='w',
                 justify="left",
                 text_color=text_color,
-                fg_color="#282828",
+                fg_color=widget_background_color,
                 bg_color="transparent",
                 font=bold13,
                 text=option_text,
                 corner_radius=10,
+                wraplength=530  # Enable text wrapping
             )
 
-            self._ctkwidgets_index += 1
-            optionLabel.grid(row=self._ctkwidgets_index, column=0,
-                             columnspan=2, padx=25, pady=4, sticky="ew")
+            optionLabel.grid(row=i, column=0, padx=10, pady=4, sticky="ew")
+
+        # Configure grid weight for the scrollable frame
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
         spacingLabel3 = self.createEmptyLabel()
 
@@ -948,9 +1230,10 @@ class MessageBox(CTkToplevel):
             width=125,
             font=bold11,
             border_width=1,
-            fg_color="#282828",
-            text_color="#E0E0E0",
-            border_color="#F5E358"
+            fg_color=widget_background_color,
+            text_color=secondary_text_color,
+            border_color=accent_color,
+            hover_color=button_hover_color
         )
 
         self._ctkwidgets_index += 1
@@ -1014,7 +1297,7 @@ class FileWidget(CTkScrollableFrame):
             self,
             text=os_path_basename(file_path),
             font=bold14,
-            text_color=text_color,
+            text_color=accent_color,  # Usar color amarillo para nombres de archivo
             compound="left",
             anchor="w",
             padx=10,
@@ -1035,7 +1318,7 @@ class FileWidget(CTkScrollableFrame):
             text=infos,
             image=icon,
             font=bold12,
-            text_color=text_color,
+            text_color=secondary_text_color,  # Usar color de texto secundario para info
             compound="left",
             anchor="w",
             padx=10,
@@ -1066,9 +1349,10 @@ class FileWidget(CTkScrollableFrame):
             font=bold11,
             border_width=1,
             corner_radius=1,
-            fg_color="#282828",
-            text_color="#E0E0E0",
-            border_color="#FFD53D"
+            fg_color=widget_background_color,
+            text_color=text_color,
+            border_color=accent_color,
+            hover_color=button_hover_color
         )
 
         button.grid(row=0, column=2, pady=(7, 7), padx=(0, 7))
@@ -1080,16 +1364,24 @@ class FileWidget(CTkScrollableFrame):
         if check_if_file_is_video(file_path):
             video_cap = opencv_VideoCapture(file_path)
             _, frame = video_cap.read()
-            source_icon = opencv_cvtColor(frame, COLOR_BGR2RGB)
+            if frame is not None:
+                source_icon = opencv_cvtColor(frame, COLOR_BGR2RGB)
+            else:
+                # Fallback para videos problemáticos
+                source_icon = numpy_zeros((60, 60, 3), dtype=uint8)
             video_cap.release()
         else:
             source_icon = opencv_cvtColor(image_read(file_path), COLOR_BGR2RGB)
+
+        # Optimización: Usar memoria contigua para mejor rendimiento
+        source_icon = numpy_ascontiguousarray(source_icon)
 
         ratio = min(
             max_size / source_icon.shape[0], max_size / source_icon.shape[1])
         new_width = int(source_icon.shape[1] * ratio)
         new_height = int(source_icon.shape[0] * ratio)
-        source_icon = opencv_resize(source_icon, (new_width, new_height))
+        source_icon = opencv_resize(
+            source_icon, (new_width, new_height), interpolation=INTER_AREA)
         ctk_icon = CTkImage(pillow_image_fromarray(
             source_icon, mode="RGB"), size=(new_width, new_height))
 
@@ -1237,10 +1529,11 @@ def create_info_button(command: Callable, text: str, width: int = 200) -> CTkFra
         command=command,
         font=bold12,
         text="?",
-        border_color="#ECD125",
+        border_color=accent_color,
         border_width=1,
-        fg_color=widget_background_color,
-        hover_color=background_color,
+        fg_color=info_button_color,
+        hover_color=button_hover_color,
+        text_color=text_color,
         width=23,
         height=15,
         corner_radius=1
@@ -1270,7 +1563,7 @@ def create_option_menu(
     command: Callable,
     values: list,
     default_value: str,
-    border_color: str = "#404040",
+    border_color: str = None,
     border_width: int = 1,
     width: int = 159
 ) -> CTkFrame:
@@ -1280,6 +1573,10 @@ def create_option_menu(
 
     total_width = (width + 2 * border_width)
     total_height = (height + 2 * border_width)
+
+    # Use default border color if none provided
+    if border_color is None:
+        border_color = accent_color
 
     frame = CTkFrame(
         master=window,
@@ -1301,10 +1598,12 @@ def create_option_menu(
         font=bold11,
         anchor="center",
         text_color=text_color,
-        fg_color=background_color,
-        button_color=background_color,
-        button_hover_color=background_color,
-        dropdown_fg_color=background_color
+        fg_color=widget_background_color,
+        button_color=widget_background_color,
+        button_hover_color=button_hover_color,
+        dropdown_fg_color=widget_background_color,
+        dropdown_text_color=text_color,
+        dropdown_hover_color=button_hover_color
     )
 
     option_menu.place(
@@ -1325,9 +1624,10 @@ def create_text_box(textvariable: StringVar, width: int) -> CTkEntry:
         font=bold11,
         justify="center",
         text_color=text_color,
-        fg_color="#000000",
+        fg_color=widget_background_color,
         border_width=1,
-        border_color="#404040",
+        border_color=accent_color,
+        placeholder_text_color=secondary_text_color
     )
 
 
@@ -1340,10 +1640,10 @@ def create_text_box_output_path(textvariable: StringVar) -> CTkEntry:
         height=28,
         font=bold11,
         justify="center",
-        text_color=text_color,
-        fg_color="#000000",
+        text_color=secondary_text_color,
+        fg_color=widget_background_color,
         border_width=1,
-        border_color="#404040",
+        border_color=border_color,
         state=DISABLED
     )
 
@@ -1354,8 +1654,12 @@ def create_active_button(
         icon: CTkImage = None,
         width: int = 140,
         height: int = 30,
-        border_color: str = "#C11919"
+        border_color: str = None
 ) -> CTkButton:
+
+    # Use default border color if none provided
+    if border_color is None:
+        border_color = accent_color
 
     return CTkButton(
         master=window,
@@ -1367,9 +1671,10 @@ def create_active_button(
         font=bold11,
         border_width=1,
         corner_radius=1,
-        fg_color="#282828",
-        text_color="#E0E0E0",
-        border_color=border_color
+        fg_color=widget_background_color,
+        text_color=text_color,
+        border_color=border_color,
+        hover_color=button_hover_color
     )
 
 
@@ -3201,11 +3506,19 @@ def upscale_orchestrator(
     try:
         write_process_status(process_status_q, f"Loading AI model")
 
-        AI_upscale_instance_list = [
-            AI_upscale(selected_AI_model, selected_gpu,
-                       input_resize_factor, output_resize_factor, tiles_resolution)
-            for _ in range(selected_AI_multithreading)
-        ]
+        # Check if the selected model is a face restoration model
+        if selected_AI_model in Face_restoration_models_list:
+            AI_upscale_instance_list = [
+                AI_face_restoration(selected_AI_model, selected_gpu,
+                                    input_resize_factor, output_resize_factor, tiles_resolution)
+                for _ in range(selected_AI_multithreading)
+            ]
+        else:
+            AI_upscale_instance_list = [
+                AI_upscale(selected_AI_model, selected_gpu,
+                           input_resize_factor, output_resize_factor, tiles_resolution)
+                for _ in range(selected_AI_multithreading)
+            ]
 
         how_many_files = len(selected_file_list)
         for file_number in range(how_many_files):
@@ -3831,7 +4144,8 @@ def select_AI_from_menu(selected_option: str) -> None:
     # FluidFrames/RIFE: Show frame generation menu, otherwise show blending
     if selected_AI_model in RIFE_models_list:
         place_frame_generation_menu()
-    else:
+    # Face restoration models don't need blending (they work differently)
+    elif selected_AI_model not in Face_restoration_models_list:
         place_AI_blending_menu()
     # Always restore other key controls
     place_AI_multithreading_menu()
@@ -3938,19 +4252,20 @@ def place_loadFile_section():
         master=window, fg_color=background_color, corner_radius=1)
 
     text_drop = (" SUPPORTED FILES \n\n "
-                 + "IMAGES • jpg png tif bmp webp heic \n "
-                 + "VIDEOS • mp4 webm mkv flv gif avi mov mpg qt 3gp ")
+                 + "IMAGES • jpg, png, tif, bmp, webp, heic \n "
+                 + "VIDEOS • mp4, webm, mkv, flv, gif, avi, mov, mpg, qt, 3gp ")
 
     input_file_text = CTkLabel(
         master=window,
         text=text_drop,
-        fg_color=background_color,
+        fg_color=widget_background_color,
         bg_color=background_color,
-        text_color=text_color,
+        text_color=secondary_text_color,
         width=300,
         height=150,
         font=bold13,
-        anchor="center"
+        anchor="center",
+        corner_radius=10
     )
 
     input_file_button = CTkButton(
@@ -3962,9 +4277,10 @@ def place_loadFile_section():
         font=bold12,
         border_width=1,
         corner_radius=1,
-        fg_color="#282828",
-        text_color="#E0E0E0",
-        border_color="#ECD125"
+        fg_color=widget_background_color,
+        text_color=text_color,
+        border_color=accent_color,
+        hover_color=button_hover_color
     )
 
     background.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
@@ -3978,7 +4294,7 @@ def place_app_name():
     app_name_label = CTkLabel(
         master=window,
         text=app_name + " " + version,
-        fg_color=background_color,
+        fg_color="transparent",
         text_color=app_name_color,
         font=bold20,
         anchor="w"
@@ -4005,6 +4321,12 @@ def place_AI_menu():
             "\n • Complex and heavy AI models\n"
             " • Year: 2020\n"
             " • Function: High-quality upscaling\n",
+
+            "\n GFPGAN \n"
+            "\n • Generative Face Prior GAN for face restoration\n"
+            " • Year: 2021\n"
+            " • Function: Face restoration and enhancement\n"
+            " • Excellent for old/blurry photos\n",
 
             "\n RIFE | RIFE Lite\n" +
             "   • The complete RIFE AI model & Lite version\n" +
@@ -4504,8 +4826,8 @@ def place_message_label():
         height=26,
         width=200,
         font=bold11,
-        fg_color="#ffbf00",
-        text_color="#000000",
+        fg_color=accent_color,
+        text_color=background_color,
         anchor="center",
         corner_radius=1
     )
@@ -4519,7 +4841,7 @@ def place_stop_button():
         icon=stop_icon,
         width=140,
         height=30,
-        border_color="#EC1D1D"
+        border_color=error_color
     )
     stop_button.place(relx=0.75 - 0.1, rely=0.95, anchor="center")
 
@@ -4677,7 +4999,8 @@ class SplashScreen(CTkToplevel):
         self.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
         # Configure appearance to match app
-        self.configure(fg_color="#212325")  # background_color
+        # Usar color de fondo definido
+        self.configure(fg_color=background_color)
 
         # Create banner or title
         if has_banner:
@@ -4693,14 +5016,14 @@ class SplashScreen(CTkToplevel):
                 self,
                 text="Warlock Studio",
                 font=CTkFont(family="Segoe UI", size=28, weight="bold"),
-                text_color="#ECD125"  # app_name_color
+                text_color=app_name_color  # Usar color del nombre de la app
             )
             title_label.pack(pady=(50, 20))
 
         # Create status frame with progress messages
         status_frame = CTkFrame(
             self,
-            fg_color="#343638",  # widget_background_color
+            fg_color=widget_background_color,  # Usar color de widget definido
             corner_radius=10
         )
         status_frame.pack(pady=10, padx=20, fill="x")
@@ -4709,9 +5032,30 @@ class SplashScreen(CTkToplevel):
             status_frame,
             text="Loading AI-ONNX models...",
             font=CTkFont(family="Segoe UI", size=12, weight="bold"),
-            text_color="white"  # text_color
+            text_color=accent_color  # Usar color amarillo para el texto de estado
         )
         self.status_label.pack(pady=10, padx=10)
+
+        # Create progress bar
+        self.progress_bar = CTkProgressBar(
+            status_frame,
+            width=400,
+            height=10,
+            progress_color=accent_color,  # Usar color amarillo dorado
+            fg_color=border_color,  # Usar color de borde
+            border_width=1
+        )
+        self.progress_bar.pack(pady=(0, 10), padx=10)
+        self.progress_bar.set(0)  # Start at 0%
+
+        # Create version label
+        version_label = CTkLabel(
+            self,
+            text=f"Version {version}",
+            font=CTkFont(family="Segoe UI", size=10),
+            text_color=secondary_text_color  # Usar color de texto secundario
+        )
+        version_label.pack(pady=(0, 10))
 
         # Define enough messages to fill 15 seconds (~1.5s por mensaje)
         self.messages = [
@@ -4755,7 +5099,43 @@ class SplashScreen(CTkToplevel):
 if __name__ == "__main__":
     multiprocessing_freeze_support()
     set_appearance_mode("Dark")
-    set_default_color_theme("dark-blue")
+
+    # Crear tema personalizado
+    import customtkinter
+    from customtkinter import set_default_color_theme
+
+    # Configurar tema personalizado con colores definidos
+    customtkinter.set_default_color_theme("dark-blue")  # Base theme
+
+    # Sobrescribir algunos colores globales de CustomTkinter
+    try:
+        # Aplicar colores personalizados a nivel global
+        customtkinter.ThemeManager.theme["CTkFrame"]["fg_color"] = [
+            widget_background_color, widget_background_color]
+        customtkinter.ThemeManager.theme["CTkButton"]["fg_color"] = [
+            widget_background_color, widget_background_color]
+        customtkinter.ThemeManager.theme["CTkButton"]["hover_color"] = [
+            button_hover_color, button_hover_color]
+        customtkinter.ThemeManager.theme["CTkButton"]["text_color"] = [
+            text_color, text_color]
+        customtkinter.ThemeManager.theme["CTkButton"]["border_color"] = [
+            accent_color, accent_color]
+        customtkinter.ThemeManager.theme["CTkEntry"]["fg_color"] = [
+            widget_background_color, widget_background_color]
+        customtkinter.ThemeManager.theme["CTkEntry"]["text_color"] = [
+            text_color, text_color]
+        customtkinter.ThemeManager.theme["CTkEntry"]["border_color"] = [
+            accent_color, accent_color]
+        customtkinter.ThemeManager.theme["CTkOptionMenu"]["fg_color"] = [
+            widget_background_color, widget_background_color]
+        customtkinter.ThemeManager.theme["CTkOptionMenu"]["text_color"] = [
+            text_color, text_color]
+        customtkinter.ThemeManager.theme["CTkOptionMenu"]["button_hover_color"] = [
+            button_hover_color, button_hover_color]
+        customtkinter.ThemeManager.theme["CTkLabel"]["text_color"] = [
+            text_color, text_color]
+    except Exception as e:
+        print(f"[THEME] Could not apply custom theme: {e}")
 
     process_status_q = multiprocessing_Queue(maxsize=1)
 

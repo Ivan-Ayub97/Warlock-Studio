@@ -1,9 +1,9 @@
 ; ===================================================================
-;   Warlock-Studio 2.2 - Inno Setup Script
+;   Warlock-Studio 3.0- Inno Setup Script
 ; ===================================================================
 
 #define AppName "Warlock-Studio"
-#define AppVersion "2.2"
+#define AppVersion "3.0"
 #define AppPublisher "Iván Eduardo Chavez Ayub"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"
@@ -56,7 +56,6 @@ Source: "..\Warlock-Studio\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversio
 Source: "..\Warlock-Studio\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\Warlock-Studio\AI-onnx\*"; DestDir: "{app}\AI-onnx"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\Warlock-Studio\Assets\*"; DestDir: "{app}\Assets"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\Warlock-Studio\rsc\*"; DestDir: "{app}\rsc"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\Warlock-Studio\LICENSE"; DestDir: "{app}"; DestName: "License.txt"; Flags: ignoreversion
 Source: "..\Warlock-Studio\NOTICE.md"; DestDir: "{app}"; Flags: ignoreversion
 
@@ -73,4 +72,3 @@ Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(
 ; --- Limpieza Adicional Durante la Desinstalación ---
 Type: filesandordirs; Name: "{app}\AI-onnx"
 Type: filesandordirs; Name: "{app}\Assets"
-Type: filesandordirs; Name: "{app}\rsc"

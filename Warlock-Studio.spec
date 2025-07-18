@@ -5,14 +5,14 @@ a = Analysis(
     ['Warlock-Studio.py'],
     pathex=[],
     binaries=[],
-    datas=[('AI-onnx', 'AI-onnx'), ('Assets', 'Assets'), ('rsc', 'rsc')],
+    datas=[('AI-onnx', 'AI-onnx'), ('Assets', 'Assets')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=0,
+    optimize=1,
 )
 pyz = PYZ(a.pure)
 

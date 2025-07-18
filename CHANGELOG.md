@@ -1,3 +1,66 @@
+## Version 3.0
+
+**Release date:** 16 July 2025
+
+### 1. Major Features & Core Capabilities
+
+#### 1.1 **AI-Powered Face Restoration (GFPGAN)**
+
+- **New `AI_face_restoration` Class**: A new, specialized class has been implemented to handle face restoration models. This class is architected to manage the unique preprocessing and post-processing requirements of models like GFPGAN, distinct from standard upscaling models.
+- **GFPGAN Model Integration**: The GFPGAN v1.4 model has been added to the AI model repository and is now selectable from the UI. It is listed under a new `Face_restoration_models_list` category. The main orchestrator (`upscale_orchestrator`) now detects when a face restoration model is selected and routes the task to the appropriate `AI_face_restoration` instance.
+- **Specialized Processing Pipeline**: The new class introduces a dedicated pipeline for face enhancement. This includes resizing the input image to the model's required dimensions (e.g., 512x512 for GFPGAN), handling color channel conversions, and post-processing the output to restore the image to its original dimensions.
+
+### 2. UI/UX Modernisation
+
+#### 2.1 **Complete Thematic Redesign**
+
+- The application has undergone a significant visual overhaul with a new, professionally designed color scheme to improve aesthetics and user comfort during long sessions. The new theme provides better contrast and a more modern look.
+
+| Element           | New Value (v3.0)       | Old Value (v2.2)          |
+| :---------------- | :--------------------- | :------------------------ |
+| Background        | `#1A1A1A` (Deep Black) | `#000000` (Pure Black)    |
+| App Name Color    | `#FF4444` (Bright Red) | `#FF0000` (Pure Red)      |
+| Widget Background | `#2D2D2D` (Dark Grey)  | `#5A5A5A` (Grey)          |
+| Accent/Border     | `#FFD700` (Gold)       | Gold & Red                |
+| Button Hover      | `#FF6666` (Light Red)  | `background_color`        |
+| Info Button       | `#B22222` (Dark Red)   | `widget_background_color` |
+
+#### 2.2 **Enhanced Splash Screen**
+
+- **Dynamic Progress Bar**: The splash screen now features a `CTkProgressBar` to provide visual feedback on the application's loading status, enhancing the startup experience.
+- **Smooth Fade-Out Animation**: A new `fade_out` method using a cosine function has been implemented for a smooth, animated exit transition instead of an abrupt disappearance.
+- **Improved Information Display**: The splash screen now prominently displays the application version number.
+
+#### 2.3 **Redesigned and Resizable Message Boxes**
+
+- The `MessageBox` class was significantly improved to handle large blocks of text, such as detailed error messages. It now implements a `CTkScrollableFrame`, ensuring that content is always accessible without forcing the dialog to an unmanageable size.
+- The dialogs now have defined `minsize` and `maxsize` properties for better window management.
+
+#### 2.4 **Improved UI Readability**
+
+- The main AI model dropdown menu is now logically grouped by model type (Upscaling, Denoising, Face Restoration, Interpolation), with a `MENU_LIST_SEPARATOR` between categories. This makes it easier for users to find and select the appropriate AI model for their task.
+
+### 3. Performance and Code Optimisation
+
+#### 3.1 **Memory Optimisation with Contiguous Arrays**
+
+- Widespread use of `numpy.ascontiguousarray` has been implemented across the codebase. This is applied during critical image handling steps in `AI_upscale.preprocess_image`, `AI_interpolation.concatenate_images`, and the new `AI_face_restoration.preprocess_face_image` class. This ensures data is aligned in memory, which can significantly speed up operations in backend libraries like OpenCV and ONNX Runtime.
+
+#### 3.2 **Refined Data Type Handling**
+
+- The `AI_upscale` class now explicitly ensures input images are converted to `float32` before normalization, improving precision and preventing potential data type mismatches during inference.
+- The `AI_face_restoration` class is configured to intelligently select between `float16` and `float32` based on the specific model's requirements (`fp16: True` in config), further optimizing performance and VRAM usage for compatible models.
+
+### 4. Codebase Health and Maintainability
+
+#### 4.1 **Specialised Class for Face Restoration**
+
+- The logic for face restoration has been fully encapsulated within the new `AI_face_restoration` class, separating it from the general-purpose `AI_upscale` class. This object-oriented approach makes the code more modular, readable, and easier to extend with different face enhancement models in the future.
+
+#### 4.2 **Robust BGRA to BGR Conversion**
+
+- The application now explicitly handles images with an alpha channel (4-channel BGRA) when using face restoration models. A new import for `COLOR_BGRA2BGR` was added, and it is used within `preprocess_face_image` to convert images to the 3-channel BGR format expected by the GFPGAN model. This prevents runtime errors and ensures correct processing of PNGs or other images with transparency.
+
 ## Version 2.2
 
 **Release date:** 7 July 2025
