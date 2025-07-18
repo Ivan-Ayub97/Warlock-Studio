@@ -195,9 +195,9 @@ Warlock-Studio/
       └──Installation_window2.png
 ├──Manual/
    │
-   └──├──Manual_EN.pdf
+   └──├──v3.0-User_Manual-EN.pdf
       ├──Manual_EN.tex
-      ├──Manual_ES.pdf
+      ├──v3.0-User_Manual-ES.pdf
       └──Manual_ES.tex
 │
 ├──CHANGELOG.md
