@@ -31,7 +31,7 @@ Get the latest stable release from any of the following platforms:
     </td>
     <td align="center" width="33%">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/3.0/Warlock-Studio3.0Setup.zip">
-        <img src="GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
   </tr>
