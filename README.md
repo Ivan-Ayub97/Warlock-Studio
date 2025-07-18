@@ -20,11 +20,6 @@ Get the latest stable release from any of the following platforms:
 <table>
   <tr>
     <td align="center" width="33%">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/latest" target="_blank">
-        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
-      </a>
-    </td>
-    <td align="center" width="33%">
       <a href="https://sourceforge.net/p/warlock-studio/"><img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width=200></a>
     </td>
     <td align="center" width="33%">
@@ -101,34 +96,12 @@ Get the latest stable release from any of the following platforms:
 
 ---
 
-## AI Model Workflows & Quality Comparison
+## Quality Comparison
 
 ### Quality Comparison
 
 **Comparison of an enhanced image using the BSRGANx2 model**
 ![Quality Comparison](rsc/image_comparison.png)
-
-### AI Model Workflows
-
-#### 🔹 GFPGAN (Face Restoration)
-
-![Screenshot of Warlock-Studio showing GFPGAN workflow](rsc/WorkflowGFPGAN.png)
-
-#### 🔹 RIFE (Frame Interpolation)
-
-![Screenshot of Warlock-Studio showing RIFE workflow](rsc/WorkflowRIFE.png)
-
-#### 🔹 Real-ESRGAN (Upscaling)
-
-![Screenshot of Warlock-Studio showing Real-ESRGAN workflow](rsc/WorkflowRealESRGAN.png)
-
-#### 🔹 IRCNN (Denoising)
-
-![Screenshot of Warlock-Studio showing IRCNN workflow](rsc/WorkflowIRCNN.png)
-
-#### 🔹 BSRGAN (Upscaling)
-
-![Screenshot of Warlock-Studio showing BSRGAN workflow](rsc/WorkflowBSRGAN.png)
 
 ---
 
