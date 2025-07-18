@@ -106,8 +106,6 @@ Get the latest stable release from any of the following platforms:
 
 ## Quality Comparison
 
-### Quality Comparison
-
 **Comparison of an enhanced image using the BSRGANx2 model**
 ![Quality Comparison](rsc/image_comparison.png)
 
