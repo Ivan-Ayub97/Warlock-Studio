@@ -14,7 +14,7 @@
 \usepackage[utf8]{inputenc}             % Permite escribir caracteres UTF-8 (acentos, ñ) directamente.
 \usepackage[T1]{fontenc}                % Codificación de fuentes moderna para una correcta visualización y copiado de PDF.
 \usepackage[spanish,es-noshorthands]{babel} % Soporte para el idioma español. La opción 'es-noshorthands' es
-                                        % CRÍTICA para evitar conflictos con otros paquetes.
+                                            % CRÍTICA para evitar conflictos con otros paquetes.
 
 % --- Configuración de Página y Diseño ---
 \usepackage{geometry}                   % Para configurar los márgenes y el diseño de la página.
@@ -77,14 +77,14 @@
     linkcolor=WarlockRed,             % Color para enlaces internos (a secciones, figuras, etc.).
     filecolor=WarlockRed,             % Color para enlaces a archivos locales.
     urlcolor=WarlockRed,              % Color para enlaces a URLs externas.
-    pdftitle={Warlock-Studio 2.2 User Manual & Technical Documentation}, % Metadatos del PDF.
+    pdftitle={Warlock-Studio 3.0 Guía de Usuario 6 Documentación Técnica}, % Metadatos del PDF.
     pdfauthor={Iván Eduardo Chavez Ayub (Revisado por IA)}             % Metadatos del PDF.
 }
 
 
 % %%% --- ESTILO DE TÍTULOS DE SECCIÓN --- %%%
 % Se usa 'titlesec' para definir un estilo personalizado para las secciones.
-% \titleformat{<comando>}[<forma>]{<formato>}{<etiqueta>}{<separación>}{<código-antes>}
+% \titleformat{command}[forma]{formato}{etiqueta}{separación}{código-antes}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{WarlockRed}} % Formato del título: Fuente normal, grande, negrita, color rojo.
   {\thesection.}                                 % Etiqueta: El número de la sección seguido de un punto.
@@ -97,7 +97,7 @@
   {1em}
   {}
 
-% \titlespacing*{<comando>}{<espacio-izq>}{<espacio-arriba>}{<espacio-abajo>}
+% \titlespacing*{command}{espacio-izq}{espacio-arriba}{espacio-abajo}
 \titlespacing*{\section}
   {0pt}                 % Espaciado a la izquierda del título.
   {3.5ex plus 1ex minus .2ex} % Espaciado vertical ANTES del título (con flexibilidad).
@@ -137,7 +137,7 @@
 }
 
 % Comando personalizado para formatear código en línea.
-% \newcommand{<nombre>}[<argumentos>]{<definición>}
+% \newcommand{nombre}[argumentos]{definición}
 \newcommand{\inlinecode}[1]{\colorbox{WarlockLightGray}{\small\texttt{#1}}}
 
 
@@ -147,7 +147,7 @@
 \fancyhf{} % Limpia todos los campos del encabezado y pie de página.
 
 % \fancyhead[L/C/R]{...} define el contenido de la cabecera (Izquierda, Centro, Derecha).
-\fancyhead[L]{\textit{Warlock-Studio 2.2}}
+\fancyhead[L]{\textit{Warlock-Studio 3.0}}
 \fancyhead[R]{\leftmark} % \leftmark muestra el nombre de la sección actual.
 
 % \fancyfoot[L/C/R]{...} define el contenido del pie de página.
@@ -195,7 +195,7 @@
       \vspace{0.7cm} % Espacio vertical fijo.
       {\Large -- Manual Técnico del Usuario y Documentación --\par}
       \vspace{0.2cm}
-      {\Large Versión 2.2\par}
+      {\Large Versión 3.0\par}
 
       \vfill % Otro espacio flexible.
 
@@ -216,7 +216,7 @@
 % El entorno 'abstract' crea un resumen del documento.
 \begin{abstract}
 \noindent % Evita la sangría en la primera línea.
-Este documento es una guía técnica exhaustiva para Warlock-Studio 2.2. La información ha sido validada y enriquecida con un análisis profundo del código fuente para proporcionar detalles precisos sobre su arquitectura, una guía de optimización avanzada y un manual de solución de problemas robusto.
+Este documento es una guía técnica exhaustiva para Warlock-Studio 3.0. La información ha sido validada y enriquecida con un análisis profundo del código fuente para proporcionar detalles precisos sobre su arquitectura, una guía de optimización avanzada y un manual de solución de problemas robusto.
 \end{abstract}
 
 \newpage % Salto de página antes de la tabla de contenidos.
@@ -228,17 +228,17 @@ Este documento es una guía técnica exhaustiva para Warlock-Studio 2.2. La info
 
 % --- Sección 1: Introducción ---
 \section{Introducción}
-Warlock-Studio es una suite de mejora y escalado de medios impulsada por IA, diseñada para ofrecer resultados de alta calidad a través de una interfaz de usuario accesible. La versión 2.2 introduce mejoras clave en estabilidad, rendimiento y la experiencia del usuario, consolidándose como una herramienta robusta para creadores de contenido y entusiastas.
+Warlock-Studio es una suite de mejora y escalado de medios impulsada por IA, diseñada para ofrecer resultados de alta calidad a través de una interfaz de usuario accesible. La versión 3.0 introduce mejoras clave en gestión de GPU, manejo de errores y eficiencia de rendimiento. Se consolida como una herramienta poderosa para creadores de contenido profesionales.
 
-\subsection{Novedades en la Versión 2.2}
-El análisis del código revela las siguientes mejoras sustanciales:
+\subsection{Novedades en la Versión 3.0}
+La última versión aporta las siguientes mejoras clave:
 % Se usa 'itemize' para listas con viñetas. [leftmargin=*] alinea la lista con el margen del párrafo.
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Gestión de Hilos y Cierres Seguros:} Se ha mejorado la gestión de concurrencia mediante \texttt{Lock} y \texttt{RLock} para garantizar que el estado del proceso se actualice de forma segura y se eviten condiciones de carrera al procesar videos. La terminación del proceso (\texttt{terminate}) ahora es más robusta.
-    \item \textbf{Optimización de Memoria Proactiva:} Durante el procesamiento de videos largos, la aplicación ahora invoca explícitamente al recolector de basura de Python (\texttt{gc.collect()}) después de procesar lotes de fotogramas, reduciendo significativamente la probabilidad de errores de memoria insuficiente.
-    \item \textbf{Manejo de Errores de GPU:} Se ha añadido un manejador específico para errores de memoria de la GPU durante el escalado de video. Si se detecta un error "out of memory", la aplicación reduce automáticamente el tamaño de los \textit{tiles} y reintenta el proceso.
-    \item \textbf{Pantalla de Bienvenida (Splash Screen):} Se ha añadido una pantalla de inicio de 10 segundos que mejora la percepción de la carga inicial de la aplicación.
-    \item \textbf{Registro (Logging) y Diagnóstico:} La aplicación crea archivos de registro (\texttt{warlock\_studio.log} y \texttt{error\_log.txt}) en la carpeta de \textbf{Documentos} del usuario, facilitando el diagnóstico de problemas.
+    \item \textbf{Soporte mejorado de modelos IA:} Nuevos modelos de última generación como Real-ESRGAN, RIFE y GFPGAN se han integrado para un superior escalado e interpolación.
+    \item \textbf{Gestión avanzada de GPU:} Mejora en el manejo de errores para optimizar el rendimiento incluso en configuraciones de VRAM más bajas.
+    \item \textbf{Gestión optimizada de memoria:} Incluye técnicas proactivas de optimización de memoria y mejor soporte de hilos para un procesamiento fluido.
+    \item \textbf{Mejora en GUI y preferencias de usuario:} Una interfaz más amigable con opciones de configuración mejoradas y actualizaciones dinámicas en tiempo real.
+    \item \textbf{Codificación de video mejorada:} Soporta múltiples codificadores acelerados por hardware de NVIDIA, AMD e Intel para un rendimiento óptimo.
 \end{itemize}
 
 \subsection{Características Principales}
@@ -246,6 +246,7 @@ El análisis del código revela las siguientes mejoras sustanciales:
     \item \textbf{Escalado por IA:} Utiliza modelos de última generación como Real-ESRGAN, BSRGAN y SRVGGNetCompact.
     \item \textbf{Interpolación de Fotogramas:} Aumenta los FPS o crea efectos de cámara lenta fluidos usando modelos RIFE.
     \item \textbf{Reducción de Ruido:} Incluye modelos IRCNN dedicados a la limpieza de imágenes y videos.
+    \item \textbf{Restauración de Rostros:} Modelo GFPGAN para mejorar y restaurar rostros en fotos.
     \item \textbf{Aceleración por Hardware:} Usa el motor ONNX Runtime con el proveedor DirectML (\texttt{DmlExecutionProvider}) para una aceleración por GPU compatible con DirectX 12.
     \item \textbf{Codificación de Video Avanzada:} Soporte para codificadores acelerados por hardware de NVIDIA (NVENC), AMD (AMF) e Intel (QSV).
 \end{itemize}
@@ -261,15 +262,15 @@ El análisis del código revela las siguientes mejoras sustanciales:
     % 'tabular' es el entorno que dibuja la tabla. {ll} define dos columnas alineadas a la izquierda.
     \begin{tabular}{ll}
         \toprule % Línea superior de la tabla (de booktabs).
-        \textbf{Componente} & \textbf{Requisito} \\
+        \textbf{Componente} 6 \textbf{Requisito} \\
         \midrule % Línea media de la tabla (de booktabs).
-        Sistema Operativo & Windows 10 (64-bit) o posterior \\
-        Memoria RAM & 8 GB (Mínimo), 16 GB (Recomendado) \\
-        Tarjeta Gráfica (GPU) & Compatible con \textbf{DirectX 12}. \textbf{Recomendado: 4+ GB VRAM}. \\
-        Almacenamiento & 2 GB de espacio libre. Se recomienda un SSD para un mejor rendimiento. \\
+        Sistema Operativo 6 Windows 10 (64-bit) o posterior \\
+        Memoria RAM 6 8 GB (Mínimo), 16 GB (Recomendado) \\
+        Tarjeta Gráfica (GPU) 6 Compatible con \textbf{DirectX 12}. \textbf{Recomendado: 4+ GB VRAM}. \\
+        Almacenamiento 6 2 GB de espacio libre. Se recomienda un SSD para un mejor rendimiento. \\
         \bottomrule % Línea inferior de la tabla (de booktabs).
     \end{tabular}
-    \caption{Requisitos de hardware y software para Warlock-Studio 2.2.}
+    \caption{Requisitos de hardware y software para Warlock-Studio 3.0.}
 \end{table}
 
 \subsection{Estructura de Archivos y Dependencias}
@@ -280,8 +281,8 @@ Warlock-Studio es una aplicación autocontenida. Los siguientes componentes se i
     \item \inlinecode{ffmpeg.exe:} Ubicado en la carpeta \texttt{Assets}, es el motor para toda la manipulación, codificación y decodificación de video.
     \item \inlinecode{exiftool.exe:} También en \texttt{Assets}, se utiliza para leer y escribir metadatos (EXIF, XMP), asegurando que la información original del archivo se preserve.
     \item \textbf{Modelos IA:} Los modelos en formato \texttt{.onnx} se encuentran en la carpeta \texttt{AI-onnx}.
-    \item \textbf{Preferencias de Usuario:} Se guarda un archivo \inlinecode{Warlock-Studio_2.2_UserPreference.json} en la carpeta de \textbf{Documentos} del usuario.
-    \item \textbf{Registros (Logs):} Los archivos de registro se almacenan en \texttt{Documentos\textbackslash Warlock-Studio_2.2_Logs}.
+    \item \textbf{Preferencias de Usuario:} Se guarda un archivo \inlinecode{Warlock-Studio_3.0_UserPreference.json} en la carpeta de \textbf{Documentos} del usuario.
+    \item \textbf{Registros (Logs):} Los archivos de registro se almacenan en \texttt{Documentos\textbackslash Warlock-Studio_3.0_Logs}.
 \end{itemize}
 
 
@@ -292,34 +293,38 @@ La elección del modelo de IA es el factor más importante para la calidad y el 
 \subsection{Tabla Comparativa de Modelos}
 La siguiente tabla detalla el uso relativo de VRAM de cada modelo.
 % 'longtable' es para tablas que pueden ocupar varias páginas. La definición de columnas es similar a 'tabular'.
-% Se usa 'p{<ancho>}' para la última columna, creando un párrafo de ancho fijo con ajuste de línea automático.
+% Se usa 'p{ancho}' para la última columna, creando un párrafo de ancho fijo con ajuste de línea automático.
 \begin{longtable}{l l c c p{6.5cm}}
 \toprule
-\textbf{Modelo} & \textbf{Función Principal} & \textbf{Escala} & \textbf{Peso VRAM} & \textbf{Caso de Uso Recomendado} \\
+\textbf{Modelo} 6 \textbf{Función Principal} 6 \textbf{Escala} 6 \textbf{Peso VRAM} 6 \textbf{Caso de Uso Recomendado} \\
 \midrule
 \endhead % \endhead define el encabezado que se repetirá en cada página.
 
 \multicolumn{5}{c}{\textit{Modelos de Reducción de Ruido (Denoising)}} \\
 \midrule
-\texttt{IRCNN\_Mx1} & Denoise & x1 & 4.0 & Ruido moderado. \\
-\texttt{IRCNN\_Lx1} & Denoise & x1 & 4.0 & Ruido intenso. \\
+\texttt{IRCNN\_Mx1} 6 Denoise 6 x1 6 4.0 6 Ruido moderado. \\
+\texttt{IRCNN\_Lx1} 6 Denoise 6 x1 6 4.0 6 Ruido intenso. \\
 \midrule
 \multicolumn{5}{c}{\textit{Modelos de Escalado - Alta Calidad (Lentos)}} \\
 \midrule
-\texttt{BSRGANx4} & Upscale & x4 & 0.6 & Fotografías realistas. Excelente detalle fino. \\
-\texttt{BSRGANx2} & Upscale & x2 & 0.7 & Similar a x4 pero para un escalado menor. \\
-\texttt{RealESRGANx4} & Upscale & x4 & 0.6 & Uso general, bueno para texturas. \\
-\texttt{RealESRNetx4} & Upscale & x4 & 2.2 & Alternativa a RealESRGAN, puede ser más rápido. \\
+\texttt{BSRGANx4} 6 Upscale 6 x4 6 0.6 6 Fotografías realistas. Excelente detalle fino. \\
+\texttt{BSRGANx2} 6 Upscale 6 x2 6 0.7 6 Similar a x4 pero para un escalado menor. \\
+\texttt{RealESRGANx4} 6 Upscale 6 x4 6 0.6 6 Uso general, bueno para texturas. \\
+\texttt{RealESRNetx4} 6 Upscale 6 x4 6 2.2 6 Alternativa a RealESRGAN, puede ser más rápido. \\
 \midrule
 \multicolumn{5}{c}{\textit{Modelos de Escalado - Alta Velocidad (Ligeros)}} \\
 \midrule
-\texttt{RealESR\_Gx4} & Upscale & x4 & 2.2 & Escalado rápido, ideal para videos. \\
-\texttt{RealESR\_Animex4} & Upscale & x4 & 2.2 & Optimizado para anime y dibujos animados. \\
+\texttt{RealESR\_Gx4} 6 Upscale 6 x4 6 2.2 6 Escalado rápido, ideal para videos. \\
+\texttt{RealESR\_Animex4} 6 Upscale 6 x4 6 2.2 6 Optimizado para anime y dibujos animados. \\
+\midrule
+\multicolumn{5}{c}{\textit{Modelos de Restauración de Rostros}} \\
+\midrule
+\texttt{GFPGAN} 6 Restablecer 6 x1 6 1.8 6 Mejora y restauración de rostros. \\
 \midrule
 \multicolumn{5}{c}{\textit{Modelos de Interpolación de Fotogramas (Solo Video)}} \\
 \midrule
-\texttt{RIFE} & Interpolar & N/A & N/A & Máxima calidad de interpolación. \\
-\texttt{RIFE\_Lite} & Interpolar & N/A & N/A & Versión más rápida, ideal para GPUs con < 4 GB VRAM. \\
+\texttt{RIFE} 6 Interpolar 6 N/A 6 N/A 6 Máxima calidad de interpolación. \\
+\texttt{RIFE\_Lite} 6 Interpolar 6 N/A 6 N/A 6 Versión más rápida, ideal para GPUs con c 4 GB VRAM. \\
 \bottomrule
 \caption{Guía de selección de modelos de IA y su impacto en VRAM.}
 \label{tab:modelos} % \label para poder referenciar la tabla con \ref{tab:modelos}.
@@ -335,10 +340,11 @@ La siguiente tabla detalla el uso relativo de VRAM de cada modelo.
     \item \textbf{GPU VRAM Limiter (GB):} Defina la VRAM de su GPU. Se usa para calcular el tamaño de los \textit{tiles} de procesamiento y evitar errores de memoria.
     \item \textbf{AI Multithreading:} Solo para videos. Procesa varios fotogramas en paralelo. Acelera el proceso pero consume más VRAM y CPU.
     \item \textbf{AI Blending:} Combina la imagen original con la procesada. Útil para reducir artefactos cuando se usa un \textit{Input Resolution} bajo.
+    \item \textbf{Generación de fotogramas:} Para modelos RIFE, permite crear fotogramas interpolados para mayor FPS o efectos de cámara lenta.
 \end{itemize}
 
 \subsection{El Fichero de Preferencias de Usuario}
-El archivo \inlinecode{Warlock-Studio_2.2_UserPreference.json} guarda su configuración.
+El archivo \inlinecode{Warlock-Studio_3.0_UserPreference.json} guarda su configuración.
 % Se usa 'tabularx' para que la tabla ocupe automáticamente el 100% del ancho del texto.
 % La columna 'X' es una columna flexible que se expande para llenar el espacio disponible.
 \begin{table}[H]
@@ -346,20 +352,20 @@ El archivo \inlinecode{Warlock-Studio_2.2_UserPreference.json} guarda su configu
     \small % Reduce el tamaño de la fuente dentro de la tabla.
     \begin{tabularx}{\textwidth}{l X}
         \toprule
-        \textbf{Clave JSON} & \textbf{Descripción} \\
+        \textbf{Clave JSON} 6 \textbf{Descripción} \\
         \midrule
-        \texttt{default\_AI\_model} & El último modelo de IA seleccionado. \\
-        \texttt{default\_AI\_multithreading} & El número de hilos de procesamiento para video. \\
-        \texttt{default\_gpu} & La última GPU seleccionada (Auto, GPU 1, etc.). \\
-        \texttt{default\_keep\_frames} & Si se deben conservar los fotogramas de video ("ON" o "OFF"). \\
-        \texttt{default\_image\_extension} & Extensión de imagen por defecto (\texttt{.png}, \texttt{.jpg}, etc.). \\
-        \texttt{default\_video\_extension} & Extensión de video por defecto (\texttt{.mp4}, \texttt{.mkv}, etc.). \\
-        \texttt{default\_video\_codec} & El codificador de video por defecto (x264, hevc\_nvenc, etc.). \\
-        \texttt{default\_blending} & El nivel de mezcla seleccionado (Low, Medium, High). \\
-        \texttt{default\_output\_path} & La última ruta de salida seleccionada. \\
-        \texttt{default\_input\_resize\_factor} & El valor del porcentaje de resolución de entrada. \\
-        \texttt{default\_output\_resize\_factor} & El valor del porcentaje de resolución de salida. \\
-        \texttt{default\_VRAM\_limiter} & El valor del limitador de VRAM de la GPU. \\
+        \texttt{default\_AI\_model} 6 El último modelo de IA seleccionado. \\
+        \texttt{default\_AI\_multithreading} 6 El número de hilos de procesamiento para video. \\
+        \texttt{default\_gpu} 6 La última GPU seleccionada (Auto, GPU 1, etc.). \\
+        \texttt{default\_keep\_frames} 6 Si se deben conservar los fotogramas de video ("ON" o "OFF"). \\
+        \texttt{default\_image\_extension} 6 Extensión de imagen por defecto (\texttt{.png}, \texttt{.jpg}, etc.). \\
+        \texttt{default\_video\_extension} 6 Extensión de video por defecto (\texttt{.mp4}, \texttt{.mkv}, etc.). \\
+        \texttt{default\_video\_codec} 6 El codificador de video por defecto (x264, hevc\_nvenc, etc.). \\
+        \texttt{default\_blending} 6 El nivel de mezcla seleccionado (Low, Medium, High). \\
+        \texttt{default\_output\_path} 6 La última ruta de salida seleccionada. \\
+        \texttt{default\_input\_resize\_factor} 6 El valor del porcentaje de resolución de entrada. \\
+        \texttt{default\_output\_resize\_factor} 6 El valor del porcentaje de resolución de salida. \\
+        \texttt{default\_VRAM\_limiter} 6 El valor del limitador de VRAM de la GPU. \\
         \bottomrule
     \end{tabularx}
     \caption{Claves guardadas en el archivo de preferencias del usuario.}
@@ -368,7 +374,7 @@ El archivo \inlinecode{Warlock-Studio_2.2_UserPreference.json} guarda su configu
 % --- Sección 5: Solución de Problemas ---
 \section{Guía Avanzada de Solución de Problemas}
 \begin{warnbox}
-La causa \textbf{Número 1} de errores son los \textbf{caracteres especiales} en rutas y nombres de archivo. Evite usar: \texttt{', ", @, \#, \$, \%, \&, *, [, ], ?, etc.}.
+La causa \textbf{Número 1} de errores son los \textbf{caracteres especiales} en rutas y nombres de archivo. Evite usar: \texttt{', ", @, \#, \$, \%, \&amp;, *, [, ], ?, etc.}.
 \end{warnbox}
 
 % 'description' es para listas de definiciones.
@@ -401,10 +407,14 @@ La causa \textbf{Número 1} de errores son los \textbf{caracteres especiales} en
         \textbf{Causa:} Configuración corrupta, falta de permisos o error del entorno.
         \textbf{Solución:}
         \begin{enumerate}[nosep, leftmargin=*]
-            \item Elimine el archivo \inlinecode{Warlock-Studio_2.2_UserPreference.json} en su carpeta de \textbf{Documentos}.
-            \item Revise los archivos de registro en \texttt{Documentos\textbackslash Warlock-Studio_2.2_Logs}.
+            \item Elimine el archivo \inlinecode{Warlock-Studio_3.0_UserPreference.json} en su carpeta de \textbf{Documentos}.
+            \item Revise los archivos de registro en \texttt{Documentos\textbackslash Warlock-Studio_3.0_Logs}.
             \item Asegúrese de que sus controladores de GPU estén actualizados.
         \end{enumerate}
+
+    \item[\faExclamationTriangle\ Problema: La interpolación de fotogramas no funciona]
+        \textbf{Causa:} Modelos RIFE no seleccionados o formato de video incompatible.
+        \textbf{Solución:} Asegúrese de haber seleccionado un modelo RIFE (RIFE o RIFE\_Lite) y que la opción de generación de fotogramas esté correctamente configurada.
 \end{description}
 
 % --- Sección 6: Arquitectura ---
@@ -421,6 +431,9 @@ Si un proceso de video se interrumpe, los fotogramas procesados se guardan. Al r
 
 \subsection{Escritura Asíncrona de Fotogramas}
 Durante el escalado de video, los fotogramas procesados se envían a un hilo de escritura separado. Esto permite a la GPU procesar el siguiente lote sin esperar a que la escritura en disco (más lenta) termine, maximizando el rendimiento.
+
+\subsection{Pipeline de Interpolación de Fotogramas}
+Los modelos RIFE utilizan un pipeline de interpolación especializado que analiza el movimiento entre fotogramas para generar fotogramas intermedios suaves. Esto permite mayores tasas de cuadros o efectos de cámara lenta con artefactos mínimos.
 
 
 % =======================================================================================

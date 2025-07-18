@@ -1,7 +1,7 @@
 % =======================================================================================
-%   WARLOCK-STUDIO 2.2 - USER MANUAL & TECHNICAL DOCUMENTATION
+%   WARLOCK-STUDIO 3.0 - USER MANUAL & TECHNICAL DOCUMENTATION
 % =======================================================================================
-% Manual Version: 5.0 (Final Documented Edition)
+% Manual Version: 6.0 (Updated Edition)
 % Author: Iván Eduardo Chavez Ayub (Reviewed and Improved by AI)
 %
 % This document is a robust and professional LaTeX template designed for
@@ -88,7 +88,7 @@
     linkcolor=WarlockRed,             % Color for internal links (to sections, figures, etc.).
     filecolor=WarlockRed,             % Color for links to local files.
     urlcolor=WarlockRed,              % Color for links to external URLs.
-    pdftitle={Warlock-Studio 2.2 User Manual & Technical Documentation}, % PDF metadata.
+    pdftitle={Warlock-Studio 3.0 User Manual & Technical Documentation}, % PDF metadata.
     pdfauthor={Iván Eduardo Chavez Ayub (Reviewed by AI)}             % PDF metadata.
 }
 
@@ -158,7 +158,7 @@
 \fancyhf{} % Clears all header and footer fields.
 
 % \fancyhead[L/C/R]{...} defines the header content (Left, Center, Right).
-\fancyhead[L]{\textit{Warlock-Studio 2.2}}
+\fancyhead[L]{\textit{Warlock-Studio 3.0}}
 \fancyhead[R]{\leftmark} % \leftmark displays the current section name.
 
 % \fancyfoot[L/C/R]{...} defines the footer content.
@@ -206,7 +206,7 @@
       \vspace{0.7cm} % Fixed vertical space.
       {\Large -- User Manual \& Technical Documentation --\par}
       \vspace{0.2cm}
-      {\Large Version 2.2\par}
+      {\Large Version 3.0\par}
 
       \vfill % Another flexible space.
 
@@ -227,7 +227,7 @@
 % The 'abstract' environment creates a summary of the document.
 \begin{abstract}
 \noindent % Prevents indentation on the first line.
-This document is a comprehensive technical guide for Warlock-Studio 2.2. The information has been validated and enriched with a deep analysis of the source code to provide precise details about its architecture, an advanced optimization guide, and a robust troubleshooting manual.
+This document is a comprehensive technical guide for Warlock-Studio 3.0. The information has been validated and enriched with a deep analysis of the source code to provide precise details about its architecture, an advanced optimization guide, and a robust troubleshooting manual.
 \end{abstract}
 
 \newpage % Page break before the table of contents.
@@ -239,17 +239,17 @@ This document is a comprehensive technical guide for Warlock-Studio 2.2. The inf
 
 % --- Section 1: Introduction ---
 \section{Introduction}
-Warlock-Studio is an AI-powered media enhancement and upscaling suite, designed to deliver high-quality results through an accessible user interface. Version 2.2 introduces key improvements in stability, performance, and user experience, establishing it as a robust tool for content creators and enthusiasts.
+Warlock-Studio is an AI-powered media enhancement and upscaling suite, designed to deliver high-quality results through an accessible user interface. Version 3.0 introduces key enhancements in GPU management, error handling, and performance efficiency. It solidifies its position as a powerful tool for professional content creators.
 
-\subsection{What's New in Version 2.2}
-The code analysis reveals the following substantial improvements:
+\subsection{What's New in Version 3.0}
+The latest version brings the following key enhancements:
 % 'itemize' is used for bulleted lists. [leftmargin=*] aligns the list with the paragraph margin.
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Thread Management and Safe Closures:} Concurrency management has been improved using \texttt{Lock} and \texttt{RLock} to ensure the process state is updated safely and to prevent race conditions when processing videos. The process termination (\texttt{terminate}) is now more robust.
-    \item \textbf{Proactive Memory Optimization:} During long video processing, the application now explicitly calls Python's garbage collector (\texttt{gc.collect()}) after processing batches of frames, significantly reducing the likelihood of out-of-memory errors.
-    \item \textbf{GPU Error Handling:} A specific handler for GPU memory errors during video upscaling has been added. If an "out of memory" error is detected, the application automatically reduces the \textit{tile} size and retries the process.
-    \item \textbf{Splash Screen:} A 10-second splash screen has been added, improving the perception of the application's initial load time.
-    \item \textbf{Logging and Diagnostics:} The application creates log files (\texttt{warlock\_studio.log} and \texttt{error\_log.txt}) in the user's \textbf{Documents} folder, making it easier to diagnose problems.
+    \item \textbf{Enhanced AI Model Support:} New state-of-the-art models like Real-ESRGAN, RIFE, and GFPGAN have been integrated for superior upscaling and interpolation.
+    \item \textbf{Advanced GPU Management:} Improved error handling optimizes performance even in lower VRAM configurations.
+    \item \textbf{Optimized Memory Management:} Includes proactive memory optimization techniques and better threading support for smooth processing.
+    \item \textbf{Improved GUI and User Preferences:} A more user-friendly interface with enhanced configuration options and dynamic real-time updates.
+    \item \textbf{Enhanced Video Encoding:} Supports multiple hardware-accelerated encoders from NVIDIA, AMD, and Intel for optimal performance.
 \end{itemize}
 
 \subsection{Main Features}
@@ -257,6 +257,7 @@ The code analysis reveals the following substantial improvements:
     \item \textbf{AI Upscaling:} Uses state-of-the-art models like Real-ESRGAN, BSRGAN, and SRVGGNetCompact.
     \item \textbf{Frame Interpolation:} Increases FPS or creates smooth slow-motion effects using RIFE models.
     \item \textbf{Noise Reduction:} Includes dedicated IRCNN models for cleaning images and videos.
+    \item \textbf{Face Restoration:} GFPGAN model for enhancing and restoring faces in photos.
     \item \textbf{Hardware Acceleration:} Uses the ONNX Runtime engine with the DirectML provider (\texttt{DmlExecutionProvider}) for GPU acceleration compatible with DirectX 12.
     \item \textbf{Advanced Video Encoding:} Supports hardware-accelerated encoders from NVIDIA (NVENC), AMD (AMF), and Intel (QSV).
 \end{itemize}
@@ -280,7 +281,7 @@ The code analysis reveals the following substantial improvements:
         Storage & 2 GB of free space. An SSD is recommended for better performance. \\
         \bottomrule % Bottom line of the table (from booktabs).
     \end{tabular}
-    \caption{Hardware and software requirements for Warlock-Studio 2.2.}
+    \caption{Hardware and software requirements for Warlock-Studio 3.0.}
 \end{table}
 
 \subsection{File Structure and Dependencies}
@@ -291,8 +292,8 @@ Warlock-Studio is a self-contained application. The following components are inc
     \item \inlinecode{ffmpeg.exe:} Located in the \texttt{Assets} folder, it is the engine for all video manipulation, encoding, and decoding.
     \item \inlinecode{exiftool.exe:} Also in \texttt{Assets}, it is used to read and write metadata (EXIF, XMP), ensuring that the original file information is preserved.
     \item \textbf{AI Models:} The models in \texttt{.onnx} format are located in the \texttt{AI-onnx} folder.
-    \item \textbf{User Preferences:} A file named \inlinecode{Warlock-Studio_2.2_UserPreference.json} is saved in the user's \textbf{Documents} folder.
-    \item \textbf{Logs:} Log files are stored in \texttt{Documents\textbackslash Warlock-Studio_2.2_Logs}.
+    \item \textbf{User Preferences:} A file named \inlinecode{Warlock-Studio_3.0_UserPreference.json} is saved in the user's \textbf{Documents} folder.
+    \item \textbf{Logs:} Log files are stored in \texttt{Documents\textbackslash Warlock-Studio_3.0_Logs}.
 \end{itemize}
 
 
@@ -327,6 +328,10 @@ The following table details the relative VRAM usage of each model.
 \texttt{RealESR\_Gx4} & Upscale & x4 & 2.2 & Fast upscaling, ideal for videos. \\
 \texttt{RealESR\_Animex4} & Upscale & x4 & 2.2 & Optimized for anime and cartoons. \\
 \midrule
+\multicolumn{5}{c}{\textit{Face Restoration Models}} \\
+\midrule
+\texttt{GFPGAN} & Restore & x1 & 1.8 & Face enhancement and restoration. \\
+\midrule
 \multicolumn{5}{c}{\textit{Frame Interpolation Models (Video Only)}} \\
 \midrule
 \texttt{RIFE} & Interpolate & N/A & N/A & Maximum interpolation quality. \\
@@ -346,10 +351,11 @@ The following table details the relative VRAM usage of each model.
     \item \textbf{GPU VRAM Limiter (GB):} Define your GPU's VRAM. It is used to calculate the size of the processing \textit{tiles} and prevent memory errors.
     \item \textbf{AI Multithreading:} For videos only. It processes multiple frames in parallel, speeding up the process but consuming more VRAM and CPU.
     \item \textbf{AI Blending:} Blends the original image with the processed image. Useful for reducing artifacts when using a low \textit{Input Resolution}.
+    \item \textbf{Frame Generation:} For RIFE models, allows creating interpolated frames for higher FPS or slow-motion effects.
 \end{itemize}
 
 \subsection{The User Preferences File}
-The \inlinecode{Warlock-Studio_2.2_UserPreference.json} file saves your settings.
+The \inlinecode{Warlock-Studio_3.0_UserPreference.json} file saves your settings.
 % 'tabularx' is used for the table to automatically occupy 100% of the text width.
 % The 'X' column is a flexible column that expands to fill the available space.
 \begin{table}[H]
@@ -412,10 +418,14 @@ The \textbf{Number 1} cause of errors is \textbf{special characters} in file pat
         \textbf{Cause:} Corrupt settings, lack of permissions, or an environment error.
         \textbf{Solution:}
         \begin{enumerate}[nosep, leftmargin=*]
-            \item Go to your \textbf{Documents} folder and delete the \inlinecode{Warlock-Studio_2.2_UserPreference.json} file.
-            \item Check the log files in \texttt{Documents\textbackslash Warlock-Studio_2.2_Logs} for detailed error messages.
+            \item Go to your \textbf{Documents} folder and delete the \inlinecode{Warlock-Studio_3.0_UserPreference.json} file.
+            \item Check the log files in \texttt{Documents\textbackslash Warlock-Studio_3.0_Logs} for detailed error messages.
             \item Ensure your GPU drivers are up to date.
         \end{enumerate}
+
+    \item[\faExclamationTriangle\ Issue: Frame interpolation not working]
+        \textbf{Cause:} RIFE models are not selected or incompatible video format.
+        \textbf{Solution:} Ensure you have selected a RIFE model (RIFE or RIFE\_Lite) and that the frame generation option is properly configured.
 \end{description}
 
 % --- Section 6: Architecture ---
@@ -432,6 +442,9 @@ If a video process is interrupted, the processed frames are saved. When restarti
 
 \subsection{Asynchronous Frame Writing}
 During video upscaling, the frames processed by the GPU are sent to a separate writer thread. This allows the GPU to immediately start processing the next batch without waiting for the (slower) disk writing operation to finish, thus maximizing performance.
+
+\subsection{Frame Interpolation Pipeline}
+The RIFE models use a specialized interpolation pipeline that analyzes motion between frames to generate smooth intermediate frames. This enables higher frame rates or slow-motion effects with minimal artifacts.
 
 
 % =======================================================================================
