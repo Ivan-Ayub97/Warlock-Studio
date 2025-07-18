@@ -1,0 +1,12 @@
+You can get it FFmpeg 7.1.1 from the official repository:
+https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+
+You can get it ExifTool 13.32.64 from the official repository:
+https://exiftool.org/exiftool-13.32_64.zip
+
+-------------------------------------------------------------------------------------------------------------
+
+Or you can download both bins packaged in a zip file from my google drive:
+https://drive.google.com/file/d/1CsK_UCBUGA-7ZDbjp3NWvB2Khz6OEPvg/view?usp=sharing
+
+
