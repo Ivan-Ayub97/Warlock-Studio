@@ -1,19 +1,31 @@
 ![Warlock-Studio banner](Assets/banner.png)
 
-<p align="center">
-  <img src="https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge" alt="Build Status">
-  <img src="https://img.shields.io/badge/%20Version-3.0--07.25-darkred?style=for-the-badge" alt="Version 3.0-07.25">
-</p>
+<div align="center">
 
-AI Media Enhancement Suite
+# 🎭 Warlock-Studio
 
-**Warlock-Studio** is a powerful, open-source desktop application for Windows that integrates state-of-the-art AI models for video and image enhancement. Inspired by the work of [Djdefrag](https://github.com/Djdefrag) on tools like **QualityScaler** and **FluidFrames**, this suite provides a unified, high-performance interface for upscaling, restoration, and frame interpolation.
+### _AI Media Enhancement Suite_
 
-Version 3.0 marks a major evolution, introducing **AI-powered face restoration**, a completely modernized user interface, and significant performance optimizations to deliver professional-grade results to everyone.
+[![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+[![Version](https://img.shields.io/badge/Version-4.0--07.25-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.0)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=gold)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+
+_Transform your media with cutting-edge AI technology_
+
+</div>
 
 ---
 
-### ► Download Installer (v3.0)
+**Warlock-Studio** is a powerful, open-source desktop application for Windows that integrates state-of-the-art AI models for video and image enhancement. Inspired by the work of [Djdefrag](https://github.com/Djdefrag) on tools like **QualityScaler** and **FluidFrames**, this suite provides a unified, high-performance interface for upscaling, restoration, and frame interpolation.
+
+Version 4.0 continues this evolution with the addition of **SuperResolution-10** model integration, enhanced AI architecture, and improved code stability for even better performance and reliability.
+
+---
+
+### ► Download Installer (v4.0) - Now Lightweight
+
+🚀 **NEW**: Installer size reduced from **1.4GB to ~300MB**! AI models (150MB) are automatically downloaded when first launched.
 
 Get the latest stable release from any of the following platforms:
 
@@ -30,29 +42,31 @@ Get the latest stable release from any of the following platforms:
       </a>
     </td>
     <td align="center" width="33%">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/3.0/Warlock-Studio3.0Setup.zip">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/4.0/Warlock-Studio4.0Setup.zip">
         <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
   </tr>
 </table>
 
-
 ---
 
 ## Key Features
 
 - **State-of-the-Art AI Models**
-  A comprehensive suite including Real-ESRGAN, BSRGAN, IRCNN, **GFPGAN**, and **RIFE** for denoising, resolution enhancement, detail restoration, and smooth frame interpolation.
+  A comprehensive suite including Real-ESRGAN, BSRGAN, IRCNN, **GFPGAN**, **RIFE**, and **SuperResolution-10** for denoising, resolution enhancement, detail restoration, extreme upscaling, and smooth frame interpolation.
 
-- **AI Face Restoration (New in v3.0)**
+- **AI Face Restoration**
   Restore and enhance faces in old, blurry, or low-quality photos and videos with the integrated GFPGAN model, bringing cherished memories back to life.
+
+- **SuperResolution-10 Model (New in v4.0)**
+  Extreme 10x upscaling capabilities specifically designed for very low-resolution images, perfect for bringing old photos back to life with exceptional detail.
 
 - **AI Frame Interpolation & Slow Motion**
   Generate new in-between frames using RIFE to create ultra-smooth **2x, 4x, or 8x** motion or dramatic slow-motion effects.
 
 - **Modern & Intuitive Interface**
-  Completely redesigned in v3.0 for a clean, efficient, and user-friendly experience for both beginners and professionals.
+  Completely redesigned and refined in v4.0 for a clean, efficient, and user-friendly experience for both beginners and professionals.
 
 - **Batch Processing**
   Simultaneously process multiple images or videos—ideal for large-scale media projects.
@@ -65,19 +79,39 @@ Get the latest stable release from any of the following platforms:
 
 ---
 
-## What's New in Version 3.0
+## What's New in Version 4.0
 
-- ✅ **AI Face Restoration:** Added support for the GFPGAN model, enabling powerful face enhancement and repair.
-- ✅ **Modernized UI/UX:** Implemented a complete visual redesign with a new, professional color scheme and improved components like a dynamic splash screen and scrollable message boxes.
-- ✅ **Performance Optimisation:** Enhanced memory efficiency by using contiguous arrays and refining data type handling during AI processing, leading to faster and more stable performance.
-- ✅ **Improved Codebase Health:** Refactored the core logic to be more modular by encapsulating face restoration in its own class (`AI_face_restoration`), improving maintainability.
-- ✅ **Increased Robustness:** Added explicit handling for images with transparency (BGRA) to ensure compatibility with models that require 3-channel input (BGR).
+- ✅ **SuperResolution-10 Model:** Added support for the SuperResolution-10 model, providing extreme 10x upscaling capabilities specifically designed for very low-resolution images.
+- ✅ **Enhanced AI Architecture:** Implemented the missing `AI_model_base` class with robust ONNX model loading, GPU acceleration support, and comprehensive error handling.
+- ✅ **Code Quality Improvements:** Fixed critical import errors, consolidated duplicate code sections, and improved type annotations for better maintainability.
+- ✅ **Improved Error Handling:** Added graceful degradation mechanisms that prevent crashes and provide meaningful error messages during processing.
+- ✅ **Complete Model Integration:** SuperResolution-10 is fully integrated into the UI, processing pipeline, and information dialogs with proper VRAM management.
+- 🚀 **Smart Model Distribution:** New lightweight installer (300MB vs 1.4GB) with automatic AI model download system that fetches models on first launch.
+- 📦 **Optimized Packaging:** Enhanced PyInstaller configuration excludes AI models from executable, significantly reducing download and installation time.
+
+---
+
+## 🌐 Smart Model Distribution System
+
+Version 4.0 introduces a revolutionary approach to AI model distribution:
+
+### 🎯 **Lightweight Installation**
+
+- **Installer Size:** Reduced from 1.4GB to ~300MB (78% size reduction)
+- **First Launch:** AI models (327MB) download automatically with progress tracking
+- **Bandwidth Friendly:** Users with limited internet can get started faster
+
+### 🛡️ **Reliability Features**
+
+- **Integrity Validation:** Downloaded models are verified for completeness
+- **Graceful Degradation:** Application provides clear feedback if models aren't available
+- **Offline Mode:** Users can manually place model files if needed
 
 ---
 
 ## Interface Previews
 
-### 🔹 Main View (v3.0)
+### 🔹 Main View (v4.0)
 
 ![Screenshot of Warlock-Studio's main interface](rsc/Capture.png)
 
@@ -137,17 +171,19 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 
 ---
 
-## Development Status — v3.0-07.25
+## Development Status — v4.0-07.25
 
-| Component                           | Status            | Notes                                                                              |
-| :---------------------------------- | :---------------- | :--------------------------------------------------------------------------------- |
-| **Upscaling Models (ESRGAN, etc.)** | 🟢 **Stable**     | Fully integrated with dynamic VRAM recovery for enhanced stability.                |
-| **Face Restoration (GFPGAN)**       | 🟢 **Stable**     | New feature for high-quality face enhancement.                                     |
-| **Frame Interpolation (RIFE)**      | 🟢 **Stable**     | Includes slow-motion and intermediate frame generation capabilities.               |
-| **Batch Processing**                | 🟢 **Stable**     | Reliable processing with improved error handling and resource management.          |
-| **User Interface (UI/UX)**          | 🟢 **Modernized** | Complete thematic redesign with a professional color palette and improved dialogs. |
-| **GPU Management**                  | 🟢 **Optimized**  | Dynamic VRAM error recovery and graceful hardware codec fallbacks.                 |
-| **Installer and Packaging**         | 🟢 **Stable**     | Easy-to-use installer for Windows platforms.                                       |
+| Component                           | Status          | Notes                                                                                |
+| :---------------------------------- | :-------------- | :----------------------------------------------------------------------------------- |
+| **Upscaling Models (ESRGAN, etc.)** | 🟢 **Stable**   | Fully integrated with dynamic VRAM recovery for enhanced stability.                  |
+| **SuperResolution-10 Model**        | 🟢 **New**      | Extreme 10x upscaling for very low-resolution images with robust error handling.     |
+| **Face Restoration (GFPGAN)**       | 🟢 **Stable**   | High-quality face enhancement and restoration capabilities.                          |
+| **Frame Interpolation (RIFE)**      | 🟢 **Stable**   | Includes slow-motion and intermediate frame generation capabilities.                 |
+| **Batch Processing**                | 🟢 **Stable**   | Reliable processing with improved error handling and resource management.            |
+| **User Interface (UI/UX)**          | 🟢 **Refined**  | Enhanced interface with complete model integration and improved information dialogs. |
+| **GPU Management**                  | 🟢 **Enhanced** | Improved AI architecture with robust model loading and graceful degradation.         |
+| **Code Quality**                    | 🟢 **Improved** | Fixed import errors, consolidated code structure, and enhanced type annotations.     |
+| **Installer and Packaging**         | 🟢 **Stable**   | Easy-to-use installer for Windows platforms.                                         |
 
 ---
 
@@ -168,7 +204,8 @@ Warlock-Studio/
       ├──RealESRNetx4_fp16.onnx
       ├──RealSRx4_Anime_fp16.onnx
       ├──RIFE_fp32.onnx
-      └──RIFE_Lite_fp32.onnx
+      ├──RIFE_Lite_fp32.onnx
+      └──super-resolution-10.onnx
 ├──Assets/
    │
    └──├──banner.png
@@ -195,9 +232,9 @@ Warlock-Studio/
       └──Installation_window2.png
 ├──Manual/
    │
-   └──├──v3.0-User_Manual-EN.pdf
+   └──├──Manual_EN.pdf
       ├──Manual_EN.tex
-      ├──v3.0-User_Manual-ES.pdf
+      ├──Manual_ES.pdf
       └──Manual_ES.tex
 │
 ├──CHANGELOG.md
@@ -219,26 +256,27 @@ Warlock-Studio/
 
 ## Integrated Technologies & Licenses
 
-| Technology    | License                   | Author / Maintainer                                       | Source Code / Homepage                                     |
-| :------------ | :------------------------ | :-------------------------------------------------------- | :--------------------------------------------------------- |
-| QualityScaler | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
-| RealScaler    | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/RealScaler)           |
-| FluidFrames   | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
-| Real-ESRGAN   | BSD 3-Clause / Apache 2.0 | [Xintao Wang](https://github.com/xinntao)                 | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
-| GFPGAN        | Apache 2.0                | [TencentARC / Xintao Wang](https://github.com/TencentARC) | [GitHub](https://github.com/TencentARC/GFPGAN)             |
-| RIFE          | Apache 2.0                | [hzwer](https://github.com/hzwer)                         | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| SRGAN         | CC BY-NC-SA 4.0           | [TensorLayer Community](https://github.com/tensorlayer)   | [GitHub](https://github.com/tensorlayer/srgan)             |
-| BSRGAN        | Apache 2.0                | [Kai Zhang](https://github.com/cszn)                      | [GitHub](https://github.com/cszn/BSRGAN)                   |
-| IRCNN         | BSD / Mixed               | [Kai Zhang](https://github.com/cszn)                      | [GitHub](https://github.com/cszn/IRCNN)                    |
-| Anime4K       | MIT                       | [Tianyang Zhang (bloc97)](https://github.com/bloc97)      | [GitHub](https://github.com/bloc97/Anime4K)                |
-| ONNX Runtime  | MIT                       | [Microsoft](https://github.com/microsoft)                 | [GitHub](https://github.com/microsoft/onnxruntime)         |
-| PyTorch       | BSD 3-Clause              | [Meta AI](https://pytorch.org/)                           | [GitHub](https://github.com/pytorch/pytorch)               |
-| FFmpeg        | LGPL / GPL (varies)       | [FFmpeg Team](https://ffmpeg.org/)                        | [Official Site](https://ffmpeg.org)                        |
-| ExifTool      | Perl Artistic License     | [Phil Harvey](https://exiftool.org/)                      | [Official Site](https://exiftool.org/)                     |
-| DirectML      | MIT                       | [Microsoft](https://github.com/microsoft/)                | [GitHub](https://github.com/microsoft/DirectML)            |
-| Python        | PSF License               | [Python Software Foundation](https://www.python.org/)     | [Official Site](https://www.python.org)                    |
-| PyInstaller   | GPLv2+                    | [PyInstaller Team](https://github.com/pyinstaller)        | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
-| Inno Setup    | Custom License            | [Jordan Russell](http://www.jrsoftware.org/)              | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+| Technology          | License                   | Author / Maintainer                                           | Source Code / Homepage                                                                        |
+| :------------------ | :------------------------ | :------------------------------------------------------------ | :-------------------------------------------------------------------------------------------- |
+| QualityScaler       | MIT                       | [Djdefrag](https://github.com/Djdefrag)                       | [GitHub](https://github.com/Djdefrag/QualityScaler)                                           |
+| RealScaler          | MIT                       | [Djdefrag](https://github.com/Djdefrag)                       | [GitHub](https://github.com/Djdefrag/RealScaler)                                              |
+| FluidFrames         | MIT                       | [Djdefrag](https://github.com/Djdefrag)                       | [GitHub](https://github.com/Djdefrag/FluidFrames)                                             |
+| Real-ESRGAN         | BSD 3-Clause / Apache 2.0 | [Xintao Wang](https://github.com/xinntao)                     | [GitHub](https://github.com/xinntao/Real-ESRGAN)                                              |
+| GFPGAN              | Apache 2.0                | [TencentARC / Xintao Wang](https://github.com/TencentARC)     | [GitHub](https://github.com/TencentARC/GFPGAN)                                                |
+| RIFE                | Apache 2.0                | [hzwer](https://github.com/hzwer)                             | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE)                                    |
+| SRGAN               | CC BY-NC-SA 4.0           | [TensorLayer Community](https://github.com/tensorlayer)       | [GitHub](https://github.com/tensorlayer/srgan)                                                |
+| BSRGAN              | Apache 2.0                | [Kai Zhang](https://github.com/cszn)                          | [GitHub](https://github.com/cszn/BSRGAN)                                                      |
+| IRCNN               | BSD / Mixed               | [Kai Zhang](https://github.com/cszn)                          | [GitHub](https://github.com/cszn/IRCNN)                                                       |
+| Anime4K             | MIT                       | [Tianyang Zhang (bloc97)](https://github.com/bloc97)          | [GitHub](https://github.com/bloc97/Anime4K)                                                   |
+| Super Resolution 10 | MIT                       | [ONNX Model Zoo Contributors](https://github.com/onnx/models) | [GitHub](https://github.com/onnx/models/tree/main/vision/super_resolution/sub_pixel_cnn_2016) |
+| ONNX Runtime        | MIT                       | [Microsoft](https://github.com/microsoft)                     | [GitHub](https://github.com/microsoft/onnxruntime)                                            |
+| PyTorch             | BSD 3-Clause              | [Meta AI](https://pytorch.org/)                               | [GitHub](https://github.com/pytorch/pytorch)                                                  |
+| FFmpeg              | LGPL / GPL (varies)       | [FFmpeg Team](https://ffmpeg.org/)                            | [Official Site](https://ffmpeg.org)                                                           |
+| ExifTool            | Perl Artistic License     | [Phil Harvey](https://exiftool.org/)                          | [Official Site](https://exiftool.org/)                                                        |
+| DirectML            | MIT                       | [Microsoft](https://github.com/microsoft/)                    | [GitHub](https://github.com/microsoft/DirectML)                                               |
+| Python              | PSF License               | [Python Software Foundation](https://www.python.org/)         | [Official Site](https://www.python.org)                                                       |
+| PyInstaller         | GPLv2+                    | [PyInstaller Team](https://github.com/pyinstaller)            | [GitHub](https://github.com/pyinstaller/pyinstaller)                                          |
+| Inno Setup          | Custom License            | [Jordan Russell](http://www.jrsoftware.org/)                  | [Official Site](http://www.jrsoftware.org/isinfo.php)                                         |
 
 ---
 

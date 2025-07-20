@@ -1,3 +1,82 @@
+## Version 4.0
+
+**Release date:** 18 July 2025
+
+### 1. AI Model Integration & Enhancement
+
+#### 1.1 **SuperResolution-10 Model Implementation**
+
+- **New AI Model Integration**: Added support for the SuperResolution-10 model, providing advanced super-resolution capabilities with 10x upscaling factor. This model is specifically designed for very low-resolution images and excels at significant resolution increases.
+- **Specialized Processing Pipeline**: Created a dedicated `AI_super_resolution` class that inherits from the new `AI_model_base` class, implementing proper preprocessing (CHW format conversion, normalization) and postprocessing (HWC format conversion, value clipping) for optimal results.
+- **Model Information Integration**: Added comprehensive model information in the AI model selector dialog, including year (2023), function (high-resolution image enhancement), and specialized use cases.
+
+#### 1.2 **AI Architecture Improvements**
+
+- **Base Class Implementation**: Created the missing `AI_model_base` class that provides common functionality for all AI models, including ONNX model loading with GPU acceleration support and proper error handling.
+- **Enhanced Model Loading**: Implemented robust model loading with provider selection (DML, CPU) and comprehensive error handling for missing model files.
+- **VRAM Management**: Added VRAM usage information for SuperResolution-10 (0.8 GB) to help users optimize their GPU memory usage.
+
+#### 2. Code Quality & Stability
+
+##### 2.1 **Import System Optimization**
+
+- **Fixed Import Errors**: Resolved critical `NameError: name 'numpy_ndarray' is not defined` by properly organizing imports at the top of the file.
+- **Consolidated Imports**: Removed duplicate import sections and properly structured the import hierarchy for better maintainability.
+- **Type Annotation Fixes**: Corrected type annotations throughout the codebase to use the proper imported numpy types.
+
+##### 2.2 **Enhanced Error Handling**
+
+- **Model Loading Resilience**: Implemented try-catch blocks for model loading operations with meaningful error messages.
+- **Graceful Degradation**: Added fallback mechanisms that return the original image if super-resolution enhancement fails, ensuring the application never crashes.
+- **Debug Information**: Enhanced logging with model loading status and error reporting for better troubleshooting.
+
+#### 3. User Interface Updates
+
+##### 3.1 **Model Selection Enhancement**
+
+- **Updated Model List**: SuperResolution-10 is now properly integrated into the AI model dropdown menu and categorized appropriately.
+- **Information Dialog Updates**: Added detailed information about the SuperResolution-10 model in the help dialog, including its capabilities and recommended use cases.
+- **Model Orchestration**: Enhanced the upscaling orchestrator to properly detect and route SuperResolution model tasks to the appropriate processing pipeline.
+
+#### 4. Technical Improvements
+
+##### 4.1 **Processing Pipeline Optimization**
+
+- **Specialized Image Processing**: Implemented dedicated image processing functions for super-resolution models that handle the unique requirements of the SuperResolution-10 model.
+- **Memory Efficiency**: Optimized image preprocessing and postprocessing to minimize memory usage during super-resolution operations.
+- **Performance Monitoring**: Added processing time tracking for super-resolution operations to help users understand processing performance.
+
+#### 4.2 **Integration Completeness**
+
+- **Full Model Integration**: SuperResolution-10 is now fully integrated into all aspects of the application, from model selection to processing to output generation.
+- **Consistent User Experience**: The super-resolution workflow follows the same patterns as other AI models, ensuring a consistent user experience.
+- **Quality Assurance**: Implemented comprehensive testing to ensure the SuperResolution-10 model works correctly with both individual images and batch processing.
+
+### 5. **Smart AI Model Distribution System**
+
+#### 5.1 **Automatic Model Download**
+
+- **Lightweight Installer**: Significantly reduced installer size from 1.4GB to approximately 300MB by removing AI models from the installation package.
+- **On-Demand Download**: Implemented intelligent model downloading system that automatically fetches required AI models (327MB) when the application is first launched.
+- **Progress Tracking**: Added visual progress indicators with download speed and completion percentage during model acquisition.
+- **Fallback URLs**: Integrated multiple download sources (GitHub Releases, SourceForge) to ensure reliable model availability.
+- **Resume Capability**: Download system supports resuming interrupted downloads and validates file integrity.
+
+#### 5.2 **PyInstaller Optimization**
+
+- **Optimized Packaging**: Updated `.spec` file to exclude AI model directory from executable packaging, reducing final executable size by over 1GB.
+- **Enhanced Dependencies**: Added model downloader module to the build process with proper hidden imports for requests, threading, and file handling libraries.
+- **Improved Compression**: Increased optimization level and added module exclusions to further reduce executable size.
+
+#### 5.3 **Installation Experience**
+
+- **Smart Setup Script**: Created enhanced Inno Setup configuration that can optionally download models during installation or defer to first-run.
+- **User Choice**: Users can choose between offline installation (models downloaded on first run) or full installation with models included.
+- **Bandwidth Optimization**: Reduces initial download requirements for users with limited bandwidth, allowing them to get started faster.
+- **Error Recovery**: Robust error handling for network issues, with clear user feedback and retry mechanisms.
+
+---
+
 ## Version 3.0
 
 **Release date:** 16 July 2025
@@ -42,7 +121,7 @@
 
 ### 3. Performance and Code Optimisation
 
-#### 3.1 **Memory Optimisation with Contiguous Arrays**
+#### 4.0 **Memory Optimisation with Contiguous Arrays**
 
 - Widespread use of `numpy.ascontiguousarray` has been implemented across the codebase. This is applied during critical image handling steps in `AI_upscale.preprocess_image`, `AI_interpolation.concatenate_images`, and the new `AI_face_restoration.preprocess_face_image` class. This ensures data is aligned in memory, which can significantly speed up operations in backend libraries like OpenCV and ONNX Runtime.
 
@@ -101,7 +180,7 @@
 
 ### 3. Critical Bug Fixes
 
-3.1 **Resolved Video Encoding Race Condition**
+4.0 **Resolved Video Encoding Race Condition**
 
 - Fixed a critical bug where video encoding could start before all frame-writing threads were complete. The system now tracks all writer threads and explicitly waits for them to finish (`thread.join()`) before beginning the final video encoding, preventing corrupted or incomplete videos.
 
@@ -171,7 +250,7 @@
 
 ### 3. Code‑base Maintainability
 
-3.1 **Improved Code Organisation**
+4.0 **Improved Code Organisation**
 
 - File‑extension lists extracted to `filetypes.py` as `SUPPORTED_IMAGE_EXTENSIONS`, `SUPPORTED_VIDEO_EXTENSIONS`.
 
@@ -224,7 +303,7 @@
 
 ### 3. Technical Refinements
 
-3.1 **Model List Structure**
+4.0 **Model List Structure**
 
 - Menu drop‑downs now grouped by category separated by `MENU_LIST_SEPARATOR` for readability.
 

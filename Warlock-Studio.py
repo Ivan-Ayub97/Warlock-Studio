@@ -108,12 +108,100 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "3.0-07.25"
+version = "4.0-07.25"
+
+# AI Model Base Class
+
+
+class AI_model_base:
+    def __init__(self, model_path: str, device: str = "CPU"):
+        self.model_path = model_path
+        self.device = device
+        self.inferenceSession = None
+        self._load_inference_session()
+
+    def _load_inference_session(self):
+        """Load the ONNX model for inference"""
+        try:
+            if not os_path_exists(self.model_path):
+                raise FileNotFoundError(
+                    f"Model file not found: {self.model_path}")
+
+            # Set up providers for GPU acceleration
+            providers = ['DmlExecutionProvider', 'CPUExecutionProvider']
+            self.inferenceSession = InferenceSession(
+                self.model_path,
+                providers=providers
+            )
+            print(
+                f"[AI] Successfully loaded model: {os_path_basename(self.model_path)}")
+        except Exception as e:
+            print(
+                f"[AI ERROR] Failed to load model {self.model_path}: {str(e)}")
+            raise
+
+# AI Super Resolution Implementation
+
+
+class AI_super_resolution(AI_model_base):
+    def __init__(self, model_path: str, device: str = "CPU"):
+        super().__init__(model_path, device)
+        self.model_name = "SuperResolution-10"
+        self.upscale_factor = 10  # Based on the model name
+
+    def preprocess_super_resolution_image(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Preprocess image for super resolution model input.
+        """
+        # Convert image to float32 and normalize
+        image = (image.astype(float32) / 255.0)
+
+        # Convert image to CHW format (channels, height, width)
+        image = numpy_transpose(image, (2, 0, 1))
+
+        # Add batch dimension
+        image = numpy_expand_dims(image, axis=0)
+        return image
+
+    def postprocess_super_resolution_image(self, output: numpy_ndarray) -> numpy_ndarray:
+        """
+        Postprocess model output to an image.
+        """
+        # Remove batch dimension and convert back to HWC format
+        output = numpy_squeeze(output, axis=0)
+        output = numpy_transpose(output, (1, 2, 0))
+
+        # Clip values and convert to uint8
+        output = numpy_clip(output * 255.0, 0, 255).astype(uint8)
+        return output
+
+    def enhance_image(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Enhance image using the super resolution model.
+        """
+        input_image = self.preprocess_super_resolution_image(image)
+        input_name = self.inferenceSession.get_inputs()[0].name
+        output_name = self.inferenceSession.get_outputs()[0].name
+        result = self.inferenceSession.run(
+            [output_name], {input_name: input_image})[0]
+        enhanced_image = self.postprocess_super_resolution_image(result)
+        return enhanced_image
+
+    def AI_orchestration(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Main orchestration function for super resolution processing.
+        """
+        try:
+            return self.enhance_image(image)
+        except Exception as e:
+            print(f"[SUPER RESOLUTION ERROR] {str(e)}")
+            # Return original image if enhancement fails
+            return image
 
 
 # Esquema de colores mejorado - Rojo, Gris, Amarillo, Negro, Blanco
 background_color = "#1A1A1A"  # Negro profundo
-app_name_color = "#FF4444"  # Rojo brillante para el nombre de la app
+app_name_color = "#FFFFFF"  # Rojo brillante para el nombre de la app
 widget_background_color = "#2D2D2D"  # Gris oscuro para widgets
 text_color = "#FFFFFF"  # Blanco puro para texto principal
 secondary_text_color = "#E0E0E0"  # Gris claro para texto secundario
@@ -135,6 +223,7 @@ VRAM_model_usage = {
     'IRCNN_Mx1':       4,
     'IRCNN_Lx1':       4,
     'GFPGAN':          1.8,
+    'SuperResolution-10': 0.8,
 }
 
 MENU_LIST_SEPARATOR = ["----"]
@@ -143,10 +232,11 @@ BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
 Face_restoration_models_list = ["GFPGAN"]
 RIFE_models_list = ["RIFE", "RIFE_Lite"]
+SuperResolution_models_list = ["SuperResolution-10"]
 
 AI_models_list = (SRVGGNetCompact_models_list + MENU_LIST_SEPARATOR + BSRGAN_models_list +
                   MENU_LIST_SEPARATOR + IRCNN_models_list + MENU_LIST_SEPARATOR + Face_restoration_models_list +
-                  MENU_LIST_SEPARATOR + RIFE_models_list)
+                  MENU_LIST_SEPARATOR + SuperResolution_models_list + MENU_LIST_SEPARATOR + RIFE_models_list)
 frame_interpolation_models_list = RIFE_models_list
 frame_generation_options_list = [
     "x2", "x4", "x8", "Slowmotion x2", "Slowmotion x4", "Slowmotion x8"
@@ -770,46 +860,45 @@ class AI_interpolation:
 
     # EXTERNAL FUNCTION
 
+    def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> list[numpy_ndarray]:
+        generated_images = []
 
-def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> list[numpy_ndarray]:
-    generated_images = []
+        # Optimización: Usar memoria contigua para las imágenes de entrada
+        image1 = numpy_ascontiguousarray(image1)
+        image2 = numpy_ascontiguousarray(image2)
 
-    # Optimización: Usar memoria contigua para las imágenes de entrada
-    image1 = numpy_ascontiguousarray(image1)
-    image2 = numpy_ascontiguousarray(image2)
+        # Generate 1 image [image1 / image_A / image2]
+        if self.frame_gen_factor == 2:
+            image_A = self.AI_interpolation(image1, image2)
+            generated_images.append(image_A)
 
-    # Generate 1 image [image1 / image_A / image2]
-    if self.frame_gen_factor == 2:
-        image_A = self.AI_interpolation(image1, image2)
-        generated_images.append(image_A)
+        # Generate 3 images [image1 / image_A / image_B / image_C / image2]
+        elif self.frame_gen_factor == 4:
+            image_B = self.AI_interpolation(image1, image2)
+            image_A = self.AI_interpolation(image1, image_B)
+            image_C = self.AI_interpolation(image_B, image2)
+            generated_images.append(image_A)
+            generated_images.append(image_B)
+            generated_images.append(image_C)
 
-    # Generate 3 images [image1 / image_A / image_B / image_C / image2]
-    elif self.frame_gen_factor == 4:
-        image_B = self.AI_interpolation(image1, image2)
-        image_A = self.AI_interpolation(image1, image_B)
-        image_C = self.AI_interpolation(image_B, image2)
-        generated_images.append(image_A)
-        generated_images.append(image_B)
-        generated_images.append(image_C)
+        # Generate 7 images [image1 / image_A / image_B / image_C / image_D / image_E / image_F / image_G / image2]
+        elif self.frame_gen_factor == 8:
+            image_D = self.AI_interpolation(image1, image2)
+            image_B = self.AI_interpolation(image1, image_D)
+            image_A = self.AI_interpolation(image1, image_B)
+            image_C = self.AI_interpolation(image_B, image_D)
+            image_F = self.AI_interpolation(image_D, image2)
+            image_E = self.AI_interpolation(image_D, image_F)
+            image_G = self.AI_interpolation(image_F, image2)
+            generated_images.append(image_A)
+            generated_images.append(image_B)
+            generated_images.append(image_C)
+            generated_images.append(image_D)
+            generated_images.append(image_E)
+            generated_images.append(image_F)
+            generated_images.append(image_G)
 
-    # Generate 7 images [image1 / image_A / image_B / image_C / image_D / image_E / image_F / image_G / image2]
-    elif self.frame_gen_factor == 8:
-        image_D = self.AI_interpolation(image1, image2)
-        image_B = self.AI_interpolation(image1, image_D)
-        image_A = self.AI_interpolation(image1, image_B)
-        image_C = self.AI_interpolation(image_B, image_D)
-        image_F = self.AI_interpolation(image_D, image2)
-        image_E = self.AI_interpolation(image_D, image_F)
-        image_G = self.AI_interpolation(image_F, image2)
-        generated_images.append(image_A)
-        generated_images.append(image_B)
-        generated_images.append(image_C)
-        generated_images.append(image_D)
-        generated_images.append(image_E)
-        generated_images.append(image_F)
-        generated_images.append(image_G)
-
-    return generated_images
+        return generated_images
 
 
 # AI FACE RESTORATION for face enhancement -----------------
@@ -3513,6 +3602,13 @@ def upscale_orchestrator(
                                     input_resize_factor, output_resize_factor, tiles_resolution)
                 for _ in range(selected_AI_multithreading)
             ]
+        # Check if the selected model is a super resolution model
+        elif selected_AI_model in SuperResolution_models_list:
+            AI_upscale_instance_list = [
+                AI_super_resolution(
+                    f"AI-onnx{os_separator}super-resolution-10.onnx", selected_gpu)
+                for _ in range(selected_AI_multithreading)
+            ]
         else:
             AI_upscale_instance_list = [
                 AI_upscale(selected_AI_model, selected_gpu,
@@ -3594,7 +3690,12 @@ def upscale_image(
 
     write_process_status(
         process_status_q, f"{file_number}. Enchanting your image. Be patient...")
-    upscaled_image = AI_instance.AI_orchestration(starting_image)
+
+    # Check if using SuperResolution-10 model
+    if selected_AI_model in SuperResolution_models_list:
+        upscaled_image = AI_instance.enhance_image(starting_image)
+    else:
+        upscaled_image = AI_instance.AI_orchestration(starting_image)
 
     if selected_blending_factor > 0:
         blend_images_and_save(
@@ -3760,7 +3861,7 @@ def upscale_video(
                 processing_time = (end_timer - start_timer)/threads_number
                 global_processing_times_list.append(processing_time)
 
-                # Fix 3.1: Write frames immediately to disk to reduce memory usage
+                # Fix 4.0: Write frames immediately to disk to reduce memory usage
                 if (frame_index + 1) % MULTIPLE_FRAMES_TO_SAVE == 0:
                     # Save frames present in RAM on disk
                     save_frames_on_disk(starting_frames_to_save, upscaled_frames_to_save,
@@ -4333,6 +4434,13 @@ def place_AI_menu():
             "   • Excellent frame generation quality\n" +
             "   • Lite is 10% faster than full model\n" +
             "   • Recommended for GPUs with VRAM < 4GB \n",
+
+            "\n SuperResolution-10 \n"
+            "\n • Advanced super-resolution model with 10x upscaling\n"
+            " • Year: 2023\n"
+            " • Function: High-resolution image enhancement\n"
+            " • Excellent for very low resolution images\n"
+            " • Specialized for significant resolution increases\n",
         ]
 
         MessageBox(
@@ -4460,7 +4568,7 @@ def place_AI_multithreading_menu():
 
         MessageBox(
             messageType="info",
-            title="AI multithreading (EXPERIMENTAL)",
+            title="AI multithreading",
             subtitle="This widget allows to choose how many video frames are upscaled simultaneously",
             default_value=None,
             option_list=option_list
