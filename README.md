@@ -23,9 +23,7 @@ Version 4.0 continues this evolution with the addition of **SuperResolution-10**
 
 ---
 
-### ► Download Installer (v4.0) - Now Lightweight
-
-🚀 **NEW**: Installer size reduced from **1.4GB to ~150MB**! AI models (300MB) are automatically downloaded when first launched.
+### ► Download Installer (v4.0) 
 
 Get the latest stable release from any of the following platforms:
 
