@@ -35,12 +35,6 @@ Get the latest stable release from any of the following platforms:
       <a href="https://sourceforge.net/p/warlock-studio/">
         <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width="200">
       </a>
-    </td>
-    <td align="center" width="33%">
-      <a href="https://drive.google.com/file/d/1m_YKY612EaMiYyxJDRj1WsCmcJnCSKC7/view?usp=sharing">
-        <img src="rsc/google_drive-logo.png" alt="Download from Google Drive" />
-      </a>
-    </td>
     <td align="center" width="33%">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/4.0/Warlock-Studio4.0Setup.zip">
         <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
