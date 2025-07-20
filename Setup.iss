@@ -9,7 +9,7 @@
 #define AppExeName "Warlock-Studio.exe"
 
 ; URLs para descargar los componentes AI (ajustar según tu servidor)
-#define AIModelsURL "https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/3.0.1/AI-onnx.zip"
+#define AIModelsURL "https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/4.0/AI-onnx.zip"
 #define AIModelsSize "327000000"  ; Tamaño aproximado en bytes
 
 [Setup]
