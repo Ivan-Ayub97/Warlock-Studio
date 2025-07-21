@@ -248,6 +248,11 @@ Warlock-Studio/
 ├──Warlock-Studio.py         # Main
 └──Warlock-Studio.spec
 ```
+## AI models Workflow
+![Workflow](rsc/WorkflowBSRGAN.png)
+![Workflow](rsc/WorkflowIRCNN.png)
+![Workflow](rsc/WorkflowRealESRGAN.png)
+![Workflow](rsc/WorkflowRIFE.png)
 
 ---
 
