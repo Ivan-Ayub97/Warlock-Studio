@@ -25,7 +25,7 @@ Version 4.0.1 continues this evolution with enhanced AI architecture and improve
 
 ### ► Download Installer (v4.0.1)
 
-🚀 **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
+ **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
 
 Get the latest stable release from any of the following platforms:
 
@@ -76,7 +76,7 @@ Get the latest stable release from any of the following platforms:
 
 ## What's New in Version 4.0.1
 
-- 🔧 **Model Optimization:** Removed SuperResolution-10 model to improve overall performance and reduce complexity. For extreme upscaling needs, we recommend using Real-ESRGAN or BSRGAN models which provide excellent results.
+- **Model Optimization:** Removed SuperResolution-10 model to improve overall performance and reduce complexity. For extreme upscaling needs, we recommend using Real-ESRGAN or BSRGAN models which provide excellent results.
 - ✅ **Enhanced AI Architecture:** Implemented robust ONNX model loading, GPU acceleration support, and comprehensive error handling.
 - ✅ **Code Quality Improvements:** Fixed critical import errors, consolidated duplicate code sections, and improved type annotations for better maintainability.
 - ✅ **Improved Error Handling:** Added graceful degradation mechanisms that prevent crashes and provide meaningful error messages during processing.
@@ -86,17 +86,17 @@ Get the latest stable release from any of the following platforms:
 
 ---
 
-## 🌐 Smart Model Distribution System
+## Smart Model Distribution System
 
 Version 4.0 introduces a revolutionary approach to AI model distribution:
 
-### 🎯 **Lightweight Installation**
+### **Lightweight Installation**
 
 - **Installer Size:** Reduced from 1.4GB to ~450MB (68% size reduction)
 - **First Launch:** AI models (~400MB) download automatically with progress tracking
 - **Bandwidth Friendly:** Users with limited internet can get started faster
 
-### 🛡️ **Reliability Features**
+### **Reliability Features**
 
 - **Integrity Validation:** Downloaded models are verified for completeness
 - **Graceful Degradation:** Application provides clear feedback if models aren't available
