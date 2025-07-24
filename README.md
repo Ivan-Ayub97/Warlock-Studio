@@ -2,7 +2,7 @@
 
 <div align="center">
 
-# 🎭 Warlock-Studio
+# Warlock-Studio
 
 ### _AI Media Enhancement Suite_
 
