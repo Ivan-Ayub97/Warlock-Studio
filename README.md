@@ -23,7 +23,7 @@ Version 4.0.1 continues this evolution with enhanced AI architecture and improve
 
 ---
 
-### ► Download Installer (v4.0.1) - Now Lightweight
+### ► Download Installer (v4.0.1)
 
 🚀 **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
 
