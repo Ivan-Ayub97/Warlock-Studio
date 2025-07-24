@@ -202,6 +202,7 @@ Warlock-Studio/
       ├──RealSRx4_Anime_fp16.onnx
       ├──RIFE_fp32.onnx
       ├──RIFE_Lite_fp32.onnx
+│
 ├──Assets/
    │
    └──├──banner.png
@@ -215,17 +216,11 @@ Warlock-Studio/
       ├──upscale_icon.png
       ├──wizard-image.bmp
       └──wizard-small.bmp
+│
 ├──rsc/
    │
-   └──├──badge-color.png
-      ├──Capture.png
-      ├──CaptureRIFE.png
-      ├──google_drive-logo.png
-      ├──WorkflowBSRGAN.png
-      ├──WorkflowIRCNN.png
-      ├──WorkflowRealESRGAN.png
-      ├──WorkflowRIFE.png
-      └──Installation_window2.png
+   └──├──png files used in repo...
+│
 ├──Manual/
    │
    └──├──Manual_EN.pdf
