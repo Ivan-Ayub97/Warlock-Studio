@@ -1,9 +1,9 @@
 ; ===================================================================
-;   Warlock-Studio 4.0 - Inno Setup Script with Online Download
+;   Warlock-Studio 4.0.1 - Inno Setup Script with Online Download
 ; ===================================================================
 
 #define AppName "Warlock-Studio"
-#define AppVersion "4.0"
+#define AppVersion "4.0.1"
 #define AppPublisher "Iván Eduardo Chavez Ayub"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"

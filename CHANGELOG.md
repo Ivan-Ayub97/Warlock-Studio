@@ -1,3 +1,26 @@
+## Version 4.0.1
+
+**Release date:** 27 July 2025
+
+### Model Cleanup and Optimization
+
+#### 1.1 **SuperResolution-10 Model Removal**
+
+- **Model Deprecation**: Removed the SuperResolution-10 model from the application due to performance and compatibility issues.
+- **Code Cleanup**: Eliminated the dedicated `AI_super_resolution` class and all related processing pipelines.
+- **UI Updates**: Removed SuperResolution-10 from model selection dropdown and information dialogs.
+- **Memory Optimization**: Cleaned up VRAM usage configurations by removing SuperResolution-10 entries (0.8 GB allocation).
+- **Streamlined Processing**: Simplified the upscaling orchestrator by removing SuperResolution-specific routing logic.
+- **Model List Cleanup**: Removed `SuperResolution_models_list` from the main AI models collection.
+
+#### 1.2 **Performance Improvements**
+
+- **Reduced Memory Footprint**: Application now uses less memory without the SuperResolution-10 model overhead.
+- **Simplified Code Paths**: Cleaner processing logic with fewer conditional branches for model selection.
+- **Enhanced Stability**: Removed potential failure points associated with the deprecated model.
+
+---
+
 ## Version 4.0
 
 **Release date:** 18 July 2025
@@ -140,8 +163,6 @@
 
 - The application now explicitly handles images with an alpha channel (4-channel BGRA) when using face restoration models. A new import for `COLOR_BGRA2BGR` was added, and it is used within `preprocess_face_image` to convert images to the 3-channel BGR format expected by the GFPGAN model. This prevents runtime errors and ensures correct processing of PNGs or other images with transparency.
 
----
-
 ## Version 2.2
 
 **Release date:** 7 July 2025
@@ -218,8 +239,6 @@
   5.2 **Hardened Core Methods**
 
 - Core methods in AI classes now include checks for `None` inputs and feature default fallbacks (`case _:`) in `match` statements to prevent unexpected errors with unsupported data.
-
----
 
 ## Version 2.1
 

@@ -107,8 +107,24 @@ def find_by_relative_path(relative_path: str) -> str:
     return os_path_join(base_path, relative_path)
 
 
+def image_read(path: str) -> numpy_ndarray:
+    """Read an image file and return it as a numpy array."""
+    try:
+        if not os_path_exists(path):
+            raise FileNotFoundError(f"Image file not found: {path}")
+
+        image = opencv_imdecode(numpy_frombuffer(open(path, 'rb').read(), dtype=uint8), IMREAD_UNCHANGED)
+        if image is None:
+            raise ValueError(f"Failed to read image: {path}")
+        return image
+    except Exception as e:
+        error_msg = f"Error reading image {path}: {str(e)}"
+        log_and_report_error(error_msg)
+        raise RuntimeError(error_msg)
+
+
 app_name = "Warlock-Studio"
-version = "4.0-07.25"
+version = "4.0.1-07.25"
 
 # AI Model Base Class
 
@@ -128,75 +144,23 @@ class AI_model_base:
                     f"Model file not found: {self.model_path}")
 
             # Set up providers for GPU acceleration
-            providers = ['DmlExecutionProvider', 'CPUExecutionProvider']
+            # Use available GPU or CPU if no compatible GPU found
+            providers = ['CUDAExecutionProvider', 'DmlExecutionProvider', 'CPUExecutionProvider']
             self.inferenceSession = InferenceSession(
                 self.model_path,
                 providers=providers
             )
             print(
                 f"[AI] Successfully loaded model: {os_path_basename(self.model_path)}")
+        except FileNotFoundError as fnf_error:
+            print(f"[AI ERROR] Model file not found: {fnf_error}")
+            # Handle specific file not found error
         except Exception as e:
-            print(
-                f"[AI ERROR] Failed to load model {self.model_path}: {str(e)}")
+            print(f"[AI ERROR] Failed to load model due to unexpected error: {str(e)}")
+            # Log the error and avoid crashing the application
+            self.inferenceSession = None  # Reset inference session on error
             raise
 
-# AI Super Resolution Implementation
-
-
-class AI_super_resolution(AI_model_base):
-    def __init__(self, model_path: str, device: str = "CPU"):
-        super().__init__(model_path, device)
-        self.model_name = "SuperResolution-10"
-        self.upscale_factor = 10  # Based on the model name
-
-    def preprocess_super_resolution_image(self, image: numpy_ndarray) -> numpy_ndarray:
-        """
-        Preprocess image for super resolution model input.
-        """
-        # Convert image to float32 and normalize
-        image = (image.astype(float32) / 255.0)
-
-        # Convert image to CHW format (channels, height, width)
-        image = numpy_transpose(image, (2, 0, 1))
-
-        # Add batch dimension
-        image = numpy_expand_dims(image, axis=0)
-        return image
-
-    def postprocess_super_resolution_image(self, output: numpy_ndarray) -> numpy_ndarray:
-        """
-        Postprocess model output to an image.
-        """
-        # Remove batch dimension and convert back to HWC format
-        output = numpy_squeeze(output, axis=0)
-        output = numpy_transpose(output, (1, 2, 0))
-
-        # Clip values and convert to uint8
-        output = numpy_clip(output * 255.0, 0, 255).astype(uint8)
-        return output
-
-    def enhance_image(self, image: numpy_ndarray) -> numpy_ndarray:
-        """
-        Enhance image using the super resolution model.
-        """
-        input_image = self.preprocess_super_resolution_image(image)
-        input_name = self.inferenceSession.get_inputs()[0].name
-        output_name = self.inferenceSession.get_outputs()[0].name
-        result = self.inferenceSession.run(
-            [output_name], {input_name: input_image})[0]
-        enhanced_image = self.postprocess_super_resolution_image(result)
-        return enhanced_image
-
-    def AI_orchestration(self, image: numpy_ndarray) -> numpy_ndarray:
-        """
-        Main orchestration function for super resolution processing.
-        """
-        try:
-            return self.enhance_image(image)
-        except Exception as e:
-            print(f"[SUPER RESOLUTION ERROR] {str(e)}")
-            # Return original image if enhancement fails
-            return image
 
 
 # Esquema de colores mejorado - Rojo, Gris, Amarillo, Negro, Blanco
@@ -223,7 +187,6 @@ VRAM_model_usage = {
     'IRCNN_Mx1':       4,
     'IRCNN_Lx1':       4,
     'GFPGAN':          1.8,
-    'SuperResolution-10': 0.8,
 }
 
 MENU_LIST_SEPARATOR = ["----"]
@@ -232,11 +195,10 @@ BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
 Face_restoration_models_list = ["GFPGAN"]
 RIFE_models_list = ["RIFE", "RIFE_Lite"]
-SuperResolution_models_list = ["SuperResolution-10"]
 
 AI_models_list = (SRVGGNetCompact_models_list + MENU_LIST_SEPARATOR + BSRGAN_models_list +
                   MENU_LIST_SEPARATOR + IRCNN_models_list + MENU_LIST_SEPARATOR + Face_restoration_models_list +
-                  MENU_LIST_SEPARATOR + SuperResolution_models_list + MENU_LIST_SEPARATOR + RIFE_models_list)
+                  MENU_LIST_SEPARATOR + RIFE_models_list)
 frame_interpolation_models_list = RIFE_models_list
 frame_generation_options_list = [
     "x2", "x4", "x8", "Slowmotion x2", "Slowmotion x4", "Slowmotion x8"
@@ -277,32 +239,49 @@ else:
 
 if os_path_exists(USER_PREFERENCE_PATH):
     print(f"[{app_name}] Preference file exist")
-    with open(USER_PREFERENCE_PATH, "r") as json_file:
-        json_data = json_load(json_file)
-        default_AI_model = json_data.get(
-            "default_AI_model",             AI_models_list[0])
-        default_AI_multithreading = json_data.get(
-            "default_AI_multithreading",    AI_multithreading_list[0])
-        default_gpu = json_data.get(
-            "default_gpu",                  gpus_list[0])
-        default_keep_frames = json_data.get(
-            "default_keep_frames",          keep_frames_list[1])
-        default_image_extension = json_data.get(
-            "default_image_extension",      image_extension_list[0])
-        default_video_extension = json_data.get(
-            "default_video_extension",      video_extension_list[0])
-        default_video_codec = json_data.get(
-            "default_video_codec",          video_codec_list[0])
-        default_blending = json_data.get(
-            "default_blending",             blending_list[1])
-        default_output_path = json_data.get(
-            "default_output_path",          OUTPUT_PATH_CODED)
-        default_input_resize_factor = json_data.get(
-            "default_input_resize_factor",  str(50))
-        default_output_resize_factor = json_data.get(
-            "default_output_resize_factor", str(100))
-        default_VRAM_limiter = json_data.get(
-            "default_VRAM_limiter",         str(4))
+    try:
+        with open(USER_PREFERENCE_PATH, "r") as json_file:
+            json_data = json_load(json_file)
+            default_AI_model = json_data.get(
+                "default_AI_model",             AI_models_list[0])
+            default_AI_multithreading = json_data.get(
+                "default_AI_multithreading",    AI_multithreading_list[0])
+            default_gpu = json_data.get(
+                "default_gpu",                  gpus_list[0])
+            default_keep_frames = json_data.get(
+                "default_keep_frames",          keep_frames_list[1])
+            default_image_extension = json_data.get(
+                "default_image_extension",      image_extension_list[0])
+            default_video_extension = json_data.get(
+                "default_video_extension",      video_extension_list[0])
+            default_video_codec = json_data.get(
+                "default_video_codec",          video_codec_list[0])
+            default_blending = json_data.get(
+                "default_blending",             blending_list[1])
+            default_output_path = json_data.get(
+                "default_output_path",          OUTPUT_PATH_CODED)
+            default_input_resize_factor = json_data.get(
+                "default_input_resize_factor",  str(50))
+            default_output_resize_factor = json_data.get(
+                "default_output_resize_factor", str(100))
+            default_VRAM_limiter = json_data.get(
+                "default_VRAM_limiter",         str(4))
+    except (json.JSONDecodeError, FileNotFoundError, PermissionError) as e:
+        print(f"[{app_name} ERROR] Failed to load preferences file: {str(e)}")
+        print(f"[{app_name}] Using default coded values instead")
+        # Fall back to default values
+        default_AI_model = AI_models_list[0]
+        default_AI_multithreading = AI_multithreading_list[0]
+        default_gpu = gpus_list[0]
+        default_keep_frames = keep_frames_list[1]
+        default_image_extension = image_extension_list[0]
+        default_video_extension = video_extension_list[0]
+        default_video_codec = video_codec_list[0]
+        default_blending = blending_list[1]
+        default_output_path = OUTPUT_PATH_CODED
+        default_input_resize_factor = str(50)
+        default_output_resize_factor = str(100)
+        default_VRAM_limiter = str(4)
 
 else:
     print(f"[{app_name}] Preference file does not exist, using default coded value")
@@ -386,6 +365,9 @@ class AI_upscale:
             return 4
 
     def _load_inferenceSession(self) -> None:
+        if self.inferenceSession is not None:
+            print(f"[AI] Model {self.AI_model_name} is already loaded.")
+            return
         try:
             # Check if model file exists
             if not os_path_exists(self.AI_model_path):
@@ -400,6 +382,7 @@ class AI_upscale:
                 case 'GPU 2': provider_options = [{"device_id": "1"}]
                 case 'GPU 3': provider_options = [{"device_id": "2"}]
                 case 'GPU 4': provider_options = [{"device_id": "3"}]
+                case _: provider_options = [{"device_id": "0"}]  # Default case
 
             inference_session = InferenceSession(
                 path_or_bytes=self.AI_model_path,
@@ -411,10 +394,13 @@ class AI_upscale:
             print(
                 f"[AI] Successfully loaded model: {os_path_basename(self.AI_model_path)}")
 
+        except FileNotFoundError as fnf_error:
+            print(f"[AI ERROR] AI model file not found: {fnf_error}")
+            # Graceful handling of file not found
         except Exception as e:
-            error_msg = f"Failed to load AI model {os_path_basename(self.AI_model_path)}: {str(e)}"
-            print(f"[AI ERROR] {error_msg}")
-            raise RuntimeError(error_msg)
+            print(f"[AI ERROR] Unexpected error loading AI model: {str(e)}")
+            # Reset inference session to None upon error
+            self.inferenceSession = None
 
     # INTERNAL CLASS FUNCTIONS
 
@@ -450,8 +436,9 @@ class AI_upscale:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        new_width = int(old_width * self.input_resize_factor)
-        new_height = int(old_height * self.input_resize_factor)
+        scale = self.input_resize_factor / 100.0
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
@@ -467,15 +454,16 @@ class AI_upscale:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        new_width = int(old_width * self.output_resize_factor)
-        new_height = int(old_height * self.output_resize_factor)
+        scale = self.output_resize_factor / 100.0
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if self.output_resize_factor > 1:
+        if scale > 1.0:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif self.output_resize_factor < 1:
+        elif scale < 1.0:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -621,7 +609,7 @@ class AI_upscale:
             # Default fallback to 255
             case _: return (onnx_output * 255).astype(uint8)
 
-    def AI_upscale(self, image: numpy_ndarray) -> numpy_ndarray:
+    def run_upscaling(self, image: numpy_ndarray) -> numpy_ndarray:
         # Optimización: Usar memoria contigua antes de procesar
         image = numpy_ascontiguousarray(image, dtype=float32)
         image_mode = self.get_image_mode(image)
@@ -682,7 +670,7 @@ class AI_upscale:
         t_height, t_width = self.calculate_target_resolution(image)
         tiles_x, tiles_y = self.calculate_tiles_number(image)
         tiles_list = self.split_image_into_tiles(image, tiles_x, tiles_y)
-        tiles_list = [self.AI_upscale(tile) for tile in tiles_list]
+        tiles_list = [self.run_upscaling(tile) for tile in tiles_list]
 
         return self.combine_tiles_into_image(image, tiles_list, t_height, t_width, tiles_x)
 
@@ -698,7 +686,7 @@ class AI_upscale:
         if self.image_need_tilling(resized_image):
             upscaled_image = self.AI_upscale_with_tilling(resized_image)
         else:
-            upscaled_image = self.AI_upscale(resized_image)
+            upscaled_image = self.run_upscaling(resized_image)
 
         return self.resize_with_output_factor(upscaled_image)
 
@@ -788,15 +776,16 @@ class AI_interpolation:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        new_width = int(old_width * self.input_resize_factor)
-        new_height = int(old_height * self.input_resize_factor)
+        scale = self.input_resize_factor / 100.0
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if self.input_resize_factor > 1:
+        if scale > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif self.input_resize_factor < 1:
+        elif scale < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -805,15 +794,16 @@ class AI_interpolation:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        new_width = int(old_width * self.output_resize_factor)
-        new_height = int(old_height * self.output_resize_factor)
+        scale = self.output_resize_factor / 100.0
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if self.output_resize_factor > 1:
+        if scale > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif self.output_resize_factor < 1:
+        elif scale < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -1006,15 +996,16 @@ class AI_face_restoration:
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
         old_height, old_width = self.get_image_resolution(image)
-        new_width = int(old_width * self.input_resize_factor)
-        new_height = int(old_height * self.input_resize_factor)
+        scale = self.input_resize_factor / 100.0
+        new_width = int(old_width * scale)
+        new_height = int(old_height * scale)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if self.input_resize_factor > 1:
+        if scale > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif self.input_resize_factor < 1:
+        elif scale < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -1868,8 +1859,8 @@ def cleanup_on_exit():
         for temp_file in temp_files:
             try:
                 os_remove(temp_file)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[ERROR] Could not remove temporary file {temp_file}: {str(e)}")
 
         # Stop any running processes
         stop_upscale_process()
@@ -3602,13 +3593,6 @@ def upscale_orchestrator(
                                     input_resize_factor, output_resize_factor, tiles_resolution)
                 for _ in range(selected_AI_multithreading)
             ]
-        # Check if the selected model is a super resolution model
-        elif selected_AI_model in SuperResolution_models_list:
-            AI_upscale_instance_list = [
-                AI_super_resolution(
-                    f"AI-onnx{os_separator}super-resolution-10.onnx", selected_gpu)
-                for _ in range(selected_AI_multithreading)
-            ]
         else:
             AI_upscale_instance_list = [
                 AI_upscale(selected_AI_model, selected_gpu,
@@ -3691,11 +3675,7 @@ def upscale_image(
     write_process_status(
         process_status_q, f"{file_number}. Enchanting your image. Be patient...")
 
-    # Check if using SuperResolution-10 model
-    if selected_AI_model in SuperResolution_models_list:
-        upscaled_image = AI_instance.enhance_image(starting_image)
-    else:
-        upscaled_image = AI_instance.AI_orchestration(starting_image)
+    upscaled_image = AI_instance.AI_orchestration(starting_image)
 
     if selected_blending_factor > 0:
         blend_images_and_save(
@@ -4435,12 +4415,6 @@ def place_AI_menu():
             "   • Lite is 10% faster than full model\n" +
             "   • Recommended for GPUs with VRAM < 4GB \n",
 
-            "\n SuperResolution-10 \n"
-            "\n • Advanced super-resolution model with 10x upscaling\n"
-            " • Year: 2023\n"
-            " • Function: High-resolution image enhancement\n"
-            " • Excellent for very low resolution images\n"
-            " • Specialized for significant resolution increases\n",
         ]
 
         MessageBox(
