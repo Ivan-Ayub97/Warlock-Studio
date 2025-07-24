@@ -1,5 +1,5 @@
 % =======================================================================================
-%   WARLOCK-STUDIO 4.0 - USER MANUAL & TECHNICAL DOCUMENTATION
+%   WARLOCK-STUDIO 4.0.1 - USER MANUAL & TECHNICAL DOCUMENTATION
 % =======================================================================================
 % Manual Version: 8.0 (Updated Edition)
 % Author: Iván Eduardo Chavez Ayub (Reviewed and Improved by AI)
@@ -88,7 +88,7 @@
     linkcolor=WarlockRed,             % Color for internal links (to sections, figures, etc.).
     filecolor=WarlockRed,             % Color for links to local files.
     urlcolor=WarlockRed,              % Color for links to external URLs.
-    pdftitle={Warlock-Studio 4.0 User Manual & Technical Documentation}, % PDF metadata.
+    pdftitle={Warlock-Studio 4.0.1 User Manual & Technical Documentation}, % PDF metadata.
     pdfauthor={Iván Eduardo Chavez Ayub (Reviewed by AI)}             % PDF metadata.
 }
 
@@ -157,7 +157,7 @@
 \fancyhf{} % Clears all header and footer fields.
 
 % \fancyhead[L/C/R]{...} defines the header content (Left, Center, Right).
-\fancyhead[L]{\textit{Warlock-Studio 4.0}}
+\fancyhead[L]{\textit{Warlock-Studio 4.0.1}}
 \fancyhead[R]{\leftmark} % \leftmark displays the current section name.
 
 % \fancyfoot[L/C/R]{...} defines the footer content.
@@ -205,7 +205,7 @@
       \vspace{0.7cm} % Fixed vertical space.
       {\Large -- User Manual \& Technical Documentation --\par}
       \vspace{0.2cm}
-      {\Large Version 4.0\par}
+      {\Large Version 4.0.1\par}
 
       \vfill % Another flexible space.
 
@@ -226,9 +226,7 @@
 % The 'abstract' environment creates a summary of the document.
 \begin{abstract}
 \noindent % Prevents indentation on the first line.
-\textbf{Warlock-Studio 4.0 Technical Documentation}
-
-This comprehensive technical manual serves as the definitive guide for Warlock-Studio 4.0 "SuperResolution Revolution". The documentation encompasses detailed architectural analysis, implementation specifics, optimization strategies, and comprehensive troubleshooting procedures. Information has been validated through extensive source code analysis and real-world testing scenarios.
+\textbf{Warlock-Studio 4.0.1 Technical Documentation}
 
 \textbf{Target Audience:} Technical users, system administrators, content creators, and AI enthusiasts seeking in-depth understanding of AI-powered media enhancement workflows.
 
@@ -244,18 +242,17 @@ This comprehensive technical manual serves as the definitive guide for Warlock-S
 
 % --- Section 1: Introduction ---
 \section{Introduction}
-Warlock-Studio is an AI-powered media enhancement and upscaling suite, designed to deliver high-quality results through an accessible user interface. Version 4.0 introduces a revolutionary smart AI model distribution system that automatically downloads required components on first launch, reducing installer size from 1.4GB to just 150MB. Additionally, it includes key enhancements in GPU management, error handling, and performance efficiency, solidifying its position as a powerful tool for professional content creators.
+Warlock-Studio is an AI-powered media enhancement and upscaling suite, designed to deliver high-quality results through an accessible user interface. Version 4.0.1 introduces a revolutionary smart AI model distribution system that automatically downloads required components on first launch, reducing installer size from 1.4GB to just 150MB. Additionally, it includes key enhancements in GPU management, error handling, and performance efficiency, solidifying its position as a powerful tool for professional content creators.
 
-\subsection{What's New in Version 4.0 - "SuperResolution Revolution"}
+\subsection{What's New in Version 4.0.1}
 The latest version brings the following key enhancements:
 % 'itemize' is used for bulleted lists. [leftmargin=*] aligns the list with the paragraph margin.
 \begin{itemize}[leftmargin=*]
     \item \textbf{Smart AI Model Distribution:} Revolutionary lightweight installer (150MB vs 1.4GB) with automatic AI model download system that fetches models (327MB) on first launch.
-    \item \textbf{SuperResolution-10 Model Integration:} Revolutionary 10x upscaling capabilities specifically designed for very low-resolution images, perfect for bringing old photos back to life.
     \item \textbf{Enhanced AI Architecture:} Implemented robust `AI\_model\_base` class with comprehensive error handling and GPU acceleration support.
     \item \textbf{Code Quality Improvements:} Fixed critical import errors, consolidated duplicate code sections, and improved type annotations for better maintainability.
     \item \textbf{Improved Error Handling:} Added graceful degradation mechanisms that prevent crashes and provide meaningful error messages.
-    \item \textbf{Complete Model Integration:} SuperResolution-10 is fully integrated into UI, processing pipeline, and information dialogs with proper VRAM management.
+    \item \textbf{Model Optimization:} Streamlined AI model collection for improved stability and compatibility across different hardware configurations.
 \end{itemize}
 
 \subsection{Main Features}
@@ -377,9 +374,6 @@ The following table details the relative VRAM usage of each model.
 \texttt{RIFE} & Interpolate & N/A & N/A & Maximum interpolation quality. Creates smooth motion between frames for high FPS. \\
 \texttt{RIFE\_Lite} & Interpolate & N/A & N/A & Optimized version for GPUs with limited VRAM (< 4 GB). Faster processing. \\
 \midrule
-\multicolumn{5}{c}{\textit{\textbf{Super Resolution Models}}} \\
-\midrule
-\texttt{SuperResolution-10} & Upscale & x10 & 0.8 & Extreme upscaling for very low-resolution images. Perfect for restoring old, small photos. \\
 \bottomrule
 \caption{Comprehensive guide to AI model selection and VRAM requirements.}
 \label{tab:modelos}
@@ -499,14 +493,10 @@ Warlock-Studio implements a comprehensive logging system that includes:
     \item \textbf{Debug Logs:} Detailed information for troubleshooting
 \end{itemize}
 
-\subsection{SuperResolution-10 Model Optimization}
-The SuperResolution-10 model requires specific configurations:
-\begin{itemize}[leftmargin=*]
-    \item \textbf{CHW Preprocessing:} Conversion from image format (height, width, channels) to (channels, height, width)
-    \item \textbf{Float32 Normalization:} Conversion to 32-bit floating point for maximum precision
-    \item \textbf{Memory Management:} Use of contiguous arrays for memory access optimization
-    \item \textbf{GPU Memory Allocation:} Dynamic VRAM allocation based on image size and available resources
-\end{itemize}
+\subsection{Version 4.0.1 Update Notice}
+\begin{warnbox}
+The SuperResolution-10 model has been removed in version 4.0.1 due to compatibility conflicts with certain hardware configurations. Users requiring extreme upscaling should use BSRGANx4 or RealESRGANx4 models in combination with multiple processing passes for similar results.
+\end{warnbox}
 
 \subsection{Performance Monitoring and Metrics}
 The application provides detailed performance metrics:

@@ -77,7 +77,7 @@
     linkcolor=WarlockRed,             % Color para enlaces internos (a secciones, figuras, etc.).
     filecolor=WarlockRed,             % Color para enlaces a archivos locales.
     urlcolor=WarlockRed,              % Color para enlaces a URLs externas.
-    pdftitle={Warlock-Studio 4.0 Guía de Usuario & Documentación Técnica}, % Metadatos del PDF.
+    pdftitle={Warlock-Studio 4.0.1 Guía de Usuario \& Documentación Técnica}, % Metadatos del PDF.
     pdfauthor={Iván Eduardo Chavez Ayub (Revisado por IA)}             % Metadatos del PDF.
 }
 
@@ -146,7 +146,7 @@
 \fancyhf{} % Limpia todos los campos del encabezado y pie de página.
 
 % \fancyhead[L/C/R]{...} define el contenido de la cabecera (Izquierda, Centro, Derecha).
-\fancyhead[L]{\textit{Warlock-Studio 4.0}}
+\fancyhead[L]{\textit{Warlock-Studio 4.0.1}}
 \fancyhead[R]{\leftmark} % \leftmark muestra el nombre de la sección actual.
 
 % \fancyfoot[L/C/R]{...} define el contenido del pie de página.
@@ -194,7 +194,7 @@
       \vspace{0.7cm} % Espacio vertical fijo.
       {\Large -- Manual Técnico del Usuario y Documentación --\par}
       \vspace{0.2cm}
-      {\Large Versión 4.0\par}
+      {\Large Versión 4.0.1\par}
 
       \vfill % Otro espacio flexible.
 
@@ -215,7 +215,7 @@
 % El entorno 'abstract' crea un resumen del documento.
 \begin{abstract}
 \noindent % Evita la sangría en la primera línea.
-Este documento es una guía técnica exhaustiva para Warlock-Studio 4.0 - "Revolución SuperResolution". La información ha sido validada y enriquecida con un análisis profundo del código fuente para proporcionar detalles precisos sobre su nueva arquitectura de IA, capacidades de super-resolución extrema, una guía de optimización avanzada y un manual de solución de problemas robusto.
+Este documento es una guía técnica exhaustiva para Warlock-Studio 4.0.1. La información ha sido validada y enriquecida con un análisis profundo del código fuente para proporcionar detalles precisos sobre su nueva arquitectura de IA, una guía de optimización mejorada y un manual de solución de problemas robusto.
 \end{abstract}
 
 \newpage % Salto de página antes de la tabla de contenidos.
@@ -229,9 +229,11 @@ Este documento es una guía técnica exhaustiva para Warlock-Studio 4.0 - "Revol
 \section{Introducción}
 Warlock-Studio es una aplicación avanzada para la mejora y optimización de contenidos audiovisuales, que utiliza modelos IA de vanguardia para proporcionar resultados excepcionales. Su interfaz es intuitiva y accesible, adecuada tanto para principiantes como para usuarios avanzados.
 
-La versión 4.0, conocida como "Revolución SuperResolution", introduce un sistema innovador de distribución de modelos IA que descarga automáticamente los componentes necesarios al iniciar, permitiendo una instalación más liviana con solo 300MB, en comparación con los previos 1.4GB. Asimismo, integra el modelo SuperResolution-10 y mejora la arquitectura de IA y la estabilidad del software, fortaleciendo su presencia como una herramienta esencial para profesionales de la creación de contenido.
+La versión 4.0.1, introduce un sistema innovador de distribución de modelos IA que descarga automáticamente los componentes necesarios al iniciar, permitiendo una instalación más liviana con solo 300MB, en comparación con los previos 1.4GB. Esta versión mejora significativamente la arquitectura de IA y la estabilidad del software, fortaleciendo su presencia como una herramienta esencial para profesionales de la creación de contenido.
 
-\subsection{Novedades en la Versión 4.0}
+\textbf{Actualización v4.0.1:} El modelo SuperResolution-10 ha sido eliminado de esta versión debido a conflictos de compatibilidad. Se recomienda usar BSRGANx4 o RealESRGANx4 para necesidades de escalado extremo.
+
+\subsection{Novedades en la Versión 4.0.1}
 La última versión aporta las siguientes mejoras clave:
 % Se usa 'itemize' para listas con viñetas. [leftmargin=*] alinea la lista con el margen del párrafo.
 \begin{itemize}[leftmargin=*]
@@ -240,6 +242,7 @@ La última versión aporta las siguientes mejoras clave:
     \item \textbf{Gestión optimizada de memoria:} Incluye técnicas proactivas de optimización de memoria y mejor soporte de hilos para un procesamiento fluido.
     \item \textbf{Mejora en GUI y preferencias de usuario:} Una interfaz más amigable con opciones de configuración mejoradas y actualizaciones dinámicas en tiempo real.
     \item \textbf{Codificación de video mejorada:} Soporta múltiples codificadores acelerados por hardware de NVIDIA, AMD e Intel para un rendimiento óptimo.
+    \item \textbf{Versión 4.0.1:} Se eliminó el modelo SuperResolution-10 debido a conflictos de compatibilidad. Los usuarios deben utilizar BSRGANx4 o RealESRGANx4 para escalado extremo.
 \end{itemize}
 
 \subsection{Características Principales}
@@ -259,7 +262,7 @@ La última versión aporta las siguientes mejoras clave:
 
 \subsection{Sistema de Distribución Inteligente de Modelos IA}
 \begin{infobox}
-Warlock-Studio 4.0 introduce un sistema revolucionario de distribución de modelos IA que descarga automáticamente los componentes necesarios durante el primer inicio de la aplicación.
+Warlock-Studio 4.0.1 introduce un sistema revolucionario de distribución de modelos IA que descarga automáticamente los componentes necesarios durante el primer inicio de la aplicación.
 \end{infobox}
 
 \subsubsection{Ventajas del Nuevo Sistema}
@@ -305,7 +308,7 @@ Para usuarios con conectividad limitada o preferencias específicas:
         Almacenamiento 6 2 GB de espacio libre. Se recomienda un SSD para un mejor rendimiento. \\
         \bottomrule % Línea inferior de la tabla (de booktabs).
     \end{tabular}
-    \caption{Requisitos de hardware y software para Warlock-Studio 4.0.}
+    \caption{Requisitos de hardware y software para Warlock-Studio 4.0.1.}
 \end{table}
 
 \subsection{Estructura de Archivos y Dependencias}
@@ -361,9 +364,9 @@ La tabla siguiente ofrece un análisis detallado del consumo de VRAM, funcionali
 \texttt{RIFE} & Interpolar & N/A & N/A & Máxima calidad de interpolación. Crea movimiento suave entre frames para altos FPS. \\
 \texttt{RIFE\_Lite} & Interpolar & N/A & N/A & Versión optimizada para GPUs con VRAM limitada (< 4 GB). Procesamiento más rápido. \\
 \midrule
-\multicolumn{5}{c}{\textit{\textbf{Modelos de Super Resolución}}} \\
+\multicolumn{5}{c}{\textit{\textbf{Nota de Versión 4.0.1}}} \\
 \midrule
-\texttt{SuperResolution-10} & Upscale & x10 & 0.8 & Escalado extremo para imágenes de muy baja resolución. Perfecto para restaurar fotos pequeñas y antiguas. \\
+\multicolumn{5}{p{14cm}}{\textbf{ELIMINADO:} El modelo SuperResolution-10 ha sido removido en la versión 4.0.1 debido a conflictos de compatibilidad. Para escalado extremo, se recomienda utilizar BSRGANx4 o RealESRGANx4 aplicados múltiples veces o en combinación con otros modelos.} \\
 \bottomrule
 \caption{Guía integral de selección de modelos de IA y requisitos de VRAM.}
 \label{tab:modelos}
@@ -482,13 +485,15 @@ Warlock-Studio implementa un sistema completo de registro que incluye:
     \item \textbf{Logs de Rendimiento:} Miden tiempos de procesamiento y uso de recursos
 \end{itemize}
 
-\subsection{Optimización de Modelo SuperResolution-10}
-El modelo SuperResolution-10 requiere configuraciones específicas:
+\subsection{Modelos Removidos en Versión 4.0.1}
+\begin{warnbox}
+El modelo SuperResolution-10 ha sido eliminado de la versión 4.0.1 debido a conflictos de compatibilidad y estabilidad. Para necesidades de escalado extremo, se recomienda:
 \begin{itemize}[leftmargin=*]
-    \item \textbf{Preprocesamiento CHW:} Conversión de formato de imagen (altura, ancho, canales) a (canales, altura, ancho)
-    \item \textbf{Normalización Float32:} Conversión a punto flotante de 32 bits para máxima precisión
-    \item \textbf{Gestión de Memoria:} Uso de arrays contiguos para optimización de acceso a memoria
+    \item \textbf{BSRGANx4:} Aplicar múltiples veces para escalado gradual
+    \item \textbf{RealESRGANx4:} Excelente calidad para escalado de propósito general
+    \item \textbf{Combinación de modelos:} Usar IRCNN para limpieza previa seguido de BSRGAN
 \end{itemize}
+\end{warnbox}
 
 \section{Resolución Avanzada de Errores y Diagnósticos del Sistema}
 
