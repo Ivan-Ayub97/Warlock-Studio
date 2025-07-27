@@ -163,6 +163,8 @@
 
 - The application now explicitly handles images with an alpha channel (4-channel BGRA) when using face restoration models. A new import for `COLOR_BGRA2BGR` was added, and it is used within `preprocess_face_image` to convert images to the 3-channel BGR format expected by the GFPGAN model. This prevents runtime errors and ensures correct processing of PNGs or other images with transparency.
 
+---
+
 ## Version 2.2
 
 **Release date:** 7 July 2025
@@ -239,6 +241,8 @@
   5.2 **Hardened Core Methods**
 
 - Core methods in AI classes now include checks for `None` inputs and feature default fallbacks (`case _:`) in `match` statements to prevent unexpected errors with unsupported data.
+
+--
 
 ## Version 2.1
 
