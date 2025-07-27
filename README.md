@@ -223,9 +223,9 @@ Warlock-Studio/
 │
 ├──Manual/
    │
-   └──├──Manual_EN.pdf
+   └──├──v4.0.1_User_Manual_EN.pdf
       ├──Manual_EN.tex
-      ├──Manual_ES.pdf
+      ├──v4.0.1_User_Manual_ES.pdf
       └──Manual_ES.tex
 │
 ├──CHANGELOG.md
@@ -237,8 +237,6 @@ Warlock-Studio/
 ├──README.md                 # This File
 ├──SECURITY.md
 ├──Setup.iss
-├──Manual_ES.pdf
-├──Manual_EN.pdf
 ├──Warlock-Studio.py         # Main
 └──Warlock-Studio.spec
 ```
