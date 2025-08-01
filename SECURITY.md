@@ -6,6 +6,8 @@ We aim to support the most recent stable release of Warlock-Studio. Security upd
 
 | Version | Supported |
 | ------- | --------- |
+| 4.1.x   | ✅        |
+| 4.0.1   | ✅        |
 | 4.0.x   | ✅        |
 | 3.0.x   | ✅        |
 | 2.2.x   | ✅        |
