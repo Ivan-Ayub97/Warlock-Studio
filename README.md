@@ -7,7 +7,7 @@
 ### _AI Media Enhancement Suite_
 
 [![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![Version](https://img.shields.io/badge/Version-4.1--08.01-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip)
+[![Version](https://img.shields.io/badge/Version-v4.1--08.01-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=gold)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 
