@@ -157,9 +157,6 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 ![Screenshot of the installer window](rsc/Installation_window.png)
 ![Screenshot of the installer window part 2](rsc/Installation_window2.png)
 ![Screenshot of the installer window part 2](rsc/Installation_window3.png)
-![Screenshot of the installer window part 2](rsc/Installation_window4.png)
-![Screenshot of the installer window part 2](rsc/Installation_window5.png)
-![Screenshot of the installer window part 2](rsc/Installation_window6.png)
 
 ---
 
