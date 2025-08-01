@@ -184,6 +184,7 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 ---
 
 ## Project Structure
+</div>
 
 ```
 Warlock-Studio/
@@ -246,7 +247,8 @@ Warlock-Studio/
 ├──Warlock-Studio.py         # Main
 └──Warlock-Studio.spec
 ```
-
+<div align="center">
+  
 ---
 
 ## Integrated Technologies & Licenses
