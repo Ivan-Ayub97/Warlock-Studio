@@ -3,7 +3,7 @@
 ; ===================================================================
 
 #define AppName "Warlock-Studio"
-#define AppVersion "4.0.1"
+#define AppVersion "4.1"
 #define AppPublisher "Iván Eduardo Chavez Ayub"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"

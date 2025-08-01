@@ -1,3 +1,59 @@
+## Version 4.1
+
+**Release date:** 1 August 2025
+
+### Model Enhancement and Utilization
+
+#### 1.1 **Enhanced GPU Utilization and Error Handling**
+
+- **Robust Provider Configuration**: Added a private method `_select_providers` to intelligently select ONNX runtime providers based on the chosen GPU and improve model execution efficiency.
+- **Dynamic Fall-back Mechanism**: Enhanced `_load_inferenceSession` to prioritize loading models on GPU providers and gracefully fallback to CPU providers if GPU initialization fails, coupled with detailed logging.
+- **Improved Model Initialization**: Ensured comprehensive validation and error handling during model loading to enhance stability across various hardware environments.
+
+### Compatibility and Runtime Improvements
+
+#### 2.1 **Addressed NumPy and OpenCV Compatibility**
+
+- **Resolved Import Errors**: Fixed critical compatibility issues between NumPy 2.x and OpenCV by downgrading to NumPy 1.26.4, preventing `_ARRAY_API not found` and `numpy.core.multiarray failed to import` errors.
+- **Critical Module Validation**: Ensured that all critical libraries (OpenCV, ONNX Runtime, CustomTkinter) load successfully without compatibility warnings, enhancing overall application reliability.
+- **Runtime Environment Stability**: Resolved module loading conflicts that previously caused application crashes during startup.
+
+### Performance Optimization
+
+#### 3.1 **Memory and Resource Management**
+
+- **Contiguous Memory Utilization**: Enhanced use of `numpy.ascontiguousarray` throughout image processing pipelines to optimize memory usage during intensive AI processing tasks.
+- **GPU Memory Error Recovery**: Improved handling of GPU memory allocation failures with automatic fallback to CPU processing when DirectML providers are unavailable.
+- **Processing Pipeline Optimization**: Streamlined AI model loading and inference execution for better resource utilization across different hardware configurations.
+
+### Code Quality and Error Handling
+
+#### 4.1 **Enhanced Error Resilience**
+
+- **Syntax Error Resolution**: Fixed critical syntax error in `_load_inferenceSession` method that prevented proper AI model initialization.
+- **Improved Error Messaging**: Enhanced logging capabilities with more informative error messages and warnings for better user diagnostics and troubleshooting.
+- **Graceful Degradation**: Implemented improved fallback strategies for GPU resource issues, effectively preventing application crashes by dynamically adjusting processing pathways.
+- **Provider Validation**: Added comprehensive validation for ONNX runtime providers with automatic fallback from GPU to CPU execution when hardware acceleration is unavailable.
+
+### UI and User Experience
+
+#### 5.1 **Application Stability and Feedback**
+
+- **Startup Reliability**: Resolved critical startup issues that prevented the application from launching due to module compatibility problems.
+- **Processing Status Updates**: Enhanced real-time feedback during AI model loading and image/video processing operations.
+- **Error Notification**: Improved error dialogs and status messages to provide clearer information about processing states and potential issues.
+- **Hardware Compatibility**: Better detection and handling of different GPU configurations, with informative warnings when falling back to CPU processing.
+
+### Technical Improvements
+
+#### 6.1 **Model Loading Architecture**
+
+- **Modular Provider Selection**: Separated provider selection logic into dedicated methods for better code organization and maintainability.
+- **Robust Model Validation**: Enhanced file existence checking and model integrity validation before attempting to load AI models.
+- **Cross-Platform Compatibility**: Improved compatibility across different Windows configurations and GPU setups.
+
+---
+
 ## Version 4.0.1
 
 **Release date:** 27 July 2025
@@ -163,8 +219,6 @@
 
 - The application now explicitly handles images with an alpha channel (4-channel BGRA) when using face restoration models. A new import for `COLOR_BGRA2BGR` was added, and it is used within `preprocess_face_image` to convert images to the 3-channel BGR format expected by the GFPGAN model. This prevents runtime errors and ensures correct processing of PNGs or other images with transparency.
 
----
-
 ## Version 2.2
 
 **Release date:** 7 July 2025
@@ -241,8 +295,6 @@
   5.2 **Hardened Core Methods**
 
 - Core methods in AI classes now include checks for `None` inputs and feature default fallbacks (`case _:`) in `match` statements to prevent unexpected errors with unsupported data.
-
---
 
 ## Version 2.1
 

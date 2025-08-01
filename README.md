@@ -2,12 +2,12 @@
 
 <div align="center">
 
-# Warlock-Studio
+# 🎭 Warlock-Studio
 
 ### _AI Media Enhancement Suite_
 
 [![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![Version](https://img.shields.io/badge/Version-4.0.1--07.25-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.0.1)
+[![Version](https://img.shields.io/badge/Version-4.1--08.01-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.1)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=gold)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 
@@ -19,13 +19,13 @@ _Transform your media with cutting-edge AI technology_
 
 **Warlock-Studio** is a powerful, open-source desktop application for Windows that integrates state-of-the-art AI models for video and image enhancement. Inspired by the work of [Djdefrag](https://github.com/Djdefrag) on tools like **QualityScaler** and **FluidFrames**, this suite provides a unified, high-performance interface for upscaling, restoration, and frame interpolation.
 
-Version 4.0.1 continues this evolution with enhanced AI architecture and improved code stability for even better performance and reliability. Note: The SuperResolution-10 model has been removed in this version for better performance optimization.
+Version 4.1 builds on previous improvements with enhanced GPU utilization, comprehensive compatibility fixes, and optimization of model loading processes to provide a robust, reliable, and high-performance AI media enhancement experience.
 
 ---
 
-### ► Download Installer (v4.0.1)
+### ► Download Installer (v4.1) - Now Even Better
 
- **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
+🚀 **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
 
 Get the latest stable release from any of the following platforms:
 
@@ -37,7 +37,7 @@ Get the latest stable release from any of the following platforms:
       </a>
     </td>
     <td align="center" width="33%">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/4.0.1/Warlock-Studio4.0.1Setup.zip">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/4.1/Warlock-Studio4.1Setup.zip">
         <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
@@ -74,29 +74,31 @@ Get the latest stable release from any of the following platforms:
 
 ---
 
-## What's New in Version 4.0.1
+## What's New in Version 4.1
 
-- **Model Optimization:** Removed SuperResolution-10 model to improve overall performance and reduce complexity. For extreme upscaling needs, we recommend using Real-ESRGAN or BSRGAN models which provide excellent results.
+- 🔧 **Model Optimization:** Removed SuperResolution-10 model to improve overall performance and reduce complexity. For extreme upscaling needs, we recommend using Real-ESRGAN or BSRGAN models which provide excellent results.
 - ✅ **Enhanced AI Architecture:** Implemented robust ONNX model loading, GPU acceleration support, and comprehensive error handling.
 - ✅ **Code Quality Improvements:** Fixed critical import errors, consolidated duplicate code sections, and improved type annotations for better maintainability.
 - ✅ **Improved Error Handling:** Added graceful degradation mechanisms that prevent crashes and provide meaningful error messages during processing.
 - ✅ **Streamlined Model Integration:** Optimized model integration in the UI and processing pipeline for better performance.
-- 🚀 **Smart Model Distribution:** Lightweight installer (~450MB) with automatic AI model download system that fetches models on first launch.
-- 📦 **Optimized Packaging:** Enhanced PyInstaller configuration excludes AI models from executable, significantly reducing download and installation time.
+- 🟢 **Enhanced GPU Utilization**: Improved provider selection logic for better model execution efficiency across different hardware configurations.
+- 🚀 **Compatibility Fixes**: Addressed critical module compatibility by ensuring consistent runtime environment for NumPy and OpenCV libraries.
+- 📦 **Performance and Stability**: Refined memory and resource management, with enhanced error messaging and fallback strategies to ensure robust application performance under varying conditions.
+- ✅ **User Experience Enhancements**: Improved startup reliability and user notifications for smooth interaction and feedback.
 
 ---
 
-## Smart Model Distribution System
+## 🌐 Smart Model Distribution System
 
 Version 4.0 introduces a revolutionary approach to AI model distribution:
 
-### **Lightweight Installation**
+### 🎯 **Lightweight Installation**
 
 - **Installer Size:** Reduced from 1.4GB to ~450MB (68% size reduction)
 - **First Launch:** AI models (~400MB) download automatically with progress tracking
 - **Bandwidth Friendly:** Users with limited internet can get started faster
 
-### **Reliability Features**
+### 🛡️ **Reliability Features**
 
 - **Integrity Validation:** Downloaded models are verified for completeness
 - **Graceful Degradation:** Application provides clear feedback if models aren't available
@@ -106,7 +108,7 @@ Version 4.0 introduces a revolutionary approach to AI model distribution:
 
 ## Interface Previews
 
-### 🔹 Main View (v4.0.1)
+### 🔹 Main View (v4.1)
 
 ![Screenshot of Warlock-Studio's main interface](rsc/Capture.png)
 
@@ -153,9 +155,11 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 ### Installation Window Previews
 
 ![Screenshot of the installer window](rsc/Installation_window.png)
-![Screenshot of the installer window](rsc/Installation_window2.png)
-![Screenshot of the installer window](rsc/Installation_window3.png)
-
+![Screenshot of the installer window part 2](rsc/Installation_window2.png)
+![Screenshot of the installer window part 2](rsc/Installation_window3.png)
+![Screenshot of the installer window part 2](rsc/Installation_window4.png)
+![Screenshot of the installer window part 2](rsc/Installation_window5.png)
+![Screenshot of the installer window part 2](rsc/Installation_window6.png)
 
 ---
 
@@ -168,7 +172,7 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 
 ---
 
-## Development Status — v4.0.1-07.25
+## Development Status — v4.1-08.01
 
 | Component                           | Status          | Notes                                                                                |
 | :---------------------------------- | :-------------- | :----------------------------------------------------------------------------------- |
@@ -202,7 +206,6 @@ Warlock-Studio/
       ├──RealSRx4_Anime_fp16.onnx
       ├──RIFE_fp32.onnx
       ├──RIFE_Lite_fp32.onnx
-│
 ├──Assets/
    │
    └──├──banner.png
@@ -216,16 +219,22 @@ Warlock-Studio/
       ├──upscale_icon.png
       ├──wizard-image.bmp
       └──wizard-small.bmp
-│
 ├──rsc/
    │
-   └──├──png files used in repo...
-│
+   └──├──badge-color.png
+      ├──Capture.png
+      ├──CaptureRIFE.png
+      ├──google_drive-logo.png
+      ├──WorkflowBSRGAN.png
+      ├──WorkflowIRCNN.png
+      ├──WorkflowRealESRGAN.png
+      ├──WorkflowRIFE.png
+      └──Installation_window2.png
 ├──Manual/
    │
-   └──├──v4.0.1_User_Manual_EN.pdf
+   └──├──Manual_EN.pdf
       ├──Manual_EN.tex
-      ├──v4.0.1_User_Manual_ES.pdf
+      ├──Manual_ES.pdf
       └──Manual_ES.tex
 │
 ├──CHANGELOG.md
@@ -237,6 +246,8 @@ Warlock-Studio/
 ├──README.md                 # This File
 ├──SECURITY.md
 ├──Setup.iss
+├──Manual_ES.pdf
+├──Manual_EN.pdf
 ├──Warlock-Studio.py         # Main
 └──Warlock-Studio.spec
 ```

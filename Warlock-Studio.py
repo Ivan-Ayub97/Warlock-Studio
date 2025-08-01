@@ -7,27 +7,20 @@ import shutil
 import signal
 import subprocess
 import sys
-import tempfile
 import traceback
 from contextlib import contextmanager
 from datetime import datetime
 from functools import cache
-from itertools import repeat
 from json import JSONDecodeError
 from json import dumps as json_dumps
 from json import load as json_load
-from math import cos, pi  # For smooth fade effect
-from multiprocessing import Process
-from multiprocessing import Queue as multiprocessing_Queue
-from multiprocessing import freeze_support as multiprocessing_freeze_support
+from math import cos, pi
+from multiprocessing import Process, Queue as multiprocessing_Queue, freeze_support as multiprocessing_freeze_support
 from multiprocessing.pool import ThreadPool
-from os import O_CREAT, O_WRONLY
 from os import cpu_count as os_cpu_count
 from os import devnull as os_devnull
-from os import fdopen as os_fdopen
 from os import listdir as os_listdir
 from os import makedirs as os_makedirs
-from os import open as os_open
 from os import remove as os_remove
 from os import sep as os_separator
 from os.path import abspath as os_path_abspath
@@ -38,37 +31,31 @@ from os.path import expanduser as os_path_expanduser
 from os.path import getsize as os_path_getsize
 from os.path import join as os_path_join
 from os.path import splitext as os_path_splitext
-from pathlib import Path
 from shutil import copy2
 from shutil import move as shutil_move
 from shutil import rmtree as remove_directory
 from subprocess import CalledProcessError
 from subprocess import run as subprocess_run
-from threading import Event, Lock, RLock, Thread
+from threading import Event, Lock, Thread
 from time import sleep
 from timeit import default_timer as timer
-# GUI imports
 from tkinter import DISABLED, StringVar
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from webbrowser import open as open_browser
 
-from customtkinter import (CTk, CTkButton, CTkEntry, CTkFont, CTkFrame,
-                           CTkImage, CTkLabel, CTkOptionMenu, CTkProgressBar,
-                           CTkScrollableFrame, CTkToplevel, filedialog,
-                           set_appearance_mode, set_default_color_theme)
-# CAMBIO 1: Añadir COLOR_BGRA2BGR a la lista
-from cv2 import (CAP_PROP_FPS, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_HEIGHT,
-                 CAP_PROP_FRAME_WIDTH, COLOR_BGR2RGB, COLOR_BGR2RGBA,
-                 COLOR_BGRA2BGR, COLOR_GRAY2RGB, COLOR_RGB2GRAY,
-                 IMREAD_UNCHANGED, INTER_AREA, INTER_CUBIC)
+# GUI imports
+from customtkinter import (CTk, CTkButton, CTkEntry, CTkFont, CTkFrame, CTkImage, CTkLabel, CTkOptionMenu, CTkProgressBar, CTkScrollableFrame, CTkToplevel, filedialog, set_appearance_mode, set_default_color_theme)
+
+# OpenCV imports
+from cv2 import (CAP_PROP_FPS, CAP_PROP_FRAME_COUNT, CAP_PROP_FRAME_HEIGHT, CAP_PROP_FRAME_WIDTH, COLOR_BGR2RGB, COLOR_BGR2RGBA, COLOR_BGRA2BGR, COLOR_GRAY2RGB, COLOR_RGB2GRAY, IMREAD_UNCHANGED, INTER_AREA, INTER_CUBIC)
 from cv2 import VideoCapture as opencv_VideoCapture
 from cv2 import addWeighted as opencv_addWeighted
 from cv2 import cvtColor as opencv_cvtColor
 from cv2 import imdecode as opencv_imdecode
 from cv2 import imencode as opencv_imencode
 from cv2 import resize as opencv_resize
-# Third-party library imports
-from natsort import natsorted
+
+# NumPy imports
 from numpy import ascontiguousarray as numpy_ascontiguousarray
 from numpy import clip as numpy_clip
 from numpy import concatenate as numpy_concatenate
@@ -78,21 +65,24 @@ from numpy import frombuffer as numpy_frombuffer
 from numpy import full as numpy_full
 from numpy import max as numpy_max
 from numpy import mean as numpy_mean
+from numpy import min as numpy_min
 from numpy import ndarray as numpy_ndarray
 from numpy import repeat as numpy_repeat
 from numpy import squeeze as numpy_squeeze
+from numpy import stack as numpy_stack
 from numpy import transpose as numpy_transpose
 from numpy import uint8
 from numpy import zeros as numpy_zeros
+
+# Third-party library imports
+from natsort import natsorted
 from onnxruntime import InferenceSession
 from PIL.Image import fromarray as pillow_image_fromarray
 from PIL.Image import open as pillow_image_open
 
 # Define supported file extensions
-supported_image_extensions = [".jpg", ".jpeg",
-                              ".png", ".bmp", ".tiff", ".tif", ".webp"]
-supported_video_extensions = [".mp4", ".avi",
-                              ".mkv", ".mov", ".wmv", ".flv", ".webm"]
+supported_image_extensions = [".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".webp"]
+supported_video_extensions = [".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm"]
 supported_file_extensions = supported_image_extensions + supported_video_extensions
 
 if sys.stdout is None:
@@ -107,65 +97,13 @@ def find_by_relative_path(relative_path: str) -> str:
     return os_path_join(base_path, relative_path)
 
 
-def image_read(path: str) -> numpy_ndarray:
-    """Read an image file and return it as a numpy array."""
-    try:
-        if not os_path_exists(path):
-            raise FileNotFoundError(f"Image file not found: {path}")
-
-        image = opencv_imdecode(numpy_frombuffer(open(path, 'rb').read(), dtype=uint8), IMREAD_UNCHANGED)
-        if image is None:
-            raise ValueError(f"Failed to read image: {path}")
-        return image
-    except Exception as e:
-        error_msg = f"Error reading image {path}: {str(e)}"
-        log_and_report_error(error_msg)
-        raise RuntimeError(error_msg)
-
-
 app_name = "Warlock-Studio"
-version = "4.0.1-07.25"
-
-# AI Model Base Class
-
-
-class AI_model_base:
-    def __init__(self, model_path: str, device: str = "CPU"):
-        self.model_path = model_path
-        self.device = device
-        self.inferenceSession = None
-        self._load_inference_session()
-
-    def _load_inference_session(self):
-        """Load the ONNX model for inference"""
-        try:
-            if not os_path_exists(self.model_path):
-                raise FileNotFoundError(
-                    f"Model file not found: {self.model_path}")
-
-            # Set up providers for GPU acceleration
-            # Use available GPU or CPU if no compatible GPU found
-            providers = ['CUDAExecutionProvider', 'DmlExecutionProvider', 'CPUExecutionProvider']
-            self.inferenceSession = InferenceSession(
-                self.model_path,
-                providers=providers
-            )
-            print(
-                f"[AI] Successfully loaded model: {os_path_basename(self.model_path)}")
-        except FileNotFoundError as fnf_error:
-            print(f"[AI ERROR] Model file not found: {fnf_error}")
-            # Handle specific file not found error
-        except Exception as e:
-            print(f"[AI ERROR] Failed to load model due to unexpected error: {str(e)}")
-            # Log the error and avoid crashing the application
-            self.inferenceSession = None  # Reset inference session on error
-            raise
-
+version = "4.1-08.01"
 
 
 # Esquema de colores mejorado - Rojo, Gris, Amarillo, Negro, Blanco
 background_color = "#1A1A1A"  # Negro profundo
-app_name_color = "#FFFFFF"  # Rojo brillante para el nombre de la app
+app_name_color = "#DFDFDF"  # Rojo brillante para el nombre de la app
 widget_background_color = "#2D2D2D"  # Gris oscuro para widgets
 text_color = "#FFFFFF"  # Blanco puro para texto principal
 secondary_text_color = "#E0E0E0"  # Gris claro para texto secundario
@@ -239,49 +177,32 @@ else:
 
 if os_path_exists(USER_PREFERENCE_PATH):
     print(f"[{app_name}] Preference file exist")
-    try:
-        with open(USER_PREFERENCE_PATH, "r") as json_file:
-            json_data = json_load(json_file)
-            default_AI_model = json_data.get(
-                "default_AI_model",             AI_models_list[0])
-            default_AI_multithreading = json_data.get(
-                "default_AI_multithreading",    AI_multithreading_list[0])
-            default_gpu = json_data.get(
-                "default_gpu",                  gpus_list[0])
-            default_keep_frames = json_data.get(
-                "default_keep_frames",          keep_frames_list[1])
-            default_image_extension = json_data.get(
-                "default_image_extension",      image_extension_list[0])
-            default_video_extension = json_data.get(
-                "default_video_extension",      video_extension_list[0])
-            default_video_codec = json_data.get(
-                "default_video_codec",          video_codec_list[0])
-            default_blending = json_data.get(
-                "default_blending",             blending_list[1])
-            default_output_path = json_data.get(
-                "default_output_path",          OUTPUT_PATH_CODED)
-            default_input_resize_factor = json_data.get(
-                "default_input_resize_factor",  str(50))
-            default_output_resize_factor = json_data.get(
-                "default_output_resize_factor", str(100))
-            default_VRAM_limiter = json_data.get(
-                "default_VRAM_limiter",         str(4))
-    except (json.JSONDecodeError, FileNotFoundError, PermissionError) as e:
-        print(f"[{app_name} ERROR] Failed to load preferences file: {str(e)}")
-        print(f"[{app_name}] Using default coded values instead")
-        # Fall back to default values
-        default_AI_model = AI_models_list[0]
-        default_AI_multithreading = AI_multithreading_list[0]
-        default_gpu = gpus_list[0]
-        default_keep_frames = keep_frames_list[1]
-        default_image_extension = image_extension_list[0]
-        default_video_extension = video_extension_list[0]
-        default_video_codec = video_codec_list[0]
-        default_blending = blending_list[1]
-        default_output_path = OUTPUT_PATH_CODED
-        default_input_resize_factor = str(50)
-        default_output_resize_factor = str(100)
-        default_VRAM_limiter = str(4)
+    with open(USER_PREFERENCE_PATH, "r") as json_file:
+        json_data = json_load(json_file)
+        default_AI_model = json_data.get(
+            "default_AI_model",             AI_models_list[0])
+        default_AI_multithreading = json_data.get(
+            "default_AI_multithreading",    AI_multithreading_list[0])
+        default_gpu = json_data.get(
+            "default_gpu",                  gpus_list[0])
+        default_keep_frames = json_data.get(
+            "default_keep_frames",          keep_frames_list[1])
+        default_image_extension = json_data.get(
+            "default_image_extension",      image_extension_list[0])
+        default_video_extension = json_data.get(
+            "default_video_extension",      video_extension_list[0])
+        default_video_codec = json_data.get(
+            "default_video_codec",          video_codec_list[0])
+        default_blending = json_data.get(
+            "default_blending",             blending_list[1])
+        default_output_path = json_data.get(
+            "default_output_path",          OUTPUT_PATH_CODED)
+        default_input_resize_factor = json_data.get(
+            "default_input_resize_factor",  str(50))
+        default_output_resize_factor = json_data.get(
+            "default_output_resize_factor", str(100))
+        default_VRAM_limiter = json_data.get(
+            "default_VRAM_limiter",         str(4))
 
 else:
     print(f"[{app_name}] Preference file does not exist, using default coded value")
@@ -328,7 +249,7 @@ little_menu_width = 98
 # Remove duplicate definitions - using the ones defined earlier
 
 
-# AI -------------------
+# Enhanced Model Utilization and Error Handling
 
 class AI_upscale:
 
@@ -365,42 +286,50 @@ class AI_upscale:
             return 4
 
     def _load_inferenceSession(self) -> None:
-        if self.inferenceSession is not None:
-            print(f"[AI] Model {self.AI_model_name} is already loaded.")
-            return
         try:
-            # Check if model file exists
             if not os_path_exists(self.AI_model_path):
-                raise FileNotFoundError(
-                    f"AI model file not found: {self.AI_model_path}")
+                raise FileNotFoundError(f"AI model file not found: {self.AI_model_path}")
 
-            providers = ['DmlExecutionProvider']
+            providers, provider_options = self._select_providers()
 
-            match self.directml_gpu:
-                case 'Auto':  provider_options = [{"performance_preference": "high_performance"}]
-                case 'GPU 1': provider_options = [{"device_id": "0"}]
-                case 'GPU 2': provider_options = [{"device_id": "1"}]
-                case 'GPU 3': provider_options = [{"device_id": "2"}]
-                case 'GPU 4': provider_options = [{"device_id": "3"}]
-                case _: provider_options = [{"device_id": "0"}]  # Default case
+            # Load the AI model and fall back if GPU resources are unavailable.
+            try:
+                inference_session = InferenceSession(
+                    path_or_bytes=self.AI_model_path,
+                    providers=providers,
+                    provider_options=provider_options,
+                )
+                self.inferenceSession = inference_session
+                print(f"[AI] Successfully loaded model: {os_path_basename(self.AI_model_path)}")
+            except RuntimeError as load_error:
+                # If GPU load fails, switch to CPU
+                print(f"[AI WARNING] Could not load on GPU. Switching to CPU: {str(load_error)}")
+                providers = ['CPUExecutionProvider']
+                self.inferenceSession = InferenceSession(
+                    path_or_bytes=self.AI_model_path,
+                    providers=providers
+                )
 
-            inference_session = InferenceSession(
-                path_or_bytes=self.AI_model_path,
-                providers=providers,
-                provider_options=provider_options,
-            )
-
-            self.inferenceSession = inference_session
-            print(
-                f"[AI] Successfully loaded model: {os_path_basename(self.AI_model_path)}")
-
-        except FileNotFoundError as fnf_error:
-            print(f"[AI ERROR] AI model file not found: {fnf_error}")
-            # Graceful handling of file not found
         except Exception as e:
-            print(f"[AI ERROR] Unexpected error loading AI model: {str(e)}")
-            # Reset inference session to None upon error
-            self.inferenceSession = None
+            error_msg = f"Failed to load AI model {os_path_basename(self.AI_model_path)}: {str(e)}"
+            print(f"[AI ERROR] {error_msg}")
+            raise RuntimeError(error_msg)
+
+    def _select_providers(self):
+        providers = ['DmlExecutionProvider']
+        provider_options = {}
+        match self.directml_gpu:
+            case 'Auto':
+                provider_options = [{"performance_preference": "high_performance"}]
+            case 'GPU 1':
+                provider_options = [{"device_id": "0"}]
+            case 'GPU 2':
+                provider_options = [{"device_id": "1"}]
+            case 'GPU 3':
+                provider_options = [{"device_id": "2"}]
+            case 'GPU 4':
+                provider_options = [{"device_id": "3"}]
+        return providers, provider_options
 
     # INTERNAL CLASS FUNCTIONS
 
@@ -436,9 +365,8 @@ class AI_upscale:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        scale = self.input_resize_factor / 100.0
-        new_width = int(old_width * scale)
-        new_height = int(old_height * scale)
+        new_width = int(old_width * self.input_resize_factor)
+        new_height = int(old_height * self.input_resize_factor)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
@@ -454,16 +382,15 @@ class AI_upscale:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        scale = self.output_resize_factor / 100.0
-        new_width = int(old_width * scale)
-        new_height = int(old_height * scale)
+        new_width = int(old_width * self.output_resize_factor)
+        new_height = int(old_height * self.output_resize_factor)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if scale > 1.0:
+        if self.output_resize_factor > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif scale < 1.0:
+        elif self.output_resize_factor < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -609,68 +536,134 @@ class AI_upscale:
             # Default fallback to 255
             case _: return (onnx_output * 255).astype(uint8)
 
-    def run_upscaling(self, image: numpy_ndarray) -> numpy_ndarray:
-        # Optimización: Usar memoria contigua antes de procesar
-        image = numpy_ascontiguousarray(image, dtype=float32)
-        image_mode = self.get_image_mode(image)
-        image, range = self.normalize_image(image)
+    def AI_upscale(self, image: numpy_ndarray) -> numpy_ndarray:
+        try:
+            # Validación de entrada
+            if image is None or image.size == 0:
+                raise ValueError("Imagen de entrada inválida o vacía")
+            
+            # Optimización: Usar memoria contigua antes de procesar
+            image = numpy_ascontiguousarray(image, dtype=float32)
+            image_mode = self.get_image_mode(image)
+            image, range = self.normalize_image(image)
 
-        match image_mode:
-            case "RGB":
-                image = self.preprocess_image(image)
-                onnx_output = self.onnxruntime_inference(image)
-                onnx_output = self.postprocess_output(onnx_output)
-                output_image = self.de_normalize_image(onnx_output, range)
+            match image_mode:
+                case "RGB":
+                    image = self.preprocess_image(image)
+                    onnx_output = self.onnxruntime_inference(image)
+                    onnx_output = self.postprocess_output(onnx_output)
+                    output_image = self.de_normalize_image(onnx_output, range)
 
-                return output_image
+                    return output_image
 
-            case "RGBA":
-                alpha = image[:, :, 3]
-                image = image[:, :, :3]
-                image = opencv_cvtColor(image, COLOR_BGR2RGB)
+                case "RGBA":
+                    # Enhanced RGBA processing with improved alpha channel handling
+                    try:
+                        # Extract alpha channel (preserve original precision)
+                        alpha_original = image[:, :, 3]
+                        # Get RGB channels
+                        rgb_image = image[:, :, :3]
+                        
+                        # Store original alpha properties for quality preservation
+                        alpha_dtype = alpha_original.dtype
+                        alpha_min, alpha_max = numpy_min(alpha_original), numpy_max(alpha_original)
+                        
+                        # Ensure proper data types for processing
+                        rgb_image = rgb_image.astype(float32)
+                        alpha_original = alpha_original.astype(float32)
 
-                image = image.astype(float32)
-                alpha = alpha.astype(float32)
+                        # Process RGB channels through AI model
+                        processed_rgb = self.preprocess_image(rgb_image)
+                        onnx_output_rgb = self.onnxruntime_inference(processed_rgb)
+                        onnx_output_rgb = self.postprocess_output(onnx_output_rgb)
+                        
+                        # Enhanced alpha channel processing
+                        # Method 1: Use simple upscaling for alpha (faster, maintains transparency structure)
+                        target_height, target_width = onnx_output_rgb.shape[:2]
+                        
+                        # Upscale alpha using the same factor as RGB
+                        if alpha_original.shape != (target_height, target_width):
+                            # Use area interpolation for downscaling, cubic for upscaling
+                            if target_height * target_width > alpha_original.shape[0] * alpha_original.shape[1]:
+                                alpha_upscaled = opencv_resize(alpha_original, (target_width, target_height), interpolation=INTER_CUBIC)
+                            else:
+                                alpha_upscaled = opencv_resize(alpha_original, (target_width, target_height), interpolation=INTER_AREA)
+                        else:
+                            alpha_upscaled = alpha_original.copy()
+                        
+                        # Optional: Apply AI processing to alpha channel for high-quality results
+                        # This is computationally expensive but provides better results
+                        try:
+                            if self.upscale_factor > 1:  # Only for actual upscaling
+                                # Convert alpha to 3-channel grayscale for AI processing
+                                alpha_3channel = numpy_stack([alpha_original] * 3, axis=-1)
+                                processed_alpha = self.preprocess_image(alpha_3channel)
+                                onnx_output_alpha = self.onnxruntime_inference(processed_alpha)
+                                onnx_output_alpha = self.postprocess_output(onnx_output_alpha)
+                                # Extract single channel from AI-processed alpha
+                                alpha_ai_processed = opencv_cvtColor(onnx_output_alpha, COLOR_RGB2GRAY)
+                                
+                                # Blend AI-processed alpha with simple upscaled alpha (preserves structure)
+                                alpha_blend_factor = 0.7  # Favor AI processing but keep some original structure
+                                alpha_upscaled = opencv_addWeighted(
+                                    alpha_ai_processed.astype(float32), alpha_blend_factor,
+                                    alpha_upscaled.astype(float32), 1.0 - alpha_blend_factor, 0
+                                )
+                        except Exception as alpha_ai_error:
+                            logging.debug(f"AI alpha processing failed, using simple upscaling: {str(alpha_ai_error)}")
+                            # Continue with simple upscaled alpha
+                        
+                        # Ensure alpha values are in valid range
+                        alpha_upscaled = numpy_clip(alpha_upscaled, 0, 1)
+                        
+                        # Combine RGB and Alpha channels
+                        if len(alpha_upscaled.shape) == 2:
+                            alpha_upscaled = numpy_expand_dims(alpha_upscaled, axis=-1)
+                        
+                        # Create final RGBA image
+                        output_image = numpy_concatenate((onnx_output_rgb, alpha_upscaled), axis=2)
+                        
+                        # Denormalize the complete RGBA image
+                        output_image = self.de_normalize_image(output_image, range)
+                        
+                    except Exception as rgba_error:
+                        logging.error(f"RGBA processing error: {str(rgba_error)}")
+                        # Fallback: process as RGB and add opaque alpha
+                        rgb_processed = self.preprocess_image(image[:, :, :3])
+                        onnx_output = self.onnxruntime_inference(rgb_processed)
+                        onnx_output = self.postprocess_output(onnx_output)
+                        
+                        # Add opaque alpha channel
+                        h, w = onnx_output.shape[:2]
+                        alpha_opaque = numpy_full((h, w, 1), 1.0, dtype=onnx_output.dtype)
+                        output_image = numpy_concatenate((onnx_output, alpha_opaque), axis=2)
+                        output_image = self.de_normalize_image(output_image, range)
 
-                # Image
-                image = self.preprocess_image(image)
-                onnx_output_image = self.onnxruntime_inference(image)
-                onnx_output_image = self.postprocess_output(onnx_output_image)
-                onnx_output_image = opencv_cvtColor(
-                    onnx_output_image, COLOR_BGR2RGBA)
+                    return output_image
 
-                # Alpha
-                alpha = numpy_expand_dims(alpha, axis=-1)
-                alpha = numpy_repeat(alpha, 3, axis=-1)
-                alpha = self.preprocess_image(alpha)
-                onnx_output_alpha = self.onnxruntime_inference(alpha)
-                onnx_output_alpha = self.postprocess_output(onnx_output_alpha)
-                onnx_output_alpha = opencv_cvtColor(
-                    onnx_output_alpha, COLOR_RGB2GRAY)
+                case "Grayscale":
+                    image = opencv_cvtColor(image, COLOR_GRAY2RGB)
 
-                # Fusion Image + Alpha
-                onnx_output_image[:, :, 3] = onnx_output_alpha
-                output_image = self.de_normalize_image(
-                    onnx_output_image, range)
+                    image = self.preprocess_image(image)
+                    onnx_output = self.onnxruntime_inference(image)
+                    onnx_output = self.postprocess_output(onnx_output)
+                    output_image = opencv_cvtColor(onnx_output, COLOR_RGB2GRAY)
+                    output_image = self.de_normalize_image(output_image, range)
 
-                return output_image
-
-            case "Grayscale":
-                image = opencv_cvtColor(image, COLOR_GRAY2RGB)
-
-                image = self.preprocess_image(image)
-                onnx_output = self.onnxruntime_inference(image)
-                onnx_output = self.postprocess_output(onnx_output)
-                output_image = opencv_cvtColor(onnx_output, COLOR_RGB2GRAY)
-                output_image = self.de_normalize_image(onnx_output, range)
-
-                return output_image
+                    return output_image
+                    
+                case _:
+                    raise ValueError(f"Modo de imagen no soportado: {image_mode}")
+                    
+        except Exception as e:
+            logging.error(f"Error en AI_upscale: {str(e)}")
+            raise RuntimeError(f"Fallo en el escalado de imagen: {str(e)}")
 
     def AI_upscale_with_tilling(self, image: numpy_ndarray) -> numpy_ndarray:
         t_height, t_width = self.calculate_target_resolution(image)
         tiles_x, tiles_y = self.calculate_tiles_number(image)
         tiles_list = self.split_image_into_tiles(image, tiles_x, tiles_y)
-        tiles_list = [self.run_upscaling(tile) for tile in tiles_list]
+        tiles_list = [self.AI_upscale(tile) for tile in tiles_list]
 
         return self.combine_tiles_into_image(image, tiles_list, t_height, t_width, tiles_x)
 
@@ -686,7 +679,7 @@ class AI_upscale:
         if self.image_need_tilling(resized_image):
             upscaled_image = self.AI_upscale_with_tilling(resized_image)
         else:
-            upscaled_image = self.run_upscaling(resized_image)
+            upscaled_image = self.AI_upscale(resized_image)
 
         return self.resize_with_output_factor(upscaled_image)
 
@@ -776,16 +769,15 @@ class AI_interpolation:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        scale = self.input_resize_factor / 100.0
-        new_width = int(old_width * scale)
-        new_height = int(old_height * scale)
+        new_width = int(old_width * self.input_resize_factor)
+        new_height = int(old_height * self.input_resize_factor)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if scale > 1:
+        if self.input_resize_factor > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif scale < 1:
+        elif self.input_resize_factor < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -794,16 +786,15 @@ class AI_interpolation:
 
         old_height, old_width = self.get_image_resolution(image)
 
-        scale = self.output_resize_factor / 100.0
-        new_width = int(old_width * scale)
-        new_height = int(old_height * scale)
+        new_width = int(old_width * self.output_resize_factor)
+        new_height = int(old_height * self.output_resize_factor)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if scale > 1:
+        if self.output_resize_factor > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif scale < 1:
+        elif self.output_resize_factor < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -850,7 +841,9 @@ class AI_interpolation:
 
     # EXTERNAL FUNCTION
 
-    def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> list[numpy_ndarray]:
+
+    def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> List[numpy_ndarray]:
+        """Generate interpolated frames between two input images."""
         generated_images = []
 
         # Optimización: Usar memoria contigua para las imágenes de entrada
@@ -996,16 +989,15 @@ class AI_face_restoration:
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
         old_height, old_width = self.get_image_resolution(image)
-        scale = self.input_resize_factor / 100.0
-        new_width = int(old_width * scale)
-        new_height = int(old_height * scale)
+        new_width = int(old_width * self.input_resize_factor)
+        new_height = int(old_height * self.input_resize_factor)
 
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
-        if scale > 1:
+        if self.input_resize_factor > 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
-        elif scale < 1:
+        elif self.input_resize_factor < 1:
             return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
         else:
             return image
@@ -1025,19 +1017,29 @@ class AI_face_restoration:
         else:
             return image
 
-    def preprocess_face_image(self, image: numpy_ndarray) -> numpy_ndarray:
+    def preprocess_face_image(self, image: numpy_ndarray) -> tuple[numpy_ndarray, bool]:
         """
         Preprocess image for face restoration models
         Face restoration models typically expect normalized input in range [0, 1]
+        Returns: (preprocessed_image, has_alpha)
         """
         # Optimización: Asegurar memoria contigua al inicio
         image = numpy_ascontiguousarray(image)
-
-        # --- NUEVO CÓDIGO PARA CORREGIR LOS CANALES ---
-        # Si la imagen tiene 4 canales (BGRA), conviértela a 3 (BGR)
-        if image.shape[2] == 4:
+        
+        # Check if image has alpha channel
+        has_alpha = False
+        if len(image.shape) == 3 and image.shape[2] == 4:
+            has_alpha = True
+            # Convert BGRA to BGR for model processing
             image = opencv_cvtColor(image, COLOR_BGRA2BGR)
-        # --- FIN DEL NUEVO CÓDIGO ---
+        elif len(image.shape) == 3 and image.shape[2] != 3:
+            # Handle unexpected channel counts
+            if image.shape[2] > 4:
+                # Take only first 3 channels
+                image = image[:, :, :3]
+            elif image.shape[2] == 1:
+                # Convert grayscale to BGR
+                image = opencv_cvtColor(image, COLOR_GRAY2BGR)
 
         # Resize to model's expected input size
         target_size = self.model_config["input_size"]
@@ -1058,7 +1060,7 @@ class AI_face_restoration:
         # Add batch dimension
         image = numpy_expand_dims(image, axis=0)
 
-        return image
+        return image, has_alpha
 
     def postprocess_face_image(self, output: numpy_ndarray, original_size: tuple) -> numpy_ndarray:
         """
@@ -1090,14 +1092,19 @@ class AI_face_restoration:
         if self.inferenceSession is None:
             self._load_inferenceSession()
 
-        # Store original size for later restoration
+        # Store original size and check for alpha channel
         original_size = (image.shape[0], image.shape[1])
+        original_alpha = None
+        
+        # Extract alpha channel if present
+        if len(image.shape) == 3 and image.shape[2] == 4:
+            original_alpha = image[:, :, 3]  # Store original alpha
 
         # Apply input resizing
         image = self.resize_with_input_factor(image)
 
         # Preprocess for face restoration
-        preprocessed = self.preprocess_face_image(image)
+        preprocessed, had_alpha = self.preprocess_face_image(image)
 
         # Run inference
         input_name = self.inferenceSession.get_inputs()[0].name
@@ -1109,6 +1116,19 @@ class AI_face_restoration:
         # Postprocess the result
         restored_face = self.postprocess_face_image(
             result, (image.shape[0], image.shape[1]))
+
+        # Restore alpha channel if original image had one
+        if had_alpha and original_alpha is not None:
+            # Resize alpha to match restored face size
+            alpha_resized = opencv_resize(original_alpha, 
+                                        (restored_face.shape[1], restored_face.shape[0]), 
+                                        interpolation=INTER_CUBIC)
+            
+            # Convert to RGBA
+            if len(alpha_resized.shape) == 2:  # Ensure alpha has correct shape
+                alpha_resized = numpy_expand_dims(alpha_resized, axis=-1)
+            
+            restored_face = numpy_concatenate((restored_face, alpha_resized), axis=2)
 
         # Apply output resizing
         restored_face = self.resize_with_output_factor(restored_face)
@@ -1859,8 +1879,8 @@ def cleanup_on_exit():
         for temp_file in temp_files:
             try:
                 os_remove(temp_file)
-            except Exception as e:
-                print(f"[ERROR] Could not remove temporary file {temp_file}: {str(e)}")
+            except Exception:
+                pass
 
         # Stop any running processes
         stop_upscale_process()
@@ -1954,12 +1974,28 @@ def clean_directory(directory_path: str) -> None:
 
 
 def optimize_memory_usage() -> None:
-    """Optimize memory usage by triggering garbage collection."""
+    """Optimize memory usage by triggering garbage collection and clearing caches."""
     try:
         import gc
+        import sys
+        
+        # Force garbage collection
         gc.collect()
-    except Exception:
-        pass
+        
+        # Clear any cached frames or temporary data
+        if hasattr(sys, '_clear_type_cache'):
+            sys._clear_type_cache()
+            
+        # Additional memory optimization for Windows
+        try:
+            import ctypes
+            if hasattr(ctypes, 'windll'):
+                ctypes.windll.kernel32.SetProcessWorkingSetSize(-1, -1, -1)
+        except Exception:
+            pass
+            
+    except Exception as e:
+        logging.debug(f"Memory optimization warning: {str(e)}")
 
 
 def validate_video_file(video_path: str) -> bool:
@@ -2299,8 +2335,61 @@ def stop_thread() -> None:
 
 
 def image_read(file_path: str) -> numpy_ndarray:
-    with open(file_path, 'rb') as file:
-        return opencv_imdecode(numpy_ascontiguousarray(numpy_frombuffer(file.read(), uint8)), IMREAD_UNCHANGED)
+    """Enhanced image reading with comprehensive error handling and validation."""
+    try:
+        if not os_path_exists(file_path):
+            raise FileNotFoundError(f"Image file not found: {file_path}")
+        
+        # Check file size
+        file_size = os_path_getsize(file_path)
+        if file_size == 0:
+            raise ValueError(f"Image file is empty: {file_path}")
+        
+        # Limit maximum file size (500MB) to prevent memory issues
+        max_size = 500 * 1024 * 1024  # 500MB
+        if file_size > max_size:
+            raise ValueError(f"Image file too large ({file_size / (1024*1024):.1f}MB > 500MB): {file_path}")
+        
+        with open(file_path, 'rb') as file:
+            file_data = file.read()
+            
+        # Validate file data
+        if len(file_data) == 0:
+            raise ValueError(f"Could not read image data: {file_path}")
+        
+        # Decode image
+        buffer = numpy_ascontiguousarray(numpy_frombuffer(file_data, uint8))
+        image = opencv_imdecode(buffer, IMREAD_UNCHANGED)
+        
+        if image is None:
+            raise ValueError(f"Could not decode image (corrupted or unsupported format): {file_path}")
+        
+        # Validate image properties
+        if image.size == 0:
+            raise ValueError(f"Decoded image has zero size: {file_path}")
+        
+        # Check for reasonable dimensions
+        height, width = image.shape[:2]
+        if height <= 0 or width <= 0:
+            raise ValueError(f"Invalid image dimensions ({width}x{height}): {file_path}")
+        
+        # Check for extremely large dimensions that could cause memory issues
+        max_dimension = 32768  # 32K pixels per dimension
+        if height > max_dimension or width > max_dimension:
+            raise ValueError(f"Image dimensions too large ({width}x{height} > {max_dimension}x{max_dimension}): {file_path}")
+        
+        # Validate channel count
+        channels = len(image.shape) if len(image.shape) == 2 else image.shape[2]
+        if len(image.shape) == 3 and channels not in [1, 3, 4]:
+            logging.warning(f"Unusual channel count ({channels}) in image: {file_path}")
+        
+        print(f"[IMAGE] Successfully loaded: {width}x{height}x{channels if len(image.shape) > 2 else 1} - {file_size / 1024:.1f}KB")
+        return image
+        
+    except Exception as e:
+        error_msg = f"Failed to read image {os_path_basename(file_path)}: {str(e)}"
+        logging.error(error_msg)
+        raise RuntimeError(error_msg)
 
 
 def image_write(file_path: str, file_data: numpy_ndarray, file_extension: str = ".jpg") -> None:
@@ -2496,9 +2585,19 @@ def prepare_output_video_directory_name(
 # ==== IMAGE/VIDEO UTILITIES SECTION ====
 
 def get_video_fps(video_path: str) -> float:
+    """Get video frame rate with proper validation."""
     video_capture = opencv_VideoCapture(video_path)
+    
+    if not video_capture.isOpened():
+        video_capture.release()
+        raise ValueError(f"Could not open video file: {video_path}")
+    
     frame_rate = video_capture.get(CAP_PROP_FPS)
     video_capture.release()
+    
+    if frame_rate <= 0 or frame_rate > 1000:  # Sanity check
+        raise ValueError(f"Invalid frame rate: {frame_rate} for video: {video_path}")
+    
     return frame_rate
 
 
@@ -2528,8 +2627,8 @@ def extract_video_frames(
     video_path: str,
     cpu_number: int,
     selected_image_extension: str
-) -> list[str]:
-    # FluidFrames-compatible implementation
+) -> List[str]:
+    """Extract frames from video with proper error handling."""
     try:
         create_dir(target_directory)
 
@@ -2540,7 +2639,6 @@ def extract_video_frames(
         frames_number_to_save = cpu_number * ECTRACTION_FRAMES_FOR_CPU
         video_capture = opencv_VideoCapture(video_path)
 
-        # Check if video was opened successfully
         if not video_capture.isOpened():
             raise ValueError(f"Could not open video file: {video_path}")
 
@@ -3222,6 +3320,8 @@ def blend_images_and_save(
             return "RGB"
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
+        else:
+            return "Unknown"
 
     upscaled_image_importance = 1 - starting_image_importance
     starting_height, starting_width = get_image_resolution(starting_image)
@@ -3238,9 +3338,29 @@ def blend_images_and_save(
             starting_image, (target_width, target_height))
 
     try:
-        if get_image_mode(starting_image) == "RGBA":
-            starting_image = add_alpha_channel(starting_image)
-            upscaled_image = add_alpha_channel(upscaled_image)
+        # Get image modes for both images
+        starting_mode = get_image_mode(starting_image)
+        upscaled_mode = get_image_mode(upscaled_image)
+        
+        # Ensure both images have the same number of channels
+        if starting_mode == "RGBA" or upscaled_mode == "RGBA":
+            # Convert both to RGBA if either is RGBA
+            if starting_mode != "RGBA":
+                starting_image = add_alpha_channel(starting_image)
+            if upscaled_mode != "RGBA":
+                upscaled_image = add_alpha_channel(upscaled_image)
+        elif starting_mode == "RGB" and upscaled_mode != "RGB":
+            # Convert grayscale to RGB if needed
+            if upscaled_mode == "Grayscale":
+                upscaled_image = opencv_cvtColor(upscaled_image, COLOR_GRAY2RGB)
+        elif upscaled_mode == "RGB" and starting_mode != "RGB":
+            # Convert grayscale to RGB if needed
+            if starting_mode == "Grayscale":
+                starting_image = opencv_cvtColor(starting_image, COLOR_GRAY2RGB)
+
+        # Ensure images have the same dtype
+        if starting_image.dtype != upscaled_image.dtype:
+            upscaled_image = upscaled_image.astype(starting_image.dtype)
 
         interpolated_image = opencv_addWeighted(
             starting_image, starting_image_importance, upscaled_image, upscaled_image_importance, 0)
@@ -3674,7 +3794,6 @@ def upscale_image(
 
     write_process_status(
         process_status_q, f"{file_number}. Enchanting your image. Be patient...")
-
     upscaled_image = AI_instance.AI_orchestration(starting_image)
 
     if selected_blending_factor > 0:
@@ -3794,42 +3913,77 @@ def upscale_video(
         global global_processing_times_list
         global global_can_i_update_status
         global global_status_lock  # Fix 2.3: Add thread lock for safe status updates
-
+        
         starting_frames_to_save = []
         upscaled_frames_to_save = []
         upscaled_frame_paths_to_save = []
+        consecutive_memory_errors = 0
+        max_memory_errors = 3
 
         for frame_index in range(len(extracted_frames_paths)):
             frame_path = extracted_frames_paths[frame_index]
             upscaled_frame_path = upscaled_frame_paths[frame_index]
             already_upscaled = os_path_exists(upscaled_frame_path)
 
-            if already_upscaled == False:
+            if not already_upscaled:
                 start_timer = timer()
+                starting_frame = None
+                upscaled_frame = None
 
-                # Upscale frame with memory optimization
-                starting_frame = image_read(frame_path)
                 try:
-                    upscaled_frame = AI_instance.AI_orchestration(
-                        starting_frame)
+                    # Read frame with error handling
+                    starting_frame = image_read(frame_path)
+                    if starting_frame is None or starting_frame.size == 0:
+                        print(f"[WARNING] Invalid frame data at {frame_path}, skipping")
+                        continue
+
+                    # Upscale frame with enhanced memory error handling
+                    upscaled_frame = AI_instance.AI_orchestration(starting_frame)
+                    consecutive_memory_errors = 0  # Reset counter on success
+                    
                 except Exception as e:
-                    # Fix 3.2: Handle GPU memory errors with retry logic
-                    if "memory" in str(e).lower() or "out of memory" in str(e).lower():
-                        print(
-                            f"[GPU] Memory error detected, reducing tiles resolution and retrying...")
+                    error_msg = str(e).lower()
+                    
+                    # Enhanced GPU memory error detection
+                    if any(keyword in error_msg for keyword in ['memory', 'out of memory', 'allocation', 'cuda']):
+                        consecutive_memory_errors += 1
+                        print(f"[GPU] Memory error #{consecutive_memory_errors} detected: {str(e)[:100]}...")
+                        
+                        if consecutive_memory_errors >= max_memory_errors:
+                            raise RuntimeError(f"Too many consecutive GPU memory errors ({max_memory_errors}). Please reduce VRAM usage or batch size.")
+                        
+                        # Progressive memory reduction strategy
                         original_tiles = AI_instance.max_resolution
-                        AI_instance.max_resolution = max(
-                            128, AI_instance.max_resolution // 2)
+                        reduction_factor = 2 ** consecutive_memory_errors  # 2, 4, 8...
+                        new_resolution = max(64, original_tiles // reduction_factor)
+                        
+                        print(f"[GPU] Reducing tiles resolution from {original_tiles} to {new_resolution} and retrying...")
+                        AI_instance.max_resolution = new_resolution
+                        
+                        # Force memory cleanup before retry
+                        if starting_frame is not None:
+                            del starting_frame
+                        optimize_memory_usage()
+                        
                         try:
-                            upscaled_frame = AI_instance.AI_orchestration(
-                                starting_frame)
-                            print(
-                                f"[GPU] Retry successful with reduced tiles resolution: {AI_instance.max_resolution}")
+                            starting_frame = image_read(frame_path)
+                            upscaled_frame = AI_instance.AI_orchestration(starting_frame)
+                            print(f"[GPU] Retry successful with tiles resolution: {new_resolution}")
+                            consecutive_memory_errors = 0  # Reset on successful retry
                         except Exception as retry_error:
-                            AI_instance.max_resolution = original_tiles  # Restore original
+                            # Restore original resolution if retry also fails
+                            AI_instance.max_resolution = original_tiles
+                            print(f"[GPU] Retry failed: {str(retry_error)[:100]}...")
                             raise retry_error
                     else:
+                        # Non-memory related error
+                        logging.error(f"Frame processing error at {frame_path}: {str(e)}")
                         raise e
+
+                # Validate upscaled frame
+                if upscaled_frame is None or upscaled_frame.size == 0:
+                    print(f"[WARNING] Upscaling produced invalid result for {frame_path}, skipping")
+                    continue
 
                 # Adding frames in list to save
                 starting_frames_to_save.append(starting_frame)
@@ -3841,7 +3995,7 @@ def upscale_video(
                 processing_time = (end_timer - start_timer)/threads_number
                 global_processing_times_list.append(processing_time)
 
-                # Fix 4.0: Write frames immediately to disk to reduce memory usage
+                # Fix 3.1: Write frames immediately to disk to reduce memory usage
                 if (frame_index + 1) % MULTIPLE_FRAMES_TO_SAVE == 0:
                     # Save frames present in RAM on disk
                     save_frames_on_disk(starting_frames_to_save, upscaled_frames_to_save,
@@ -3902,13 +4056,13 @@ def upscale_video(
             pool.starmap(
                 upscale_video_frames_async,
                 zip(
-                    repeat(process_status_q),
-                    repeat(file_number),
-                    repeat(threads_number),
+                    [process_status_q] * threads_number,
+                    [file_number] * threads_number,
+                    [threads_number] * threads_number,
                     AI_upscale_instance_list,
                     extracted_frame_list_chunks,
                     upscaled_frame_list_chunks,
-                    repeat(selected_blending_factor),
+                    [selected_blending_factor] * threads_number,
                 )
             )
 
@@ -4004,7 +4158,7 @@ def upscale_video(
     copy_file_metadata(video_path, video_output_path)
 
     # 7. Delete frames folder
-    if selected_keep_frames == False:
+    if not selected_keep_frames:
         if os_path_exists(target_directory):
             try:
                 remove_directory(target_directory)
@@ -4414,7 +4568,6 @@ def place_AI_menu():
             "   • Excellent frame generation quality\n" +
             "   • Lite is 10% faster than full model\n" +
             "   • Recommended for GPUs with VRAM < 4GB \n",
-
         ]
 
         MessageBox(
@@ -4542,7 +4695,7 @@ def place_AI_multithreading_menu():
 
         MessageBox(
             messageType="info",
-            title="AI multithreading",
+            title="AI multithreading (EXPERIMENTAL)",
             subtitle="This widget allows to choose how many video frames are upscaled simultaneously",
             default_value=None,
             option_list=option_list
@@ -4965,10 +5118,7 @@ def on_app_close() -> None:
     blending_to_save = {0: "OFF", 0.3: "Low", 0.5: "Medium",
                         0.7: "High"}.get(selected_blending_factor)
 
-    if selected_keep_frames == True:
-        keep_frames_to_save = "ON"
-    else:
-        keep_frames_to_save = "OFF"
+    keep_frames_to_save = "ON" if selected_keep_frames else "OFF"
 
     if selected_AI_multithreading == 1:
         AI_multithreading_to_save = "OFF"
