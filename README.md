@@ -186,64 +186,64 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 
 ```
 Warlock-Studio/
-├──AI-onnx/
-   │
-   └──├──BSRGANx2_fp16.onnx
-      ├──BSRGANx4_fp16.onnx
-      ├──GFPGANv1.4.fp16.onnx
-      ├──IRCNN_Lx1_fp16.onnx
-      ├──IRCNN_Mx1_fp16.onnx
-      ├──RealESR_Animex4_fp16.onnx
-      ├──RealESR_Gx4_fp16.onnx
-      ├──RealESRGANx4_fp16.onnx
-      ├──RealESRNetx4_fp16.onnx
-      ├──RealSRx4_Anime_fp16.onnx
-      ├──RIFE_fp32.onnx
-      ├──RIFE_Lite_fp32.onnx
-├──Assets/
-   │
-   └──├──banner.png
-      ├──clear_icon.png
-      ├──exiftool.exe
-      ├──ffmpeg.exe
-      ├──info_icon.png
-      ├──logo.ico
-      ├──logo.png
-      ├──stop_icon.png
-      ├──upscale_icon.png
-      ├──wizard-image.bmp
-      └──wizard-small.bmp
-├──rsc/
-   │
-   └──├──badge-color.png
-      ├──Capture.png
-      ├──CaptureRIFE.png
-      ├──google_drive-logo.png
-      ├──WorkflowBSRGAN.png
-      ├──WorkflowIRCNN.png
-      ├──WorkflowRealESRGAN.png
-      ├──WorkflowRIFE.png
-      └──Installation_window2.png
-├──Manual/
-   │
-   └──├──Manual_EN.pdf
-      ├──Manual_EN.tex
-      ├──Manual_ES.pdf
-      └──Manual_ES.tex
+├── AI-onnx/                          # Pre-trained ONNX models for AI processing
+│   ├── BSRGANx2_fp16.onnx
+│   ├── BSRGANx4_fp16.onnx
+│   ├── GFPGANv1.4.fp16.onnx
+│   ├── IRCNN_Lx1_fp16.onnx
+│   ├── IRCNN_Mx1_fp16.onnx
+│   ├── RealESR_Animex4_fp16.onnx
+│   ├── RealESR_Gx4_fp16.onnx
+│   ├── RealESRGANx4_fp16.onnx
+│   ├── RealESRNetx4_fp16.onnx
+│   ├── RealSRx4_Anime_fp16.onnx
+│   ├── RIFE_fp32.onnx
+│   └── RIFE_Lite_fp32.onnx
 │
-├──CHANGELOG.md
-├──CODE_OF_CONDUCT.md
-├──CONTRIBUTING.md
-├──LICENSE
-├──License.txt
-├──NOTICE.md
-├──README.md                 # This File
-├──SECURITY.md
-├──Setup.iss
-├──Manual_ES.pdf
-├──Manual_EN.pdf
-├──Warlock-Studio.py         # Main
-└──Warlock-Studio.spec
+├── Assets/                           # App assets and third-party binaries
+│   ├── banner.png
+│   ├── clear_icon.png
+│   ├── exiftool.exe
+│   ├── ffmpeg.exe
+│   ├── info_icon.png
+│   ├── logo.ico
+│   ├── logo.png
+│   ├── stop_icon.png
+│   ├── upscale_icon.png
+│   ├── wizard-image.bmp
+│   └── wizard-small.bmp
+│
+├── rsc/                              # UI images, workflows, and branding
+│   ├── badge-color.png
+│   ├── Capture.png
+│   ├── CaptureRIFE.png
+│   ├── google_drive-logo.png
+│   ├── WorkflowBSRGAN.png
+│   ├── WorkflowIRCNN.png
+│   ├── WorkflowRealESRGAN.png
+│   ├── WorkflowRIFE.png
+│   └── Installation_window2.png
+│
+├── Manual/                           # LaTeX sources and generated manuals
+│   ├── Manual_EN.tex
+│   ├── Manual_ES.tex
+│   ├── Manual_EN.pdf
+│   └── Manual_ES.pdf
+│
+├── Warlock-Studio.py                 # Main application script
+├── Warlock-Studio.spec              # PyInstaller spec file
+├── Setup.iss                         # Inno Setup installer script
+│
+├── README.md                         # Project overview (this file)
+├── requirements.txt                  # (Si aplica: dependencias de Python)
+├── CHANGELOG.md                      # Version history
+├── LICENSE                           # License info (standard)
+├── License.txt                       # Additional license details (if needed)
+├── NOTICE.md                         # Notices and attributions
+├── CODE_OF_CONDUCT.md               # Contributor behavior guidelines
+├── CONTRIBUTING.md                  # Contribution guide
+└── SECURITY.md                      # Security reporting policies
+
 ```
 <div align="center">
   
@@ -291,4 +291,5 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
 
