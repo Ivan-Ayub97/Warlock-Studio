@@ -21,9 +21,7 @@ Version 4.1 builds on previous improvements with enhanced GPU utilization, compr
 
 ---
 
-### ► Download Installer (v4.1) - Now Even Better
-
-🚀 **NEW**: Installer size reduced from **1.4GB to ~450MB**! AI models (400MB) are automatically downloaded when first launched.
+### ► Download Installer (v4.1)
 
 Get the latest stable release from any of the following platforms:
 
@@ -293,3 +291,4 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
