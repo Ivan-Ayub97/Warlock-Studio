@@ -75,16 +75,6 @@ git push origin fix-ui-overflow
 * Comment your code when necessary for clarity.
 * Avoid hardcoding paths—use relative paths and config values where possible.
 
----
-
-## Dependencies
-
-Warlock-Studio integrates with:
-
-* [MedIA-Witch](https://github.com/Ivan-Ayub97/MedIA-Witch)
-* [MedIA-Wizard](https://github.com/Ivan-Ayub97/MedIA-Wizard)
-* AI models like Real-ESRGAN, Waifu2x, Anime4K, etc.
-
 Make sure to test your changes across common workflows.
 
 ---
