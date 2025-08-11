@@ -2,8 +2,6 @@
 
 <div align="center">
 
-# Warlock-Studio
-
 ### _AI Media Enhancement Suite_
 
 [![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
@@ -295,6 +293,7 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
 
 
 
