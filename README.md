@@ -191,7 +191,7 @@ Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup]
 
 | Component                           | Status          | Notes                                                                                |
 | :---------------------------------- | :-------------- | :----------------------------------------------------------------------------------- |
-| **Upscaling Models (ESRGAN, etc.)** | 🟢 **Stable**   | Fully integrated with dynamic VRAM recovery for enhanced stability.                  |
+| **Upscaling Models (ESRGAN, IRCNN,,RealESRGANetc.)** | 🟢 **Stable**   | Fully integrated with dynamic VRAM recovery for enhanced stability.                  |
 | **Optimized Model Suite**           | 🟢 **Enhanced** | Streamlined AI models for optimal performance and reliability.                       |
 | **Face Restoration (GFPGAN)**       | 🟢 **Stable**   | High-quality face enhancement and restoration capabilities.                          |
 | **Frame Interpolation (RIFE)**      | 🟢 **Stable**   | Includes slow-motion and intermediate frame generation capabilities.                 |
@@ -257,10 +257,10 @@ Warlock-Studio/
 ├── Setup.iss                         # Inno Setup installer script
 │
 ├── README.md                         # Project overview (this file)
-├── requirements.txt                  # (Si aplica: dependencias de Python)
+├── requirements.txt                
 ├── CHANGELOG.md                      # Version history
 ├── LICENSE                           # License info (standard)
-├── License.txt                       # Additional license details (if needed)
+├── License.txt                   
 ├── NOTICE.md                         # Notices and attributions
 ├── CODE_OF_CONDUCT.md               # Contributor behavior guidelines
 ├── CONTRIBUTING.md                  # Contribution guide
@@ -313,6 +313,7 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
 
 
 
