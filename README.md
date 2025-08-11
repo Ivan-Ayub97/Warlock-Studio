@@ -140,6 +140,26 @@ Version 4.0 introduces a revolutionary approach to AI model distribution:
 
 ---
 
+## Model Comparison
+
+| Model File                         | Recommended Use Case                                | Speed   | Quality | Notes |
+|------------------------------------|------------------------------------------------------|---------|---------|-------|
+| **GFPGANv1.4.fp16.onnx**           | Face restoration and enhancement                    | High    | High    | Specializes in restoring blurry or low-quality faces in images and videos |
+| **BSRGANx2_fp16.onnx**             | Noise removal and detail preservation (2× upscale)  | Medium  | Very High | Good for lightly degraded images where only moderate upscaling is needed |
+| **BSRGANx4_fp16.onnx**             | Noise removal and detail preservation (4× upscale)  | Low     | Very High | Best for heavily degraded images needing significant enlargement |
+| **RIFE_fp32.onnx**                  | Frame interpolation and smooth motion generation    | High    | High    | Standard version with maximum quality for slow-motion or FPS increase |
+| **RIFE_Lite_fp32.onnx**            | Frame interpolation with faster performance         | Very High | Medium  | Optimized for speed, ideal for lower-end hardware or quick previews |
+| **RealESRGANx4_fp16.onnx**         | General-purpose high-quality image upscaling (4×)   | Medium  | High    | Works well for real-world photos and most content types |
+| **RealESRNetx4_fp16.onnx**         | High-quality restoration without strong sharpening  | Medium  | High    | Preserves natural look with minimal artifacts, good for subtle enhancement |
+| **RealSRx4_Anime_fp16.onnx**       | Anime and line-art upscaling (4×)                   | Medium  | High    | Designed for clean edges and solid colors, great for animations and comics |
+| **IRCNN_Lx1_fp16.onnx**            | Light noise removal (no scaling)                    | High    | Medium  | Ideal for mild compression artifacts or grain reduction |
+| **IRCNN_Mx1_fp16.onnx**            | Medium noise removal (no scaling)                   | High    | Medium  | Stronger denoising for moderately degraded images |
+| **RealESR_Animex4_fp16.onnx**      | Anime-focused upscaling (4×)                        | Medium  | High    | Alternative anime model with different training data from RealSR |
+| **RealESR_Gx4_fp16.onnx**          | General-purpose upscaling with balanced sharpness   | Medium  | High    | Balanced output, suitable for a wide variety of image types |
+
+
+---
+
 ## Installation
 
 To get started with Warlock-Studio:
@@ -293,6 +313,7 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
 
 
 
