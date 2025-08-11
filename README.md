@@ -32,12 +32,12 @@ Get the latest stable release from any of the following platforms:
     </td>
     <td align="center" width="33%">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip">
-        <img src="rsc/GitHub_Lockup_Light.png" alt="Download from GitHub" width="200" />
+        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
     <td align="center" width="33%">
       <a href="https://ivanayub97.itch.io/warlock-studio">
-        <img src="rsc/itch.io.png" alt="Download from GitHub" width="200" />
+        <img src="rsc/itch.io.png" alt="Download from itch.io" width="200" />
       </a>
   </tr>
 </table>
@@ -293,6 +293,7 @@ For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub9
 © 2025 Iván Eduardo Chavez Ayub
 Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
 </div>
+
 
 
 
