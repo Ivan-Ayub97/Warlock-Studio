@@ -2,6 +2,7 @@
 
 <div align="center">
 
+# Warlock-Studio  
 ### _AI Media Enhancement Suite_
 
 [![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
@@ -13,15 +14,16 @@ _Transform your media with cutting-edge AI technology_
 
 ---
 
-**Warlock-Studio** is a powerful, open-source desktop application for Windows that integrates state-of-the-art AI models for video and image enhancement. Inspired by the work of [Djdefrag](https://github.com/Djdefrag) on tools like **QualityScaler** and **FluidFrames**, this suite provides a unified, high-performance interface for upscaling, restoration, and frame interpolation.
+**Warlock-Studio** is an open-source desktop application for **Windows** that integrates state-of-the-art AI models for video and image enhancement.  
+Inspired by [Djdefrag](https://github.com/Djdefrag) tools like **QualityScaler** and **FluidFrames**, this suite offers a unified, high-performance interface for **upscaling, restoration, and frame interpolation**.
 
-Version 4.1 builds on previous improvements with enhanced GPU utilization, comprehensive compatibility fixes, and optimization of model loading processes to provide a robust, reliable, and high-performance AI media enhancement experience.
+Version **4.1** introduces improved GPU utilization, compatibility fixes, and optimized model loading for a faster, more stable experience.
 
 ---
 
-### ► Download Installer (v4.1)
+## 📥 Download Installer (v4.1)
 
-Get the latest stable release from any of the following platforms:
+Get the latest stable release:
 
 <table>
   <tr>
@@ -44,166 +46,140 @@ Get the latest stable release from any of the following platforms:
 
 ---
 
-## Key Features
+## ✨ Key Features
 
-- **State-of-the-Art AI Models**
-  A comprehensive suite including Real-ESRGAN, BSRGAN, IRCNN, **GFPGAN**, and **RIFE** for denoising, resolution enhancement, detail restoration, upscaling, and smooth frame interpolation.
-
-- **AI Face Restoration**
-  Restore and enhance faces in old, blurry, or low-quality photos and videos with the integrated GFPGAN model, bringing cherished memories back to life.
-
-- **High-Quality Upscaling Models**
-  Real-ESRGAN and BSRGAN models provide excellent upscaling capabilities for various image types, from anime to photorealistic content.
-
-- **AI Frame Interpolation & Slow Motion**
-  Generate new in-between frames using RIFE to create ultra-smooth **2x, 4x, or 8x** motion or dramatic slow-motion effects.
-
-- **Modern & Intuitive Interface**
-  Completely redesigned and refined in v4.0 for a clean, efficient, and user-friendly experience for both beginners and professionals.
-
-- **Batch Processing**
-  Simultaneously process multiple images or videos—ideal for large-scale media projects.
-
-- **Customizable Workflows**
-  Choose your preferred AI model, output resolution, format (PNG, JPEG, MP4, etc.), and quality settings for full creative control.
-
-- **Open-Source & Extensible**
-  Licensed under the MIT License. Contributions are welcome! Additional usage terms can be found in the `NOTICE.md` file.
+- **AI Upscaling & Restoration**  
+  Real-ESRGAN, BSRGAN, IRCNN for denoising, upscaling, and detail recovery.
+- **Face Restoration (GFPGAN)**  
+  Revive blurry or low-quality portraits in photos and videos.
+- **Frame Interpolation (RIFE)**  
+  Generate **2×, 4×, 8×** smoother motion or slow-motion.
+- **Modern UI**  
+  Redesigned in v4.0 for an intuitive, streamlined experience.
+- **Batch Processing**  
+  Handle multiple media files simultaneously.
+- **Custom Workflows**  
+  Full control over models, resolution, output format, and quality.
+- **Open-Source & Extensible**  
+  Licensed under MIT, with a modular architecture for contributors.
 
 ---
 
-## What's New in Version 4.1
+## 🆕 What’s New in v4.1
 
-- 🔧 **Model Optimization:** Removed SuperResolution-10 model to improve overall performance and reduce complexity. For extreme upscaling needs, we recommend using Real-ESRGAN or BSRGAN models which provide excellent results.
-- ✅ **Enhanced AI Architecture:** Implemented robust ONNX model loading, GPU acceleration support, and comprehensive error handling.
-- ✅ **Code Quality Improvements:** Fixed critical import errors, consolidated duplicate code sections, and improved type annotations for better maintainability.
-- ✅ **Improved Error Handling:** Added graceful degradation mechanisms that prevent crashes and provide meaningful error messages during processing.
-- ✅ **Streamlined Model Integration:** Optimized model integration in the UI and processing pipeline for better performance.
-- 🟢 **Enhanced GPU Utilization**: Improved provider selection logic for better model execution efficiency across different hardware configurations.
-- 🚀 **Compatibility Fixes**: Addressed critical module compatibility by ensuring consistent runtime environment for NumPy and OpenCV libraries.
-- 📦 **Performance and Stability**: Refined memory and resource management, with enhanced error messaging and fallback strategies to ensure robust application performance under varying conditions.
-- ✅ **User Experience Enhancements**: Improved startup reliability and user notifications for smooth interaction and feedback.
-
----
-
-## 🌐 Smart Model Distribution System
-
-Version 4.0 introduces a revolutionary approach to AI model distribution:
-
-### 🎯 **Lightweight Installation**
-
-- **Installer Size:** Reduced from 1.4GB to ~450MB (68% size reduction)
-- **First Launch:** AI models (~400MB) download automatically with progress tracking
-- **Bandwidth Friendly:** Users with limited internet can get started faster
-
-### 🛡️ **Reliability Features**
-
-- **Integrity Validation:** Downloaded models are verified for completeness
-- **Graceful Degradation:** Application provides clear feedback if models aren't available
-- **Offline Mode:** Users can manually place model files if needed
+- 🔧 Removed outdated SuperResolution-10 model.  
+- ✅ Robust ONNX loading & GPU acceleration.  
+- ✅ Fixed import errors & improved type annotations.  
+- ✅ Enhanced error handling with graceful fallbacks.  
+- 🟢 Better GPU utilization & resource management.  
+- 🚀 Compatibility fixes for NumPy & OpenCV.  
+- 📦 Stability improvements & refined memory usage.  
+- ✅ Improved startup reliability & user notifications.  
 
 ---
 
-## Interface Previews
+## 🌐 Smart Model Distribution System (v4.0+)
 
-### 🔹 Main View (v4.1)
+### 🎯 Lightweight Installation
+- Installer reduced from **1.4GB → 450MB** (–68%).  
+- Models (~400MB) download automatically on first launch.  
+- Bandwidth-friendly setup.  
 
-![Screenshot of Warlock-Studio's main interface](rsc/Capture.png)
-
-### 🔹 RIFE Option
-
-![Screenshot of Warlock-Studio showing RIFE options](rsc/CaptureRIFE.png)
-
----
-
-## How to Use
-
-1. **Run as Administrator** (optional but recommended for optimal performance).
-
-2. **Load Your Media**: Select your images and videos to import them into the app.
-
-3. **Configure Settings**:
-
-   - Select an **AI Model** (e.g., Real-ESRGAN, BSRGAN, GFPGAN, RIFE).
-   - Set the **input/output resolution**, **file format**, and toggle features like **interpolation** or **blending**.
-
-4. **Start Processing**: Click **"Make Magic"** to begin the enhancement.
-
-5. **Retrieve Your Files**: Processed outputs will be saved in your chosen destination folder.
+### 🛡️ Reliability
+- **Integrity checks** on downloaded models.  
+- **Graceful degradation** if models are missing.  
+- **Offline support** for manual model placement.  
 
 ---
 
-## Quality Comparison
+## 🖼️ Interface Previews
 
-**Comparison of an enhanced image using the BSRGANx2 model**
-![Quality Comparison](rsc/image_comparison.png)
+### Main Window  
+![Main interface](rsc/Capture.png)
 
----
-
-## Model Comparison
-
-| Model File                         | Recommended Use Case                                | Speed   | Quality | Notes |
-|------------------------------------|------------------------------------------------------|---------|---------|-------|
-| **GFPGANv1.4.fp16.onnx**           | Face restoration and enhancement                    | High    | High    | Specializes in restoring blurry or low-quality faces in images and videos |
-| **BSRGANx2_fp16.onnx**             | Noise removal and detail preservation (2× upscale)  | Medium  | Very High | Good for lightly degraded images where only moderate upscaling is needed |
-| **BSRGANx4_fp16.onnx**             | Noise removal and detail preservation (4× upscale)  | Low     | Very High | Best for heavily degraded images needing significant enlargement |
-| **RIFE_fp32.onnx**                  | Frame interpolation and smooth motion generation    | High    | High    | Standard version with maximum quality for slow-motion or FPS increase |
-| **RIFE_Lite_fp32.onnx**            | Frame interpolation with faster performance         | Very High | Medium  | Optimized for speed, ideal for lower-end hardware or quick previews |
-| **RealESRGANx4_fp16.onnx**         | General-purpose high-quality image upscaling (4×)   | Medium  | High    | Works well for real-world photos and most content types |
-| **RealESRNetx4_fp16.onnx**         | High-quality restoration without strong sharpening  | Medium  | High    | Preserves natural look with minimal artifacts, good for subtle enhancement |
-| **RealSRx4_Anime_fp16.onnx**       | Anime and line-art upscaling (4×)                   | Medium  | High    | Designed for clean edges and solid colors, great for animations and comics |
-| **IRCNN_Lx1_fp16.onnx**            | Light noise removal (no scaling)                    | High    | Medium  | Ideal for mild compression artifacts or grain reduction |
-| **IRCNN_Mx1_fp16.onnx**            | Medium noise removal (no scaling)                   | High    | Medium  | Stronger denoising for moderately degraded images |
-| **RealESR_Animex4_fp16.onnx**      | Anime-focused upscaling (4×)                        | Medium  | High    | Alternative anime model with different training data from RealSR |
-| **RealESR_Gx4_fp16.onnx**          | General-purpose upscaling with balanced sharpness   | Medium  | High    | Balanced output, suitable for a wide variety of image types |
-
+### RIFE Options  
+![RIFE Options](rsc/CaptureRIFE.png)
 
 ---
 
-## Installation
+## 🚀 How to Use
 
-To get started with Warlock-Studio:
-
-1. **Download the installer** from the links at the top of this document.
-2. **Run the installer** and follow the setup instructions.
-3. **Launch the application** from the Start Menu or desktop shortcut.
-
-Warlock-Studio uses [PyInstaller](https://www.pyinstaller.org/) and [Inno Setup](http://www.jrsoftware.org/isinfo.php) for a seamless packaging and installation experience.
-
-### Installation Window Previews
-
-![Screenshot of the installer window](rsc/Installation_window.png)
-![Screenshot of the installer window part 2](rsc/Installation_window2.png)
-![Screenshot of the installer window part 2](rsc/Installation_window3.png)
+1. Run as **Administrator** (recommended).  
+2. **Load Media**: Import images or videos.  
+3. **Configure Settings**:  
+   - Choose AI model (Real-ESRGAN, GFPGAN, etc.)  
+   - Set resolution, format, interpolation, etc.  
+4. **Start Processing** with **"Make Magic"**.  
+5. Retrieve results from the output folder.  
 
 ---
 
-## System Requirements
+## 🖼️ Quality Comparison
 
-- **Operating System:** Windows 10 or later (64-bit)
-- **Memory (RAM):** 8 GB or more recommended
-- **Graphics Card:** NVIDIA or DirectML-compatible GPU highly recommended for performance
-- **Storage:** Sufficient disk space for input and output media files
+Enhanced image using **BSRGANx2**  
+![Comparison](rsc/image_comparison.png)
 
 ---
 
-## Development Status — v4.1-08.01
+## 📊 Model Comparison
 
-| Component                           | Status          | Notes                                                                                |
-| :---------------------------------- | :-------------- | :----------------------------------------------------------------------------------- |
-| **Upscaling Models (ESRGAN, IRCNN, RealESRGAN, etc.)** | 🟢 **Stable**   | Fully integrated with dynamic VRAM recovery for enhanced stability.                  |
-| **Optimized Model Suite**           | 🟢 **Enhanced** | Streamlined AI models for optimal performance and reliability.                       |
-| **Face Restoration (GFPGAN)**       | 🟢 **Stable**   | High-quality face enhancement and restoration capabilities.                          |
-| **Frame Interpolation (RIFE)**      | 🟢 **Stable**   | Includes slow-motion and intermediate frame generation capabilities.                 |
-| **Batch Processing**                | 🟢 **Stable**   | Reliable processing with improved error handling and resource management.            |
-| **User Interface (UI/UX)**          | 🟢 **Refined**  | Enhanced interface with complete model integration and improved information dialogs. |
-| **GPU Management**                  | 🟢 **Enhanced** | Improved AI architecture with robust model loading and graceful degradation.         |
-| **Code Quality**                    | 🟢 **Improved** | Fixed import errors, consolidated code structure, and enhanced type annotations.     |
-| **Installer and Packaging**         | 🟢 **Stable**   | Easy-to-use installer for Windows platforms.                                         |
+| Model File              | Use Case                                | Speed   | Quality | Notes |
+|--------------------------|------------------------------------------|---------|---------|-------|
+| **GFPGANv1.4**          | Face restoration                        | High    | High    | Great for blurry faces |
+| **BSRGANx2**            | 2× upscale + denoising                  | Medium  | Very High | For lightly degraded images |
+| **BSRGANx4**            | 4× upscale + denoising                  | Low     | Very High | For heavily degraded media |
+| **RIFE**                | Smooth frame interpolation              | High    | High    | Best quality for motion |
+| **RIFE-Lite**           | Faster interpolation                    | Very High | Medium  | Lightweight alternative |
+| **RealESRGANx4**        | General 4× upscale                      | Medium  | High    | Great all-rounder |
+| **RealESRNetx4**        | Subtle restoration without oversharpen  | Medium  | High    | Preserves natural look |
+| **RealSRx4_Anime**      | Anime / line-art upscale                | Medium  | High    | Clean edges for 2D art |
+| **IRCNN_L**             | Light denoising                         | High    | Medium  | Mild artifact removal |
+| **IRCNN_M**             | Medium denoising                        | High    | Medium  | Stronger artifact cleanup |
 
 ---
 
-## Project Structure
+## ⚙️ Installation
+
+1. **Download installer** (links above).  
+2. **Run setup** and follow steps.  
+3. Launch from Start Menu / Desktop shortcut.  
+
+Warlock-Studio is packaged with **PyInstaller** + **Inno Setup**.
+
+### Installer Previews
+
+![Installer 1](rsc/Installation_window.png)  
+![Installer 2](rsc/Installation_window2.png)  
+![Installer 3](rsc/Installation_window3.png)  
+
+---
+
+## 🖥️ System Requirements
+
+- **OS:** Windows 10+ (64-bit)  
+- **RAM:** 8GB+ recommended  
+- **GPU:** NVIDIA or DirectML-compatible GPU recommended  
+- **Storage:** Enough for input + processed media  
+
+---
+
+## 📌 Development Status (v4.1-08.01)
+
+| Component                  | Status      | Notes |
+|-----------------------------|------------|-------|
+| Upscaling Models            | 🟢 Stable  | VRAM recovery integrated |
+| Optimized Model Suite       | 🟢 Enhanced | Streamlined & reliable |
+| Face Restoration (GFPGAN)   | 🟢 Stable  | High-quality face fix |
+| Frame Interpolation (RIFE)  | 🟢 Stable  | Smooth motion, slow-mo |
+| Batch Processing            | 🟢 Stable  | Improved error handling |
+| User Interface (UI/UX)      | 🟢 Refined | Clean, integrated models |
+| GPU Management              | 🟢 Enhanced | Robust ONNX + fallbacks |
+| Code Quality                | 🟢 Improved | Refactored & type-safe |
+| Installer & Packaging       | 🟢 Stable  | Seamless setup |
+
+---
+
+## 📂 Project Structure
 </div>
 
 ```
@@ -267,58 +243,44 @@ Warlock-Studio/
 └── SECURITY.md                      # Security reporting policies
 
 ```
+
 <div align="center">
-  
----
-
-## Integrated Technologies & Licenses
-
-| Technology    | License                   | Author / Maintainer                                       | Source Code / Homepage                                     |
-| :------------ | :------------------------ | :-------------------------------------------------------- | :--------------------------------------------------------- |
-| QualityScaler | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
-| RealScaler    | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/RealScaler)           |
-| FluidFrames   | MIT                       | [Djdefrag](https://github.com/Djdefrag)                   | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
-| Real-ESRGAN   | BSD 3-Clause / Apache 2.0 | [Xintao Wang](https://github.com/xinntao)                 | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
-| GFPGAN        | Apache 2.0                | [TencentARC / Xintao Wang](https://github.com/TencentARC) | [GitHub](https://github.com/TencentARC/GFPGAN)             |
-| RIFE          | Apache 2.0                | [hzwer](https://github.com/hzwer)                         | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| SRGAN         | CC BY-NC-SA 4.0           | [TensorLayer Community](https://github.com/tensorlayer)   | [GitHub](https://github.com/tensorlayer/srgan)             |
-| BSRGAN        | Apache 2.0                | [Kai Zhang](https://github.com/cszn)                      | [GitHub](https://github.com/cszn/BSRGAN)                   |
-| IRCNN         | BSD / Mixed               | [Kai Zhang](https://github.com/cszn)                      | [GitHub](https://github.com/cszn/IRCNN)                    |
-| Anime4K       | MIT                       | [Tianyang Zhang (bloc97)](https://github.com/bloc97)      | [GitHub](https://github.com/bloc97/Anime4K)                |
-| ONNX Runtime  | MIT                       | [Microsoft](https://github.com/microsoft)                 | [GitHub](https://github.com/microsoft/onnxruntime)         |
-| PyTorch       | BSD 3-Clause              | [Meta AI](https://pytorch.org/)                           | [GitHub](https://github.com/pytorch/pytorch)               |
-| FFmpeg        | LGPL / GPL (varies)       | [FFmpeg Team](https://ffmpeg.org/)                        | [Official Site](https://ffmpeg.org)                        |
-| ExifTool      | Perl Artistic License     | [Phil Harvey](https://exiftool.org/)                      | [Official Site](https://exiftool.org/)                     |
-| DirectML      | MIT                       | [Microsoft](https://github.com/microsoft/)                | [GitHub](https://github.com/microsoft/DirectML)            |
-| Python        | PSF License               | [Python Software Foundation](https://www.python.org/)     | [Official Site](https://www.python.org)                    |
-| PyInstaller   | GPLv2+                    | [PyInstaller Team](https://github.com/pyinstaller)        | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
-| Inno Setup    | Custom License            | [Jordan Russell](http://www.jrsoftware.org/)              | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 ---
 
-## Contributions
+## 🔗 Integrated Technologies & Licenses
 
-We warmly welcome community contributions!
-
-1. **Fork** this repository.
-2. **Create a branch** for your feature or fix.
-3. **Submit a Pull Request** with a detailed explanation of your changes.
-
-For bug reports, feature suggestions, or inquiries, contact us at: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**
+| Technology    | License     | Author | Source |
+|---------------|------------|--------|--------|
+| Real-ESRGAN   | BSD/Apache | [Xintao Wang](https://github.com/xinntao) | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
+| GFPGAN        | Apache 2.0 | [TencentARC](https://github.com/TencentARC) | [GitHub](https://github.com/TencentARC/GFPGAN) |
+| RIFE          | Apache 2.0 | [hzwer](https://github.com/hzwer) | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
+| BSRGAN        | Apache 2.0 | [Kai Zhang](https://github.com/cszn) | [GitHub](https://github.com/cszn/BSRGAN) |
+| IRCNN         | BSD/Mixed  | [Kai Zhang](https://github.com/cszn) | [GitHub](https://github.com/cszn/IRCNN) |
+| Anime4K       | MIT        | [bloc97](https://github.com/bloc97) | [GitHub](https://github.com/bloc97/Anime4K) |
+| ONNX Runtime  | MIT        | [Microsoft](https://github.com/microsoft) | [GitHub](https://github.com/microsoft/onnxruntime) |
+| PyTorch       | BSD-3      | [Meta AI](https://pytorch.org/) | [GitHub](https://github.com/pytorch/pytorch) |
+| FFmpeg        | LGPL/GPL   | [FFmpeg Team](https://ffmpeg.org) | [Site](https://ffmpeg.org) |
+| ExifTool      | Artistic   | [Phil Harvey](https://exiftool.org/) | [Site](https://exiftool.org/) |
+| PyInstaller   | GPLv2+     | [Team](https://github.com/pyinstaller) | [GitHub](https://github.com/pyinstaller/pyinstaller) |
+| Inno Setup    | Custom     | [Jordan Russell](http://www.jrsoftware.org/) | [Site](http://www.jrsoftware.org/isinfo.php) |
 
 ---
 
-## License
+## 🤝 Contributions
 
-© 2025 Iván Eduardo Chavez Ayub
-Distributed under the MIT License. Additional terms are available in the `NOTICE.md` file.
+We welcome community contributions!  
+
+1. **Fork** the repo  
+2. **Create a branch** for your feature/fix  
+3. **Submit a Pull Request** with details  
+
+📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**  
+
+---
+
+## 📜 License
+
+© 2025 Iván Eduardo Chavez Ayub  
+Licensed under **MIT**. Additional terms in `NOTICE.md`.  
 </div>
-
-
-
-
-
-
-
-
-
