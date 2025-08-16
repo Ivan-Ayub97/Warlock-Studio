@@ -35,7 +35,7 @@ Get the latest stable release:
     <td align="center">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
-        <br/><b>GitHub</b>
+        <br/><b>GitHub Releases</b>
       </a>
     </td>
     <td align="center">
@@ -280,5 +280,6 @@ We welcome community contributions!
 © 2025 Iván Eduardo Chavez Ayub  
 Licensed under **MIT**. Additional terms in `NOTICE.md`.  
 </div>
+
 
 
