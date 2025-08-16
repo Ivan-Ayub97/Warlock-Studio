@@ -2,7 +2,7 @@
 
 <div align="center">
 
-# Warlock-Studio  
+# ✨ Warlock-Studio  
 ### _AI Media Enhancement Suite_
 
 [![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
@@ -27,20 +27,24 @@ Get the latest stable release:
 
 <table>
   <tr>
-    <td align="center" width="33%">
+    <td align="center">
       <a href="https://sourceforge.net/p/warlock-studio/">
         <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width="200">
+        <br/><b>SourceForge</b>
       </a>
     </td>
-    <td align="center" width="33%">
+    <td align="center">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
+        <br/><b>GitHub</b>
       </a>
     </td>
-    <td align="center" width="33%">
+    <td align="center">
       <a href="https://ivanayub97.itch.io/warlock-studio">
         <img src="rsc/itch.io.png" alt="Download from itch.io" width="200" />
+        <br/><b>itch.io</b>
       </a>
+    </td>
   </tr>
 </table>
 
@@ -48,20 +52,13 @@ Get the latest stable release:
 
 ## ✨ Key Features
 
-- **AI Upscaling & Restoration**  
-  Real-ESRGAN, BSRGAN, IRCNN for denoising, upscaling, and detail recovery.
-- **Face Restoration (GFPGAN)**  
-  Revive blurry or low-quality portraits in photos and videos.
-- **Frame Interpolation (RIFE)**  
-  Generate **2×, 4×, 8×** smoother motion or slow-motion.
-- **Modern UI**  
-  Redesigned in v4.0 for an intuitive, streamlined experience.
-- **Batch Processing**  
-  Handle multiple media files simultaneously.
-- **Custom Workflows**  
-  Full control over models, resolution, output format, and quality.
-- **Open-Source & Extensible**  
-  Licensed under MIT, with a modular architecture for contributors.
+- **AI Upscaling & Restoration** – Real-ESRGAN, BSRGAN, IRCNN for denoising, upscaling, and detail recovery.  
+- **Face Restoration (GFPGAN)** – Revive blurry or low-quality portraits in photos and videos.  
+- **Frame Interpolation (RIFE)** – Generate **2×, 4×, 8×** smoother motion or slow-motion.  
+- **Modern UI** – Redesigned in v4.0 for an intuitive, streamlined experience.  
+- **Batch Processing** – Handle multiple media files simultaneously.  
+- **Custom Workflows** – Full control over models, resolution, output format, and quality.  
+- **Open-Source & Extensible** – Licensed under MIT, with a modular architecture for contributors.  
 
 ---
 
@@ -94,10 +91,10 @@ Get the latest stable release:
 
 ## 🖼️ Interface Previews
 
-### Main Window  
+**Main Window**  
 ![Main interface](rsc/Capture.png)
 
-### RIFE Options  
+**RIFE Options**  
 ![RIFE Options](rsc/CaptureRIFE.png)
 
 ---
@@ -182,7 +179,7 @@ Warlock-Studio is packaged with **PyInstaller** + **Inno Setup**.
 ## 📂 Project Structure
 </div>
 
-```
+```bash
 Warlock-Studio/
 ├── AI-onnx/                          # Pre-trained ONNX models for AI processing
 │   ├── BSRGANx2_fp16.onnx
@@ -229,7 +226,7 @@ Warlock-Studio/
 │   └── Manual_ES.pdf
 │
 ├── Warlock-Studio.py                 # Main application script
-├── Warlock-Studio.spec              # PyInstaller spec file
+├── Warlock-Studio.spec               # PyInstaller spec file
 ├── Setup.iss                         # Inno Setup installer script
 │
 ├── README.md                         # Project overview (this file)
@@ -238,12 +235,12 @@ Warlock-Studio/
 ├── LICENSE                           # License info (standard)
 ├── License.txt                   
 ├── NOTICE.md                         # Notices and attributions
-├── CODE_OF_CONDUCT.md               # Contributor behavior guidelines
-├── CONTRIBUTING.md                  # Contribution guide
-└── SECURITY.md                      # Security reporting policies
+├── CODE_OF_CONDUCT.md                # Contributor behavior guidelines
+├── CONTRIBUTING.md                   # Contribution guide
+└── SECURITY.md                       # Security reporting policies
+
 
 ```
-
 <div align="center">
 
 ---
@@ -284,3 +281,4 @@ We welcome community contributions!
 © 2025 Iván Eduardo Chavez Ayub  
 Licensed under **MIT**. Additional terms in `NOTICE.md`.  
 </div>
+
