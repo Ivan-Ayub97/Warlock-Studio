@@ -29,19 +29,16 @@ Get the latest stable release:
     <td align="center">
       <a href="https://sourceforge.net/p/warlock-studio/">
         <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width="200">
-        <br/><b>SourceForge</b>
       </a>
     </td>
     <td align="center">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
-        <br/><b>GitHub Releases</b>
       </a>
     </td>
     <td align="center">
       <a href="https://ivanayub97.itch.io/warlock-studio">
         <img src="rsc/itch.io.png" alt="Download from itch.io" width="200" />
-        <br/><b>itch.io</b>
       </a>
     </td>
   </tr>
@@ -280,6 +277,7 @@ We welcome community contributions!
 © 2025 Iván Eduardo Chavez Ayub  
 Licensed under **MIT**. Additional terms in `NOTICE.md`.  
 </div>
+
 
 
 
