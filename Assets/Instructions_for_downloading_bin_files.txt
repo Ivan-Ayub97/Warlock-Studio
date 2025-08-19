@@ -1,0 +1,2 @@
+Download the Assets_bin.zip file from the releases section, prioritizing the latest available version, and extract the ffmpeg and exiftool bins to this directory.
+https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Assets_bin.zip

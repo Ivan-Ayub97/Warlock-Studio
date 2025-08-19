@@ -1,1 +1,0 @@
-Download the Assets.zip file from the releases section, prioritizing the latest available version, and extract the ffmpeg and exiftool bins to this directory.
