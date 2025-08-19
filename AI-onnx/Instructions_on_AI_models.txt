@@ -1,1 +1,2 @@
 Download the AI-onnx.zip file from the releases section, prioritizing the latest available version.
+https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/AI-onnx_Models.zip
