@@ -235,61 +235,41 @@ Warlock-Studio/
 └── SECURITY.md                        # Security reporting policies
 ```
 <div align="center">
-  
-🔗 Integrated Technologies & Licenses
-Technology	License	Author	Source
-Real-ESRGAN	BSD/Apache	Xintao Wang
-	GitHub
 
-GFPGAN	Apache 2.0	TencentARC
-	GitHub
+## 🔗 Integrated Technologies & Licenses
 
-RIFE	Apache 2.0	hzwer
-	GitHub
+| Technology    | License     | Author                     | Source |
+|---------------|------------|----------------------------|--------|
+| Real-ESRGAN   | BSD/Apache | [Xintao Wang](https://github.com/xinntao) | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
+| GFPGAN        | Apache 2.0 | [TencentARC](https://github.com/TencentARC) | [GitHub](https://github.com/TencentARC/GFPGAN) |
+| RIFE          | Apache 2.0 | [hzwer](https://github.com/hzwer) | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
+| BSRGAN        | Apache 2.0 | [Kai Zhang](https://github.com/cszn) | [GitHub](https://github.com/cszn/BSRGAN) |
+| IRCNN         | BSD/Mixed  | [Kai Zhang](https://github.com/cszn) | [GitHub](https://github.com/cszn/IRCNN) |
+| Anime4K       | MIT        | [bloc97](https://github.com/bloc97) | [GitHub](https://github.com/bloc97/Anime4K) |
+| ONNX Runtime  | MIT        | [Microsoft](https://github.com/microsoft) | [GitHub](https://github.com/microsoft/onnxruntime) |
+| PyTorch       | BSD-3      | [Meta AI](https://pytorch.org/) | [GitHub](https://github.com/pytorch/pytorch) |
+| FFmpeg        | LGPL/GPL   | [FFmpeg Team](https://ffmpeg.org) | [Site](https://ffmpeg.org) |
+| ExifTool      | Artistic   | [Phil Harvey](https://exiftool.org/) | [Site](https://exiftool.org/) |
+| PyInstaller   | GPLv2+     | [Team](https://github.com/pyinstaller) | [GitHub](https://github.com/pyinstaller/pyinstaller) |
+| Inno Setup    | Custom     | [Jordan Russell](http://www.jrsoftware.org/) | [Site](http://www.jrsoftware.org/isinfo.php) |
 
-BSRGAN	Apache 2.0	Kai Zhang
-	GitHub
+---
 
-IRCNN	BSD/Mixed	Kai Zhang
-	GitHub
-
-Anime4K	MIT	bloc97
-	GitHub
-
-ONNX Runtime	MIT	Microsoft
-	GitHub
-
-PyTorch	BSD-3	Meta AI
-	GitHub
-
-FFmpeg	LGPL/GPL	FFmpeg Team
-	Site
-
-ExifTool	Artistic	Phil Harvey
-	Site
-
-PyInstaller	GPLv2+	Team
-	GitHub
-
-Inno Setup	Custom	Jordan Russell
-	Site
-🤝 Contributions
+## 🤝 Contributions
 
 We welcome contributions from the community:
 
-Fork the repository.
+1. **Fork** the repository.  
+2. **Create a branch** for your feature or bug fix.  
+3. **Submit a Pull Request** with detailed description and testing notes.  
 
-Create a branch for your feature or bug fix.
+📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**  
 
-Submit a Pull Request with detailed description and testing notes.
+---
 
-📧 Contact: negroayub97@gmail.com
+## 📜 License
 
-📜 License
+© 2025 Iván Eduardo Chavez Ayub  
+Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
-© 2025 Iván Eduardo Chavez Ayub
-Licensed under MIT. Additional terms and attributions are provided in NOTICE.md.
-
-</div> ```
-
-This version preserves all content but enhances technical clarity, professional formatting, and structured readability for developers and end-users.
+</div>
