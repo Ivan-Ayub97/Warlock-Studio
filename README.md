@@ -32,7 +32,7 @@ Get the latest stable release from multiple sources:
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup.zip">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.1/Warlock-Studio4.1Setup_Winx64.zip">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
@@ -278,5 +278,6 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
 </div>
+
 
 
