@@ -240,6 +240,9 @@ Warlock-Studio/
 
 | Technology      | License               | Author / Maintainer                       | Source |
 |-----------------|---------------------|------------------------------------------|--------|
+| QualityScaler | MIT                   | [Djdefrag](https://github.com/Djdefrag)   | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
+| RealScaler    | MIT                   | [Djdefrag](https://github.com/Djdefrag)   | [GitHub](https://github.com/Djdefrag/RealScaler)           |
+| FluidFrames   | MIT                   | [Djdefrag](https://github.com/Djdefrag)   | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
 | Real-ESRGAN     | BSD 3-Clause / Apache | Xintao Wang                               | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
 | GFPGAN          | Apache 2.0           | TencentARC / Xintao Wang                  | [GitHub](https://github.com/TencentARC/GFPGAN) |
 | RIFE            | Apache 2.0           | hzwer                                     | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
@@ -275,4 +278,5 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
 </div>
+
 
