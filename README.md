@@ -22,7 +22,7 @@ Version **4.1** introduces **enhanced GPU utilization**, **robust ONNX model loa
 
 ## 📥 Download Installer (v4.1)
 
-Get the latest stable release from multiple sources:
+Get the latest stable release from:
 
 <table>
   <tr>
@@ -278,6 +278,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
 </div>
+
 
 
 
