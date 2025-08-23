@@ -54,7 +54,7 @@ Get the latest stable release from:
 - **Modern UI** – Redesigned interface in v4.0 for **intuitive workflow and streamlined navigation**.  
 - **Batch Processing** – Process multiple media files simultaneously, saving time and effort.  
 - **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.  
-- **Open-Source & Extensible** – Fully MIT licensed, with a modular architecture for contributors and developers.
+- **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
 
 ---
 
@@ -278,6 +278,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
 </div>
+
 
 
 
