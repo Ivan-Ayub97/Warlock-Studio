@@ -4,10 +4,15 @@
 
 ### _AI Media Enhancement Suite_
 
-[![Build Status](https://img.shields.io/badge/build-Stable_Release-blue?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![Version](https://img.shields.io/badge/Version-4.1--08.01-darkred?style=for-the-badge)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.1)
-[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=gold)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+[![Build Status](https://img.shields.io/badge/Build-Stable_Release-blue?style=for-the-badge&logo=github)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+[![Version](https://img.shields.io/badge/Version-4.1--08.01-darkred?style=for-the-badge&logo=git)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.1)
+[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge&logo=open-source-initiative)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=gold&logo=download)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+
+[![Platform](https://img.shields.io/badge/Platform-Windows?style=for-the-badge&logo=windows&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=yellow)](https://www.python.org/)
+[![Issues](https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&logo=github)](https://github.com/Ivan-Ayub97/Warlock-Studio/issues)
+[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&logo=git)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 
 _Transform your media with cutting-edge AI technology_
 
@@ -280,6 +285,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.  
 
 </div>
+
 
 
 
