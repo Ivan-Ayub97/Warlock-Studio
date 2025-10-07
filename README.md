@@ -182,7 +182,7 @@ Warlock-Studio/
 │   ├── wizard-image.bmp
 │   └── wizard-small.bmp
 │
-├── rsc/                              # UI previews, workflows, and branding resources
+├── rsc/                              # UI previews and branding resources
 │   ├── Capture.png
 │   ├── image_comparison.png
 │   ├── CaptureCONSOLE.png
@@ -241,6 +241,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
