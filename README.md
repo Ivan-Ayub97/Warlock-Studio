@@ -184,7 +184,7 @@ Warlock-Studio/
 │
 ├── rsc/                              # UI previews, workflows, and branding resources
 │   ├── Capture.png
-│   ├── CaptureRIFE.png
+│   ├── CaptureCONSOLE.png
 │   └── GitHub_Logo_WS.png
 │
 ├── Warlock-Studio.py                 # Main application script
@@ -240,6 +240,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
