@@ -129,12 +129,6 @@ Enhanced image using **BSRGANx2**:
 
 > Warlock-Studio is packaged using **PyInstaller** and deployed with **Inno Setup** for a seamless, self-contained installation experience.
 
-### Installer Previews
-
-![Installer 1](rsc/Installation_window.png)
-![Installer 2](rsc/Installation_window2.png)
-![Installer 3](rsc/Installation_window3.png)
-
 ---
 
 ## 🖥️ System Requirements
@@ -266,6 +260,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
