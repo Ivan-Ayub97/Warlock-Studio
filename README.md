@@ -183,29 +183,14 @@ Warlock-Studio/
 │   └── wizard-small.bmp
 │
 ├── rsc/                              # UI previews, workflows, and branding resources
-│   ├── itch.io.png
 │   ├── Capture.png
 │   ├── CaptureRIFE.png
-│   ├── GitHub_Logo_WS.png
-│   ├── WorkflowBSRGAN.png
-│   ├── WorkflowIRCNN.png
-│   ├── WorkflowRealESRGAN.png
-│   ├── WorkflowRIFE.png
-│   ├── Installation_window.png
-│   ├── Installation_window2.png
-│   └── Installation_window3.png
-│
-├── Manual/                           # LaTeX sources and generated manuals
-│   ├── Manual_EN.tex
-│   ├── Manual_ES.tex
-│   ├── v4.1_User_Manual_EN.pdf
-│   └── v4.1_User_Manual_ES.pdf
+│   └── GitHub_Logo_WS.png
 │
 ├── Warlock-Studio.py                 # Main application script
 ├── Warlock-Studio.spec               # PyInstaller specification file
 ├── Setup.iss                         # Inno Setup installer script
 ├── README.md                         # Project overview
-├── requirements.txt                  # Python dependencies
 ├── CHANGELOG.md                      # Version history and updates
 ├── LICENSE                           # MIT License information
 ├── NOTICE.md                         # Legal notices and attributions
@@ -255,6 +240,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
