@@ -81,7 +81,7 @@ Get the latest stable release from:
 ![Main interface](rsc/Capture.png)
 
 **RIFE Options**
-![RIFE Options](rsc/CaptureRIFE.png)
+![Console](rsc/CaptureCONSOLE.png)
 
 ---
 
@@ -266,6 +266,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
