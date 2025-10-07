@@ -139,7 +139,7 @@ Enhanced image using **BSRGANx2**:
 
 ## 🖥️ System Requirements
 
--   **OS:** Windows 10 or higher (64-bit)
+-   **OS:** Windows 11 or higher (64-bit)
 -   **RAM:** 8GB+ recommended
 -   **GPU:** NVIDIA (for CUDA), AMD, or Intel GPU with up-to-date drivers recommended
 -   **Storage:** Sufficient free space for input and processed media
@@ -267,3 +267,4 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
