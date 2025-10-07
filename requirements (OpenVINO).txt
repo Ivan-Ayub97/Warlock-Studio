@@ -1,8 +1,0 @@
-numpy
-opencv-python
-customtkinter
-onnxruntime-openvino
-Pillow
-natsort
-moviepy
-psutil
