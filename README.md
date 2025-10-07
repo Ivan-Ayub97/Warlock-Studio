@@ -219,7 +219,6 @@ Warlock-Studio/
 ├── requirements.txt                  # Python dependencies
 ├── CHANGELOG.md                      # Version history and updates
 ├── LICENSE                           # MIT License information
-├── model_downloader.py               # Still in the process of implementation
 ├── NOTICE.md                         # Legal notices and attributions
 ├── CODE_OF_CONDUCT.md                # Contributor guidelines
 ├── CONTRIBUTING.md                   # Contribution guide
@@ -267,6 +266,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
