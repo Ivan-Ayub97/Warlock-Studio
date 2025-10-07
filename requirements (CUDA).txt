@@ -1,0 +1,8 @@
+numpy
+opencv-python
+customtkinter
+onnxruntime-gpu
+Pillow
+natsort
+moviepy
+psutil
