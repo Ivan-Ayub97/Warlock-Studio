@@ -22,7 +22,7 @@ _Transform your media with cutting-edge AI technology_
 **Warlock-Studio** is an open-source desktop application for **Windows**, designed to integrate state-of-the-art AI models for **image and video enhancement**.
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**, Warlock-Studio provides a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
 
-Version **4.2** introduces a **full offline installer**, an **advanced ONNX Runtime engine** with CUDA support, and significant **packaging optimizations**, ensuring the most reliable and performant experience yet.
+Version **4.2** introduces a **full offline installer**, an **advanced ONNX Runtime engine** with DirectML & CUDA support, and significant **packaging optimizations**, ensuring the most reliable and performant experience yet.
 
 ---
 
@@ -241,6 +241,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
