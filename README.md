@@ -42,11 +42,6 @@ Get the latest stable release from:
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
-    <td align="center">
-      <a href="https://ivanayub97.itch.io/warlock-studio">
-        <img src="rsc/itch.io.png" alt="Download from itch.io" width="200" />
-      </a>
-    </td>
   </tr>
 </table>
 
@@ -260,6 +255,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
