@@ -1,3 +1,45 @@
+## Version 4.2
+
+**Release date:** 6 October 2025
+
+### **1. Core Architecture & Performance**
+
+#### **1.1. Advanced ONNX Runtime Integration**
+
+-   **Intelligent Provider Prioritization**: Rearchitected the AI model loading mechanism to be significantly more robust and performant. [cite_start]The system now attempts to initialize the ONNX session using the best available hardware acceleration provider in a prioritized order: **CUDA** first for NVIDIA GPUs, then **DirectML** for broader Windows GPU support, and finally falling back to the **CPU** if no GPU acceleration is available[cite: 12, 13]. This ensures the application leverages the most powerful hardware on the user's system automatically.
+-   **Centralized Session Management**: Introduced a single, unified function `create_onnx_session` that replaces the duplicated model loading code previously found in each AI class (`AI_upscale`, `AI_interpolation`, `AI_face_restoration`). This refactoring dramatically improves code maintainability and ensures consistent behavior across all AI models.
+-   **Enhanced Error Resilience**: The new model loading system includes a robust fallback mechanism. If loading a model with a high-performance provider (like CUDA) fails, it automatically retries with the next provider in the chain (DirectML, then CPU) instead of crashing.
+
+#### **1.2. PyInstaller Packaging Overhaul**
+
+-   [cite_start]**Aggressive Dependency Pruning**: The PyInstaller `.spec` file has been heavily optimized with an extensive `excludes` list to prevent the packaging of large, unnecessary libraries such as `torch`, `matplotlib`, `pandas`, `PyQt5`, and `scipy`[cite: 11, 12, 13]. This optimization drastically reduces the final application's size.
+-   [cite_start]**Robust Hidden Import Declaration**: Added crucial `hiddenimports` for `onnxruntime` and `moviepy` to the `.spec` file[cite: 11]. This resolves common `ModuleNotFoundError` errors that occurred at runtime by ensuring PyInstaller correctly bundles all necessary sub-modules.
+-   [cite_start]**Shift to "One-Folder" Distribution**: The build strategy was changed from a "one-file" (`EXE` only) to a more reliable "one-folder" (`EXE` + `COLLECT`) structure[cite: 14]. This improves application startup speed and avoids issues related to unpacking temporary files.
+
+---
+
+### **2. Installer & Distribution Strategy**
+
+#### **2.1. Transition to a Full Offline Installer**
+
+-   [cite_start]**Self-Contained Package**: The application's distribution model has been shifted from a lightweight online installer to a comprehensive **offline installer**[cite: 1, 3]. [cite_start]All necessary components, including the AI models previously downloaded during installation, are now bundled directly within the setup executable[cite: 6].
+-   [cite_start]**Enhanced Reliability**: This change eliminates the dependency on an internet connection during setup [cite: 8] and removes the risk of installation failure due to server downtime or network issues. The user is guaranteed a complete and functional installation from a single file.
+-   [cite_start]**Simplified Installation Logic**: The entire Pascal Script `[Code]` section, which managed the complex logic for downloading and decompressing AI models, has been **completely removed**[cite: 8, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]. This makes the Inno Setup script simpler, cleaner, and more maintainable.
+-   [cite_start]**Clearer User Options**: The "Download AI Models" task has been removed from the installer's component selection screen, as it is no longer relevant[cite: 4, 22].
+
+---
+
+### **3. UI & User Experience**
+
+#### **3.1. Enhanced Application Startup**
+
+-   **Professional Splash Screen**: A new `SplashScreen` class has been implemented to display a welcome screen while the application initializes. This improves the user experience by providing immediate visual feedback and displaying loading messages and the app version.
+-   **Diagnostic Provider Information**: At startup, the application now detects and prints the available ONNX Runtime providers (e.g., CUDA, DML) to the console. This serves as a valuable diagnostic tool for users and developers to confirm which hardware acceleration is being used.
+
+#### **3.2. Improved Debugging and Feedback**
+
+-   [cite_start]**Enabled Console Window**: The PyInstaller build is now configured with `console=True`, which opens a command-line window alongside the GUI[cite: 14]. This allows users to see real-time logs, warnings, and error messages, greatly aiding in troubleshooting.
+
 ## Version 4.1
 
 **Release date:** 1 August 2025
@@ -419,3 +461,4 @@
 ### 2. Minor Fixes
 
 - User‑interface tweaks for better accessibility (focus indicators, tab order).
+
