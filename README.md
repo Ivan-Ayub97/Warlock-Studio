@@ -65,7 +65,6 @@ To get the most out of Warlock-Studio v4.2 and understand all its advanced featu
 </table>
 
 ---
----
 
 ## ✨ Key Features
 
@@ -261,6 +260,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
