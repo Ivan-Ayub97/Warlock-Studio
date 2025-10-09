@@ -44,9 +44,6 @@ Get the latest stable release from:
     </td>
   </tr>
 </table>
-
----
-
 ## 📚 User Manuals & Documentation
 
 To get the most out of Warlock-Studio v4.2 and understand all its advanced features, we highly recommend consulting the official user manual. The documentation provides detailed technical explanations, troubleshooting guides, and best practices.
@@ -263,6 +260,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
