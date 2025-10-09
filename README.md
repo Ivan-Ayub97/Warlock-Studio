@@ -47,6 +47,28 @@ Get the latest stable release from:
 
 ---
 
+## 📚 User Manuals & Documentation
+
+To get the most out of Warlock-Studio v4.2 and understand all its advanced features, we highly recommend consulting the official user manual. The documentation provides detailed technical explanations, troubleshooting guides, and best practices.
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/WS42_Manual_ES.pdf">
+        <img src="https://img.shields.io/badge/Download-Manual_(Español)-C11919?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download Spanish Manual">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/WS42_Manual_EN.pdf">
+        <img src="https://img.shields.io/badge/Download-Manual_(English)-005A9B?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download English Manual">
+      </a>
+    </td>
+  </tr>
+</table>
+
+---
+---
+
 ## ✨ Key Features
 
 -   **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, and IRCNN** models for denoising, super-resolution, and detail recovery.
@@ -241,6 +263,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
