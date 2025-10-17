@@ -1,0 +1,460 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% WARLOCK-STUDIO 4.2 - DOCUMENTACIÓN TÉCNICA Y GUÍA DE USUARIO
+% VERSIÓN 11.1 (EDICIÓN CORREGIDA)
+% AUTOR: IVÁN EDUARDO CHAVEZ AYUB (REVISADO Y MEJORADO POR IA)
+%
+% DESCRIPCIÓN:
+% Este documento constituye la guía de referencia definitiva para Warlock-Studio 4.2.
+% Se ha corregido el formato de los títulos de sección para asegurar una correcta
+% alineación y presentación visual, manteniendo la precisión técnica y la estética refinada.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% =======================================================================================
+%   1. CONFIGURACIÓN DEL DOCUMENTO Y PAQUETES
+% =======================================================================================
+\documentclass[11pt, a4paper]{article}
+
+% --- PAQUETES ESENCIALES ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% --- DISEÑO DE PÁGINA Y ESTILO ---
+\usepackage[a4paper, margin=2.2cm, headheight=15pt, footskip=30pt]{geometry}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{titletoc}
+
+% --- TIPOGRAFÍA Y TEXTO ---
+\usepackage{lato}
+\renewcommand*\familydefault{\sfdefault}
+\usepackage{textcomp}
+\usepackage{fontawesome5}
+
+% --- TABLAS, LISTAS Y CAJAS ---
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage[skins, breakable, theorems]{tcolorbox}
+\tcbuselibrary{skins, breakable, shadows} % Cargar librerías avanzadas
+
+% --- TÍTULOS Y ENLACES ---
+\usepackage{titlesec}
+\usepackage{hyperref} % Siempre cargarlo al final
+
+% =======================================================================================
+%   2. DEFINICIÓN DE COLORES Y ESTILOS
+% =======================================================================================
+
+% --- PALETA DE COLORES CORPORATIVA ---
+\definecolor{WarlockRed}{HTML}{C11919}
+\definecolor{WarlockGold}{HTML}{ECD125}
+\definecolor{WarlockDark}{HTML}{1A1C1E}
+\definecolor{WarlockGray}{HTML}{333333}
+\definecolor{WarlockLightGray}{HTML}{F0F0F0}
+\definecolor{WarlockWhite}{HTML}{FFFFFF}
+
+% --- PALETA DE COLORES PARA SECCIONES ---
+\definecolor{IntroColor}{HTML}{005A9B}      % Azul
+\definecolor{QuickStartColor}{HTML}{00796B} % Verde
+\definecolor{InstallColor}{HTML}{8E44AD}    % Morado
+\definecolor{ModelsColor}{HTML}{D35400}     % Naranja
+\definecolor{OptimizeColor}{HTML}{27AE60}   % Verde Esmeralda
+\definecolor{TroubleColor}{HTML}{C0392B}    % Rojo
+\definecolor{ArchColor}{HTML}{2C3E50}       % Azul Oscuro
+\definecolor{GlossaryColor}{HTML}{7F8C8D}   % Gris
+\definecolor{SupportColor}{HTML}{34495E}    % Gris Oscuro
+
+% --- PALETA PARA CAJAS DE TEXTO ---
+\definecolor{InfoFill}{HTML}{E7F3FE}
+\definecolor{InfoBorder}{HTML}{005A9B}
+\definecolor{WarnFill}{HTML}{FFFBE6}
+\definecolor{WarnBorder}{HTML}{FFBE0B}
+\definecolor{QuickStartFill}{HTML}{E6FFFA}
+\definecolor{QuickStartBorder}{HTML}{00796B}
+
+% --- APLICACIÓN DE COLOR DE TEXTO POR DEFECTO ---
+\color{WarlockGray}
+
+% =======================================================================================
+%   3. CONFIGURACIÓN DE ELEMENTOS DEL DOCUMENTO
+% =======================================================================================
+
+% --- HIPERVÍNCULOS ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=WarlockRed,
+    filecolor=WarlockRed,
+    urlcolor=WarlockRed,
+    pdftitle={Warlock-Studio 4.2 | Documentación Técnica y Guía de Usuario},
+    pdfauthor={Iván Eduardo Chavez Ayub}
+}
+
+% --- TÍTULOS DE SECCIÓN Y SUBSECCIÓN (CORREGIDO) ---
+\newcommand{\SectionColor}{WarlockGray} % Color por defecto
+\newcommand{\setsectioncolor}[1]{\renewcommand{\SectionColor}{#1}}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {}
+  {0em}
+  {%
+    \begin{tcolorbox}[
+        enhanced,
+        colback=\SectionColor!90!black,
+        colframe=\SectionColor!90!black,
+        boxrule=0pt,
+        sharp corners,
+        halign=center,
+        valign=center,
+        boxsep=6pt,
+        left=0pt, right=0pt, top=0pt, bottom=0pt
+    ]
+    \color{white}\faBookmark\hspace{0.5em}\thesection.\hspace{1em}#1
+    \end{tcolorbox}
+  }
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{\SectionColor!80!black}}
+  {\faCaretRight\ \thesubsection}
+  {1em}
+  {}
+\titlespacing*{\section}{0pt}{4ex plus 1ex minus .2ex}{3ex plus .2ex}
+\titlespacing*{\subsection}{0pt}{2.5ex plus 1ex minus .2ex}{1.3ex plus .2ex}
+
+% --- DEFINICIÓN DE CAJAS DE TEXTO MEJORADAS ---
+\newtcolorbox{infobox}[2][]{
+    enhanced, breakable,
+    colback=InfoFill, colframe=InfoBorder,
+    fonttitle=\bfseries, coltitle=InfoBorder,
+    title=\faInfoCircle\hspace{0.5em}#2,
+    attach boxed title to top left={yshift=-2mm, xshift=3mm},
+    boxed title style={colback=InfoBorder, sharp corners},
+    coltext=WarlockDark,
+    shadow={2mm}{-1mm}{0mm}{black!20!white},
+    #1
+}
+\newtcolorbox{warnbox}[2][]{
+    enhanced, breakable,
+    colback=WarnFill, colframe=WarnBorder,
+    fonttitle=\bfseries, coltitle=WarnBorder!80!black,
+    title=\faExclamationTriangle\hspace{0.5em}#2,
+    attach boxed title to top left={yshift=-2mm, xshift=3mm},
+    boxed title style={colback=WarnBorder, sharp corners},
+    coltext=WarlockDark,
+    shadow={2mm}{-1mm}{0mm}{black!20!white},
+    #1
+}
+\newtcolorbox{quickstartbox}[2][]{
+    enhanced, breakable,
+    colback=QuickStartFill, colframe=QuickStartBorder,
+    fonttitle=\bfseries, coltitle=QuickStartBorder!80!black,
+    title=\faRocket\hspace{0.5em}#2,
+    attach boxed title to top left={yshift=-2mm, xshift=3mm},
+    boxed title style={colback=QuickStartBorder, sharp corners},
+    coltext=WarlockDark,
+    shadow={2mm}{-1mm}{0mm}{black!20!white},
+    #1
+}
+
+% --- COMANDO PARA CÓDIGO INLINE ---
+\newcommand{\inlinecode}[1]{\colorbox{WarlockLightGray}{\small\texttt{#1}}}
+
+% --- ENCABEZADO Y PIE DE PÁGINA ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{Warlock-Studio 4.2}}
+\fancyhead[R]{\leftmark}
+\fancyfoot[L]{\includegraphics[height=0.8cm]{logo.png}}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{\textcopyright~2025 Warlock-Studio}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection. #1}{}}
+
+% =======================================================================================
+%   INICIO DEL DOCUMENTO
+% =======================================================================================
+\begin{document}
+
+% --- PORTADA REDISEÑADA ---
+\begin{titlepage}
+    \begin{tcolorbox}[
+        enhanced, sharp corners,
+        colback=WarlockDark, colframe=WarlockGold,
+        boxrule=2pt,
+        height=\textheight,
+        halign=center, valign=center
+    ]
+        \centering
+        \includegraphics[width=0.4\textwidth]{logo.png}\par
+        \vfill
+        \color{WarlockWhite}
+        {\Huge\bfseries\scshape Warlock-Studio\par}
+        \vspace{1.5cm}
+        \color{WarlockGold}
+        \rule{0.6\textwidth}{1pt}\par
+        \vspace{0.4cm}
+        \color{WarlockWhite}
+        {\Large\bfseries Documentación Técnica y Guía de Usuario\par}
+        \vspace{0.2cm}
+        {\large Versión del Software: 4.2\par}
+        \vspace{0.4cm}
+        \color{WarlockGold}
+        \rule{0.6\textwidth}{1pt}\par
+        \vfill
+        {\large Iván Eduardo Chavez Ayub\par}
+        \href{https://github.com/Ivan-Ayub97}{\texttt{\color{WarlockGold}\faGithub\ @Ivan-Ayub97}}\par
+        \vspace{1.5cm}
+        {\large \today\par}
+    \end{tcolorbox}
+    \thispagestyle{empty}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% =======================================================================================
+%   SECCIÓN 1: INTRODUCCIÓN
+% =======================================================================================
+\setsectioncolor{IntroColor}
+\section{Introducción a Warlock-Studio}
+Bienvenido a Warlock-Studio, una suite de software para el mejoramiento de medios digitales, impulsada por inteligencia artificial. Ha sido diseñada con el objetivo de democratizar el acceso a tecnologías de vanguardia en super-resolución, restauración de artefactos y generación de fotogramas. Nuestra filosofía operativa se fundamenta en la sinergia entre modelos de inferencia de alto rendimiento y una interfaz de usuario gráfica (GUI) intuitiva, permitiendo que tanto profesionales del sector como entusiastas obtengan resultados de calidad broadcast sin una curva de aprendizaje prohibitiva.
+
+\subsection{\faBoxOpen\ Avances Clave en la Versión 4.2}
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item \textbf{Instalador Autónomo Offline:} La totalidad de los modelos de IA y dependencias críticas están ahora encapsulados en el instalador. Este enfoque garantiza un despliegue exitoso en cualquier entorno, eliminando la necesidad de una conexión a internet post-descarga.
+    \item \textbf{Motor de Inferencia Jerárquico:} Se ha implementado un sistema avanzado que prioriza de forma inteligente los proveedores de ejecución de hardware: \textbf{CUDA (NVIDIA) \textgreater{} DirectML (GPUs con DirectX 12) \textgreater{} CPU}. Esta jerarquía maximiza el rendimiento y la estabilidad, seleccionando automáticamente el backend más óptimo disponible.
+    \item \textbf{Optimización del Paquete (Pruning):} El tamaño final de la aplicación ha sido drásticamente reducido mediante un proceso de poda de dependencias no esenciales (dependency pruning). Esto resulta en tiempos de arranque más rápidos y una menor huella en el disco.
+    \item \textbf{Estabilidad del Núcleo Mejorada:} Se han resuelto errores críticos relacionados con la carga de módulos de inferencia, previniendo fallos inesperados y asegurando que todos los componentes se inicialicen correctamente bajo diversas configuraciones de hardware.
+    \item \textbf{Interfaz de Depuración Avanzada:} Se ha integrado una nueva ventana de consola que expone los registros (logs) en tiempo real. Esta característica es invaluable para el diagnóstico y la solución de problemas avanzados.
+\end{itemize}
+
+% =======================================================================================
+%   SECCIÓN 2: GUÍA DE INICIO RÁPIDO
+% =======================================================================================
+\setsectioncolor{QuickStartColor}
+\section{Guía de Inicio Rápido}
+\begin{quickstartbox}{Procedimiento Acelerado de Mejora de Medios}
+Siga estos 5 pasos para procesar su primer archivo multimedia en menos de un minuto.
+\begin{enumerate}
+    \item \textbf{Carga de Archivos:} Accione el botón \textbf{"SELECT FILES"} y seleccione uno o más archivos de imagen o video para su procesamiento.
+    \item \textbf{Selección de Modelo de IA:} En el menú desplegable \textbf{"AI model"}, elija un modelo de inferencia.
+    \begin{itemize}
+        \item Para imágenes fotorrealistas, se recomienda \inlinecode{BSRGANx4} por su capacidad de reconstrucción de texturas finas.
+        \item Para contenido de animación o ilustración, \inlinecode{RealESR_Animex4} es la opción óptima para preservar bordes definidos.
+        \item Para secuencias de video, \inlinecode{RealESR_Gx4} ofrece un excelente equilibrio entre rendimiento computacional y calidad perceptual.
+    \end{itemize}
+    \item \textbf{Ajuste de Resolución de Entrada:} Para un primer procesamiento expedito, configure \textbf{"Input resolution"} en \texttt{75}\%. Esto reduce significativamente la carga computacional con una pérdida de calidad final a menudo imperceptible.
+    \item \textbf{Verificación del Límite de VRAM:} Asegúrese de que el valor en \textbf{"GPU VRAM (GB)"} sea igual o inferior a la memoria de video dedicada de su tarjeta gráfica. Un valor inicial de \texttt{4} GB es una configuración segura para la mayoría del hardware moderno.
+    \item \textbf{Inicio del Procesamiento:} Haga clic en \textbf{"Make Magic"} para iniciar la canalización (pipeline) de procesamiento. Los archivos de salida se generarán en el directorio especificado o, por defecto, en la misma ubicación que los archivos de origen.
+\end{enumerate}
+\end{quickstartbox}
+
+% =======================================================================================
+%   SECCIÓN 3: INSTALACIÓN Y ARQUITECTURA
+% =======================================================================================
+\setsectioncolor{InstallColor}
+\section{Instalación y Arquitectura del Sistema}
+\subsection{\faDownload\ Proceso de Instalación}
+Warlock-Studio 4.2 emplea un instalador offline autocontenido, simplificando el despliegue.
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Obtención del Ejecutable:} Descargue el archivo `Warlock-Studio-v4.2-Setup.exe` desde los repositorios oficiales en GitHub o SourceForge.
+    \item \textbf{Ejecución con Privilegios Elevados:} Haga clic derecho sobre el instalador y seleccione "Ejecutar como administrador". Este paso es crucial para garantizar que la aplicación obtenga los permisos necesarios para interactuar con los controladores de bajo nivel de la GPU.
+    \item \textbf{Asistente de Instalación:} Siga las instrucciones en pantalla. La inclusión de todos los modelos de IA y dependencias elimina la necesidad de descargas adicionales durante este proceso.
+    \item \textbf{Lanzamiento de la Aplicación:} Una vez finalizada la instalación, Warlock-Studio puede ser ejecutado desde el menú de inicio o el acceso directo del escritorio.
+\end{enumerate}
+
+\subsection{\faMicrochip\ Requisitos del Sistema}
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{\textwidth}{lX}
+        \toprule
+        \textbf{Componente} & \textbf{Especificación Técnica} \\
+        \midrule
+        Sistema Operativo & Windows 11 o Windows 10 (arquitectura de 64-bit requerida). \\
+        RAM & 8 GB (mínimo), 16 GB (recomendado para procesamiento de video en alta resolución). \\
+        Tarjeta Gráfica (GPU) & \textbf{Requisito mandatorio:} GPU con soporte para la API de \textbf{DirectX 12}. \\
+        & \textbf{NVIDIA (para CUDA):} Arquitecturas Maxwell (Serie GTX 900) o más recientes. Se recomiendan los controladores Studio para estabilidad. \\
+        & \textbf{AMD/Intel (para DirectML):} Cualquier GPU moderna con controladores actualizados que soporten DirectX 12 Feature Level 12.0+. \\
+        & Se recomiendan \textbf{4+ GB de VRAM} para evitar cuellos de botella de memoria. \\
+        Almacenamiento & 2 GB de espacio libre en disco. El uso de una unidad de estado sólido (SSD) mejora drásticamente el rendimiento de E/S (I/O) durante el procesamiento de secuencias de video. \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Especificaciones de hardware y software para un rendimiento óptimo de Warlock-Studio 4.2.}
+\end{table}
+
+\subsection{\faFolderOpen\ Estructura de Archivos y Dependencias}
+\begin{infobox}{Componentes Autónomos}
+Warlock-Studio es una aplicación autocontenida. Los siguientes componentes son parte integral de la instalación y no requieren gestión por parte del usuario.
+\end{infobox}
+\begin{itemize}[leftmargin=*]
+    \item \inlinecode{ffmpeg.exe:} Ubicado en el directorio \texttt{Assets}, este binario es el núcleo para todas las operaciones de manipulación de flujos de video, incluyendo decodificación, codificación y multiplexado.
+    \item \inlinecode{exiftool.exe:} También en \texttt{Assets}, se utiliza para la lectura y escritura de metadatos (e.g., EXIF, XMP, IPTC), asegurando la preservación de la información original del archivo.
+    \item \textbf{Modelos de IA:} Los modelos de inferencia, en el formato interoperable \texttt{.onnx}, se encuentran en el directorio \texttt{AI-onnx}.
+    \item \textbf{Preferencias de Usuario:} Un archivo de configuración en formato JSON, \texttt{Warlock-Studio\_4.2\_UserPreference.json}, se almacena en el directorio de \textbf{Documentos} del perfil de usuario, persistiendo los ajustes de la GUI.
+    \item \textbf{Registros de Diagnóstico (Logs):} Los archivos de registro se generan en \texttt{Documents\textbackslash Warlock-Studio\_4.2\_Logs}, siendo un recurso crucial para la depuración de errores.
+\end{itemize}
+
+% =======================================================================================
+%   SECCIÓN 4: GUÍA DETALLADA DE MODELOS DE IA
+% =======================================================================================
+\setsectioncolor{ModelsColor}
+\section{Análisis Detallado de Modelos de Inferencia}
+La selección del modelo de IA es la decisión más crítica que impacta directamente en la calidad del resultado, el tiempo de procesamiento y los recursos de hardware requeridos. A continuación se presenta un análisis técnico para facilitar una selección informada.
+
+\subsection{\faTable\ Matriz Comparativa de Modelos}
+\begin{longtable}{p{2.8cm} p{1.8cm} p{1.2cm} p{1.5cm} p{7.2cm}}
+\toprule
+\textbf{Modelo} & \textbf{Función Primaria} & \textbf{Escala} & \textbf{VRAM (GB)} & \textbf{Caso de Uso y Consideraciones Técnicas} \\
+\midrule
+\endhead
+\multicolumn{5}{c}{\textit{\textbf{\faEraser\ Modelos de Reducción de Ruido (Denoising)}}} \\
+\midrule
+\texttt{IRCNN\_Mx1} & Denoise & x1 & 4.0 & Reducción de ruido de nivel moderado. Ideal para la supresión de artefactos de compresión JPEG y ruido de sensor de bajo ISO en fotografías antiguas. \\
+\texttt{IRCNN\_Lx1} & Denoise & x1 & 4.0 & Algoritmo de reducción de ruido intensivo. Óptimo para imágenes severamente degradadas con ruido de luminancia y crominancia pronunciado. \\
+\midrule
+\multicolumn{5}{c}{\textit{\textbf{\faTachometerAlt\ Modelos de Escalado de Alta Fidelidad (Computacionalmente Intensivos)}}} \\
+\midrule
+\texttt{BSRGANx4} & Upscale & x4 & 0.6 & Red Generativa Adversaria optimizada para la síntesis de texturas realistas. Es el modelo de elección para retratos, fotografía de naturaleza y donde la preservación de detalles finos es primordial. \\
+\texttt{BSRGANx2} & Upscale & x2 & 0.7 & Variante con factor de escala reducido. Ofrece una calidad perceptual similar a la versión x4 pero con menor costo computacional, ideal para escalados moderados. \\
+\texttt{RealESRGANx4} & Upscale & x4 & 0.6 & Modelo de propósito general robusto. Sobresale en la reconstrucción de una amplia variedad de contenido, incluyendo texturas, paisajes y elementos arquitectónicos. \\
+\texttt{RealESRNetx4} & Upscale & x4 & 2.2 & Alternativa a RealESRGAN, a menudo produciendo resultados con menos artefactos "alucinatorios". Puede ofrecer un mejor equilibrio entre velocidad y fidelidad en ciertas arquitecturas de GPU. \\
+\midrule
+\multicolumn{5}{c}{\textit{\textbf{\faBolt\ Modelos de Escalado de Alta Velocidad (Ligeros)}}} \\
+\midrule
+\texttt{RealESR\_Gx4} & Upscale & x4 & 2.2 & Modelo ligero y rápido, optimizado para el procesamiento de video en tiempo real o casi real. Ofrece un excelente compromiso entre rendimiento y calidad visual. \\
+\texttt{RealESR\_Animex4} & Upscale & x4 & 2.2 & Especializado para contenido no fotorrealista. Preserva líneas nítidas y colores planos, evitando los artefactos de suavizado comunes en modelos entrenados con datos naturales. \\
+\midrule
+\multicolumn{5}{c}{\textit{\textbf{\faUserCircle\ Modelos de Restauración Facial}}} \\
+\midrule
+\texttt{GFPGAN} & Restore & x1 & 1.8 & Red Generativa Adversaria con un prior facial. No solo escala, sino que reconstruye y mejora rasgos faciales dañados o de baja resolución en fotografías. \\
+\midrule
+\multicolumn{5}{c}{\textit{\textbf{\faFilm\ Modelos de Interpolación de Fotogramas (Exclusivo para Video)}}} \\
+\midrule
+\texttt{RIFE} & Interpolate & N/A & \textasciitilde{}1.5 & Algoritmo de alta calidad para la interpolación de movimiento. Genera fotogramas intermedios para aumentar la fluidez de un video (e.g., de 30 a 60 FPS). \\
+\texttt{RIFE\_Lite} & Interpolate & N/A & \textasciitilde{}1.2 & Variante optimizada de RIFE, diseñada para GPUs con VRAM limitada. Ofrece un procesamiento más rápido a costa de una ligera reducción en la precisión de la interpolación. \\
+\midrule
+\bottomrule
+\caption{Guía técnica para la selección de modelos de IA. Los valores de VRAM son estimaciones base y pueden variar según la resolución de entrada.}
+\label{tab:modelos}
+\end{longtable}
+
+% =======================================================================================
+%   SECCIÓN 5: MEJORES PRÁCTICAS Y OPTIMIZACIÓN
+% =======================================================================================
+\setsectioncolor{OptimizeColor}
+\section{Optimización de Rendimiento y Mejores Prácticas}
+
+\subsection{\faSlidersH\ Parámetros Críticos de Rendimiento}
+\begin{itemize}[leftmargin=*, itemsep=2pt]
+    \item \textbf{Input Resolution \%:} Este es el parámetro más influyente en la velocidad de procesamiento. Un valor entre \textbf{50\% y 75\%} implementa un submuestreo inicial antes del escalado, reduciendo drásticamente la carga computacional con un impacto mínimo en la calidad perceptual final.
+    \item \textbf{GPU VRAM Limiter (GB):} Define el presupuesto de memoria de video asignado al proceso. Es crucial para el cálculo dinámico del tamaño de los "tiles" de procesamiento y para prevenir errores de desbordamiento de memoria (OOM). Ajústelo a un valor igual o ligeramente inferior a la VRAM total de su GPU.
+    \item \textbf{AI Multithreading:} (Solo video) Permite el procesamiento en paralelo de múltiples fotogramas. Aumenta significativamente el rendimiento en sistemas con múltiples núcleos de CPU, pero a costa de un mayor consumo de VRAM y CPU. Se recomienda comenzar con 2 hilos y aumentar gradualmente.
+    \item \textbf{AI Blending:} Mitiga los artefactos visuales que pueden surgir al usar un bajo porcentaje de "Input Resolution". Realiza una interpolación alfa entre la imagen original escalada y la imagen procesada por la IA para un resultado más natural.
+\end{itemize}
+
+\subsection{\faTrophy\ Consejos para Resultados de Máxima Calidad}
+\begin{description}[leftmargin=*, style=nextline, itemsep=0.8em]
+    \item[Maximización de la Fidelidad Visual] Para obtener la máxima calidad posible, utilice los modelos \texttt{BSRGANx4} o \texttt{RealESRGANx4} con una \textbf{Input Resolution} del \textbf{100\%}. Este proceso es computacionalmente intensivo pero produce los resultados más detallados y con la menor cantidad de información perdida.
+    \item[Flujo de Trabajo para Restauración de Video] Un pipeline efectivo para la restauración de material de archivo antiguo consiste en un primer paso con un modelo de reducción de ruido (e.g., \texttt{IRCNN_Mx1}) para limpiar la señal, seguido de un segundo paso con un modelo de escalado (e.g., \texttt{RealESR_Gx4}) sobre el video ya procesado.
+    \item[Impacto del Almacenamiento SSD] Una unidad de estado sólido (SSD) acelera drásticamente el procesamiento de video, ya que la extracción, escritura y posterior reensamblaje de miles de fotogramas individuales constituye el principal cuello de botella de E/S (I/O) del sistema.
+    \item[Persistencia de Fotogramas para Experimentación] Si planea experimentar con diferentes códecs o tasas de bits de video, active la opción \textbf{"Keep frames"}. Esto preservará los fotogramas procesados en el disco, permitiéndole re-codificar el video sin necesidad de repetir el costoso proceso de inferencia de la IA.
+\end{description}
+
+% =======================================================================================
+%   SECCIÓN 6: SOLUCIÓN DE PROBLEMAS
+% =======================================================================================
+\setsectioncolor{TroubleColor}
+\section{Diagnóstico y Solución de Problemas}
+\begin{warnbox}{Causa Principal de Errores}
+La causa \textbf{Nº 1} de fallos de procesamiento son los \textbf{caracteres no estándar} en las rutas de archivo (path) y nombres de archivo. Evite el uso de: \texttt{', ", @, \#, \$, \%, \&, *, [, ], ?, etc.}.
+\end{warnbox}
+
+\begin{description}[leftmargin=*, style=nextline, itemsep=0.8em]
+    \item[\faBan\ Error: "FFmpeg encoding failed: Invalid argument"]
+        \textbf{Diagnóstico:} El multiplexor de FFmpeg ha recibido un argumento inválido, comúnmente una ruta de archivo mal formada.
+        \textbf{Solución:} Renombre el archivo de origen y/o su directorio contenedor, eliminando cualquier carácter especial o diacrítico.
+
+    \item[\faRocket\ Error: "Failed to load model" o Fallo del Proveedor de Ejecución]
+        \textbf{Diagnóstico:} Falla en la inicialización del backend de hardware seleccionado (CUDA o DirectML).
+        \textbf{Solución:} El sistema está diseñado para recurrir automáticamente a un proveedor funcional (fallback) en la jerarquía (CUDA \textrightarrow{} DirectML \textrightarrow{} CPU). Para resolver la causa raíz:
+        \begin{enumerate}[nosep, leftmargin=*]
+            \item \textbf{Errores de CUDA:} Verifique la instalación de los últimos controladores de NVIDIA (Game Ready o Studio).
+            \item \textbf{Errores de DirectML:} Asegúrese de que el sistema operativo Windows esté completamente actualizado y que los controladores de la GPU (NVIDIA, AMD, Intel) sean los más recientes.
+        \end{enumerate}
+
+    \item[\faMemory\ Error: "out of memory" (OOM) o Cierre Inesperado]
+        \textbf{Diagnóstico:} La VRAM de la GPU ha sido agotada.
+        \textbf{Solución:}
+        \begin{enumerate}[nosep, leftmargin=*]
+            \item Reduzca el \textbf{VRAM Limiter} a un valor igual o inferior a la VRAM física de su GPU.
+            \item Disminuya el \textbf{Input Resolution \%} a 75\% o menos.
+            \item Para videos, reduzca el número de hilos de \textbf{AI Multithreading}.
+            \item La aplicación intentará una recuperación automática de este error reduciendo el tamaño del tile de procesamiento y reintentando la operación.
+        \end{enumerate}
+
+    \item[\faTachometerAlt\ Error: "cannot convert float NaN to integer"]
+        \textbf{Diagnóstico:} Timeout del controlador de la GPU (TDR - Timeout Detection and Recovery), a menudo causado por sobrecarga o sobrecalentamiento del hardware.
+        \textbf{Solución:} Reinicie el proceso \textbf{sin eliminar el directorio de fotogramas generados}. La aplicación detectará los fotogramas existentes y reanudará la tarea desde el punto de fallo.
+\end{description}
+
+% =======================================================================================
+%   SECCIÓN 7: ARQUITECTURA TÉCNICA AVANZADA
+% =======================================================================================
+\setsectioncolor{ArchColor}
+\section{Análisis de la Arquitectura del Software}
+
+\subsection{\faCogs\ Motor de Inferencia y Abstracción de Hardware}
+Warlock-Studio se fundamenta en un motor de inferencia multi-capa impulsado por \textbf{ONNX Runtime}. Este sistema abstrae el hardware subyacente y prioriza los proveedores de ejecución (Execution Providers) para maximizar el rendimiento:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{CUDA (\texttt{CUDAExecutionProvider}):} La opción de mayor rendimiento, aprovechando la arquitectura de computación paralela de las GPUs NVIDIA.
+    \item \textbf{DirectML (\texttt{DmlExecutionProvider}):} Si CUDA no está disponible, el sistema recurre a DirectML. Esta API de Microsoft traduce las operaciones de la red neuronal a llamadas nativas de \textbf{DirectX 12}, garantizando una amplia compatibilidad de hardware (NVIDIA, AMD, Intel).
+    \item \textbf{CPU (\texttt{CPUExecutionProvider}):} Es el proveedor de último recurso. Si ninguna aceleración por GPU es viable, la aplicación ejecuta el modelo en la CPU, garantizando la funcionalidad universal a costa de un rendimiento significativamente menor.
+\end{enumerate}
+
+\subsection{\faThLarge\ Sistema de Tiling Dinámico y Gestión de Memoria}
+Para procesar imágenes y videos de alta resolución que excederían la VRAM disponible, la aplicación implementa un sistema de "tiling". Cada fotograma se subdivide en fragmentos (tiles) de un tamaño calculado dinámicamente en función del \textbf{VRAM Limiter} configurado por el usuario. Si se produce un error de memoria (OOM), el sistema puede reducir autónomamente el tamaño del tile y reintentar la operación, proporcionando un mecanismo de recuperación robusto.
+
+\subsection{\faSyncAlt\ Funcionalidad de Resumen y Checkpointing}
+Si un proceso de video es interrumpido (ya sea por el usuario o por un error), los fotogramas ya procesados y escritos en disco se conservan. Al reiniciar la misma tarea, la función \inlinecode{check\_video\_upscaling\_resume} detecta estos archivos parciales y reanuda la canalización de procesamiento desde el último fotograma pendiente, ahorrando una cantidad significativa de tiempo de cómputo.
+
+\subsection{\faBolt\ Escritura Asíncrona de Fotogramas}
+Durante el escalado de video, los fotogramas procesados por la GPU se colocan en una cola que es gestionada por un hilo de escritura (worker thread) independiente. Esto desacopla el procesamiento de la GPU (muy rápido) de las operaciones de E/S del disco (más lentas), permitiendo que la GPU comience a procesar el siguiente lote de fotogramas sin esperar a que el lote anterior se haya escrito físicamente en el disco.
+
+% =======================================================================================
+%   SECCIÓN 8: GLOSARIO TÉCNICO
+% =======================================================================================
+\setsectioncolor{GlossaryColor}
+\section{Glosario}
+\begin{description}[leftmargin=*, style=nextline, itemsep=0.8em]
+    \item[ONNX Runtime] (Open Neural Network Exchange) Un motor de inferencia multiplataforma de alto rendimiento para modelos de IA. Permite a Warlock-Studio ejecutar modelos de manera agnóstica al hardware.
+    \item[CUDA] (Compute Unified Device Architecture) Una plataforma de computación paralela y un modelo de programación de APIs desarrollado por NVIDIA. Permite una aceleración de propósito general en GPUs NVIDIA.
+    \item[DirectML] (Direct Machine Learning) Una API de bajo nivel de Microsoft que utiliza DirectX 12 para proporcionar aceleración de IA por GPU en una amplia gama de hardware compatible con DX12.
+    \item[VRAM] (Video RAM) Memoria de acceso aleatorio de alta velocidad dedicada en una tarjeta gráfica, utilizada para almacenar texturas, buffers de fotogramas y otros datos críticos para el renderizado y el cómputo en la GPU.
+    \item[Tiling] Técnica que consiste en dividir una imagen de gran tamaño en "tiles" o teselas más pequeñas para procesarlas individualmente. Es un mecanismo esencial para manejar resoluciones que exceden la VRAM disponible.
+    \item[Códec] (Codificador-Decodificador) Un algoritmo o dispositivo de software/hardware que comprime y descomprime datos de video digital. Ejemplos de códecs por software son x264 (H.264) y x265 (HEVC). Los códecs por hardware (NVENC, AMF, QSV) utilizan codificadores dedicados en la GPU para acelerar este proceso.
+\end{description}
+
+% =======================================================================================
+%   SECCIÓN 9: SOPORTE Y CONTRIBUCIONES
+% =======================================================================================
+\setsectioncolor{SupportColor}
+\section{Soporte y Comunidad}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\faBug\ Reporte de Incidencias:} Si encuentra un error reproducible, por favor, abra un "Issue" en el repositorio de GitHub. Es fundamental adjuntar el archivo de registro \texttt{error\_log.txt} para un diagnóstico efectivo.
+    \item \textbf{\faCodeBranch\ Contribuciones de Código:} Las contribuciones al código fuente son bienvenidas. Se recomienda seguir el flujo de trabajo estándar: realizar un "fork" del repositorio, crear una rama para la nueva característica o corrección, y enviar un "Pull Request" para su revisión.
+    \item \textbf{\faEnvelope\ Contacto Directo:} Para consultas generales o soporte técnico que no constituyan un error del software, puede contactar al autor en \href{mailto:negroayub97@gmail.com}{\texttt{negroayub97@gmail.com}}.
+\end{itemize}
+\vspace{1cm}
+\centering
+\textbf{Gracias por utilizar Warlock-Studio.}
+
+% =======================================================================================
+%   FIN DEL DOCUMENTO
+% =======================================================================================
+\end{document}
