@@ -70,7 +70,7 @@ The documentation provides detailed technical explanations, troubleshooting guid
 Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
 
-[Vídeo sin título ‐ Hecho con Clipchamp (7).webm](https://github.com/user-attachments/assets/a5d2d021-313a-4375-a28b-97b5f3e32691)
+[V.webm](https://github.com/user-attachments/assets/a5d2d021-313a-4375-a28b-97b5f3e32691)
 
 
 ---
@@ -243,6 +243,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
