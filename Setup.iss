@@ -1,9 +1,9 @@
 ; ===================================================================
-;  Warlock-Studio 4.2 - Inno Setup Script (Full Offline Installer)
+;  Warlock-Studio 4.2.1 - Inno Setup Script (Full Offline Installer)
 ; ===================================================================
 
 #define AppName "Warlock-Studio"
-#define AppVersion "4.2"
+#define AppVersion "4.2.1"
 #define AppPublisher "Iván Eduardo Chavez Ayub"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"

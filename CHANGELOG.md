@@ -1,3 +1,75 @@
+## Version 4.2.1
+
+**Release date:** 27 October 2025
+
+### **1. Critical Bug Fixes & Core Functionality**
+
+#### **1.1. Resolved Critical Audio Passthrough Failure in Video Encoding**
+
+- Addressed a major bug introduced in v4.2 where all generated videos were encoded without audio. This was caused by the accidental omission of the `ffprobe.exe` executable (a key component of the FFmpeg suite) from the application's `Assets` directory and the final build package.
+- The `video_encoding` pipeline relies on media analysis (performed by `ffmpeg` or `ffprobe`) to detect the presence of audio streams in the source video. Due to the missing executable, the `audio_info_command` subprocess would fail, causing the application to incorrectly assume all input videos had no audio.
+- By restoring the `ffprobe.exe` binary to the application bundle, the audio detection step now executes successfully, enabling the proper copying (`-c:a copy`) or re-encoding (`-c:a aac`) of the original audio track into the final processed video.
+
+#### **1.2. Fixed Invalid UI State Persistence**
+
+- Addressed a critical UI logic bug where AI model settings could persist incorrectly when switching between model types. The `select_AI_from_menu` function now properly resets conflicting global variables:
+  - **RIFE Selection:** When an interpolation model (e.g., RIFE, RIFE_Lite) is selected, the **`selected_blending_factor`** is now automatically reset to `0` (OFF), as blending is not a valid operation for this model.
+  - **Upscaling/Face Selection:** Conversely, when any upscaling or face restoration model (e.g., BSRGAN, GFPGAN) is selected, the **`selected_frame_generation_option`** is automatically reset to `OFF`.
+- This prevents users from applying invalid or non-functional setting combinations, ensuring a more intuitive and error-free workflow.
+
+#### **1.3. Fixed File Thumbnail Generation Crash**
+
+- Reworked the `FileWidget.extract_file_icon` method to be more robust during the conversion of an OpenCV (NumPy) image to a `CTkImage` for file previews.
+- The process no longer relies on the `mode='RGB'` parameter within `pillow_image_fromarray`, which could fail with certain `numpy` array layouts.
+- It now uses an explicit, two-step conversion (`pil_img = pillow_image_fromarray(source_icon)` followed by `pil_img = pil_img.convert("RGB")`), ensuring correct channel order and preventing potential `Pillow`/`numpy` compatibility crashes when loading file thumbnails.
+
+---
+
+### **2. UI Corrections & Usability Enhancements**
+
+#### **2.1. Corrected Supported File Extension List**
+
+- The helper text on the file selection screen has been corrected to more accurately list the supported file extensions. It now properly includes `jpeg` and `tiff` and removes incorrect entries (`heic`, `gif`, `mpg`, `qt`, `3gp`) to align with the application's actual processing capabilities.
+
+#### **2.2. Implemented Fixed Application Window**
+
+- The main application window is now non-resizable (`window.resizable(False, False)`). This change was implemented to ensure a stable and predictable UI layout, preventing the relative-coordinate-based widget placement (`relx`, `rely`) from breaking, overlapping, or scaling improperly when the window is resized.
+
+#### **2.3. Improved Dialog Window Behavior**
+
+- Removed the `self.attributes("-topmost", True)` flag from the `MessageBox` class (which handles error and info dialogs). This stops popup windows from aggressively forcing themselves to be the top-most window on the entire desktop. Dialogs now behave as standard application-modal windows, resolving a key usability issue where they could "steal focus" or obstruct other programs.
+
+---
+
+### **3. Thematic & Visual Redesign**
+
+#### **3.1. New "Inferno" Thematic Redesign**
+
+- Version 4.2.1 introduces a significant visual overhaul, moving away from the previous gold-and-grey theme to a high-contrast, dark-mode "inferno" theme. This new palette uses a deep red background with bright yellow and white text, designed to improve readability and reduce eye strain.
+
+The color scheme has been updated as follows:
+
+| Element               | New Value (v4.2.1)        | Old Value (v4.2)       |
+| :-------------------- | :------------------------ | :--------------------- |
+| **Background**        | `#480B0B` (Dark Red)      | `#1A1A1A` (Deep Black) |
+| **App Name Color**    | `#FFFFFF` (White)         | `#DFDFDF` (Light Grey) |
+| **Widget Background** | `#252525` (Near Black)    | `#2D2D2D` (Dark Grey)  |
+| **Main Text**         | `#FFE32C` (Bright Yellow) | `#FFFFFF` (White)      |
+| **Accent/Border**     | `#FFFFFF` (White)         | `#FFD700` (Gold)       |
+| **Info Button**       | `#A80000` (Medium Red)    | `#B22222` (Dark Red)   |
+| **Warning Color**     | `#E02CDA` (Magenta)       | `#FF8C00` (Orange)     |
+| **Error Color**       | `#070087` (Dark Blue)     | `#DC143C` (Crimson)    |
+
+#### **3.2. Monospaced Typography Shift**
+
+- The application's global font has been changed from `"Segoe UI"` to `"Consola"`. This provides a more uniform, technical aesthetic across all UI elements, enhancing readability for file names, numeric values, and status messages.
+
+#### **3.3. Dropdown Menu Readability**
+
+- Updated the visual separators in dropdown menus from `----` to `<------------------>` for clearer, more pronounced grouping of model categories.
+
+---
+
 ## Version 4.2
 
 **Release date:** 6 October 2025
@@ -6,19 +78,19 @@
 
 #### **1.1. Advanced ONNX Runtime Integration & Execution Provider Strategy**
 
--   **Intelligent Provider Prioritization & Fallback Mechanism**: The core AI model loading architecture has been fundamentally re-engineered for superior performance and resilience. The new implementation leverages a prioritized provider list (`['CUDAExecutionProvider', 'DmlExecutionProvider', 'CPUExecutionProvider']`) within the `onnxruntime.InferenceSession` constructor. It first attempts to initialize a session using the **`CUDAExecutionProvider`**, which offers the highest performance by interfacing directly with NVIDIA's CUDA cores and Tensor Cores. If this fails (due to lack of an NVIDIA GPU, driver issues, or CUDA toolkit incompatibility), the system gracefully falls back and attempts initialization with the **`DmlExecutionProvider`**, utilizing Windows' DirectML API for broader hardware acceleration across various GPU vendors (NVIDIA, AMD, Intel). As a final failsafe, if no GPU acceleration provider can be initialized, it defaults to the **`CPUExecutionProvider`**, ensuring the application remains functional on any machine, albeit with reduced performance.
+- **Intelligent Provider Prioritization & Fallback Mechanism**: The core AI model loading architecture has been fundamentally re-engineered for superior performance and resilience. The new implementation leverages a prioritized provider list (`['CUDAExecutionProvider', 'DmlExecutionProvider', 'CPUExecutionProvider']`) within the `onnxruntime.InferenceSession` constructor. It first attempts to initialize a session using the **`CUDAExecutionProvider`**, which offers the highest performance by interfacing directly with NVIDIA's CUDA cores and Tensor Cores. If this fails (due to lack of an NVIDIA GPU, driver issues, or CUDA toolkit incompatibility), the system gracefully falls back and attempts initialization with the **`DmlExecutionProvider`**, utilizing Windows' DirectML API for broader hardware acceleration across various GPU vendors (NVIDIA, AMD, Intel). As a final failsafe, if no GPU acceleration provider can be initialized, it defaults to the **`CPUExecutionProvider`**, ensuring the application remains functional on any machine, albeit with reduced performance.
 
--   **Centralized Session Management & Code Refactoring**: A new, unified function, `create_onnx_session`, has been introduced to abstract and centralize all ONNX session creation logic. This eliminates the redundant and error-prone boilerplate code that was previously duplicated within the `_load_inferenceSession` method of each individual AI class (`AI_upscale`, `AI_interpolation`, `AI_face_restoration`). This refactoring adheres to the **Don't Repeat Yourself (DRY)** principle, significantly improving code maintainability, reducing the surface area for bugs, and ensuring a consistent and robust model loading strategy across the entire application.
+- **Centralized Session Management & Code Refactoring**: A new, unified function, `create_onnx_session`, has been introduced to abstract and centralize all ONNX session creation logic. This eliminates the redundant and error-prone boilerplate code that was previously duplicated within the `_load_inferenceSession` method of each individual AI class (`AI_upscale`, `AI_interpolation`, `AI_face_restoration`). This refactoring adheres to the **Don't Repeat Yourself (DRY)** principle, significantly improving code maintainability, reducing the surface area for bugs, and ensuring a consistent and robust model loading strategy across the entire application.
 
--   **Enhanced Error Handling & Diagnostics**: The `try...except` block encapsulating the session creation loop is now more sophisticated. It logs specific warnings when a provider fails to initialize and clearly indicates which provider it is falling back to. This provides transparent diagnostics that are critical for troubleshooting performance issues related to hardware acceleration.
+- **Enhanced Error Handling & Diagnostics**: The `try...except` block encapsulating the session creation loop is now more sophisticated. It logs specific warnings when a provider fails to initialize and clearly indicates which provider it is falling back to. This provides transparent diagnostics that are critical for troubleshooting performance issues related to hardware acceleration.
 
 #### **1.2. PyInstaller Packaging & Distribution Overhaul**
 
--   **Aggressive Dependency Pruning for Size Optimization**: The PyInstaller `.spec` file has been meticulously optimized to drastically reduce the final distribution size. An extensive `excludes` list has been implemented to explicitly instruct PyInstaller's analysis engine to ignore and not bundle large, non-essential packages. This prevents the recursive inclusion of entire scientific and machine learning ecosystems like `torch`, `transformers`, `matplotlib`, `pandas`, `scipy`, and `PyQt5`, which are often pulled in as sub-dependencies but are not required for this application's runtime. This strategic pruning reduces the package size by hundreds of megabytes.
+- **Aggressive Dependency Pruning for Size Optimization**: The PyInstaller `.spec` file has been meticulously optimized to drastically reduce the final distribution size. An extensive `excludes` list has been implemented to explicitly instruct PyInstaller's analysis engine to ignore and not bundle large, non-essential packages. This prevents the recursive inclusion of entire scientific and machine learning ecosystems like `torch`, `transformers`, `matplotlib`, `pandas`, `scipy`, and `PyQt5`, which are often pulled in as sub-dependencies but are not required for this application's runtime. This strategic pruning reduces the package size by hundreds of megabytes.
 
--   **Robust Hidden Import Declaration for Runtime Stability**: The `.spec` file now includes a `hiddenimports` list containing `onnxruntime.capi._pybind_state`, `onnxruntime.providers`, and `moviepy.editor`. This is critical for ensuring runtime stability, as these modules are often loaded dynamically (e.g., via `__import__` or C extensions) in a way that PyInstaller's static analysis cannot detect. Explicitly declaring them forces their inclusion, preventing `ModuleNotFoundError` crashes when the packaged application attempts to access these components.
+- **Robust Hidden Import Declaration for Runtime Stability**: The `.spec` file now includes a `hiddenimports` list containing `onnxruntime.capi._pybind_state`, `onnxruntime.providers`, and `moviepy.editor`. This is critical for ensuring runtime stability, as these modules are often loaded dynamically (e.g., via `__import__` or C extensions) in a way that PyInstaller's static analysis cannot detect. Explicitly declaring them forces their inclusion, preventing `ModuleNotFoundError` crashes when the packaged application attempts to access these components.
 
--   **Strategic Shift to "One-Folder" Distribution**: The build strategy has been transitioned from a "one-file" mode to a more robust and efficient "one-folder" mode. This is achieved by using the `COLLECT` block in the `.spec` file. Instead of bundling all dependencies into a single large executable that must be decompressed to a temporary directory (`_MEIPASS`) on every launch, the "one-folder" approach places the executable alongside its required `.dll`, `.pyd`, and data files. This results in significantly faster application startup times and avoids potential conflicts with antivirus software or system permissions related to executing from temporary locations.
+- **Strategic Shift to "One-Folder" Distribution**: The build strategy has been transitioned from a "one-file" mode to a more robust and efficient "one-folder" mode. This is achieved by using the `COLLECT` block in the `.spec` file. Instead of bundling all dependencies into a single large executable that must be decompressed to a temporary directory (`_MEIPASS`) on every launch, the "one-folder" approach places the executable alongside its required `.dll`, `.pyd`, and data files. This results in significantly faster application startup times and avoids potential conflicts with antivirus software or system permissions related to executing from temporary locations.
 
 ---
 
@@ -26,13 +98,13 @@
 
 #### **2.1. Transition to a Full Offline Installer Model**
 
--   **Self-Contained & Hermetic Package**: The application's distribution model has been fundamentally shifted from a lightweight online/web installer to a comprehensive **offline installer**. All required runtime assets, most notably the large AI model files (`.onnx`), are now bundled directly within the Inno Setup executable. This creates a fully self-contained package that guarantees a successful installation without any external dependencies.
+- **Self-Contained & Hermetic Package**: The application's distribution model has been fundamentally shifted from a lightweight online/web installer to a comprehensive **offline installer**. All required runtime assets, most notably the large AI model files (`.onnx`), are now bundled directly within the Inno Setup executable. This creates a fully self-contained package that guarantees a successful installation without any external dependencies.
 
--   **Elimination of Network Dependencies & Points of Failure**: This architectural change enhances installation reliability exponentially. It completely removes the dependency on an active internet connection during setup and eliminates critical points of failure, such as GitHub/SourceForge server downtime, network interruptions, firewalls, or changes in download URLs. The user is assured of a complete, atomic installation from a single authoritative file.
+- **Elimination of Network Dependencies & Points of Failure**: This architectural change enhances installation reliability exponentially. It completely removes the dependency on an active internet connection during setup and eliminates critical points of failure, such as GitHub/SourceForge server downtime, network interruptions, firewalls, or changes in download URLs. The user is assured of a complete, atomic installation from a single authoritative file.
 
--   **Radical Simplification of Installer Logic**: As a direct result of bundling all assets, the entire Pascal Script `[Code]` section in `Setup.iss` has been **completely removed**. This eliminates dozens of lines of complex logic responsible for creating custom download pages, handling HTTP requests, managing user cancellations, and, most critically, invoking external processes like PowerShell for archive extraction (`Expand-Archive`). This simplification makes the installer script significantly more robust, predictable, and easier to maintain.
+- **Radical Simplification of Installer Logic**: As a direct result of bundling all assets, the entire Pascal Script `[Code]` section in `Setup.iss` has been **completely removed**. This eliminates dozens of lines of complex logic responsible for creating custom download pages, handling HTTP requests, managing user cancellations, and, most critically, invoking external processes like PowerShell for archive extraction (`Expand-Archive`). This simplification makes the installer script significantly more robust, predictable, and easier to maintain.
 
--   **Streamlined User Experience**: The installer's UI has been simplified by removing the "Download AI Models" task from the `[Tasks]` section. This avoids user confusion and streamlines the setup process, as the action is no longer necessary. The output filename is also now explicitly suffixed with `-Full-Installer` to clearly communicate its offline nature.
+- **Streamlined User Experience**: The installer's UI has been simplified by removing the "Download AI Models" task from the `[Tasks]` section. This avoids user confusion and streamlines the setup process, as the action is no longer necessary. The output filename is also now explicitly suffixed with `-Full-Installer` to clearly communicate its offline nature.
 
 ---
 
@@ -40,13 +112,13 @@
 
 #### **3.1. Enhanced Application Startup & Initial Feedback**
 
--   **Professional Splash Screen Implementation**: A new `SplashScreen` class provides immediate visual feedback upon application launch. This improves the *perceived performance* by displaying a branded loading screen with status messages while core components and AI models are being initialized in the background. It prevents the appearance of a hung or unresponsive application during the initial loading phase.
+- **Professional Splash Screen Implementation**: A new `SplashScreen` class provides immediate visual feedback upon application launch. This improves the _perceived performance_ by displaying a branded loading screen with status messages while core components and AI models are being initialized in the background. It prevents the appearance of a hung or unresponsive application during the initial loading phase.
 
--   **Runtime Environment Diagnostics**: At startup, the application now programmatically queries and prints the available ONNX Runtime providers by calling `onnxruntime.get_available_providers()`. This information is outputted to the console, serving as an invaluable, zero-effort diagnostic tool. It allows both end-users and developers to instantly verify which hardware acceleration backends are detected and available to the application, aiding in performance tuning and troubleshooting.
+- **Runtime Environment Diagnostics**: At startup, the application now programmatically queries and prints the available ONNX Runtime providers by calling `onnxruntime.get_available_providers()`. This information is outputted to the console, serving as an invaluable, zero-effort diagnostic tool. It allows both end-users and developers to instantly verify which hardware acceleration backends are detected and available to the application, aiding in performance tuning and troubleshooting.
 
 #### **3.2. Improved Debugging and Diagnosability**
 
--   **Persistent Console for Runtime Output**: The PyInstaller build configuration was modified to set `console=True`. This forces the application to run with an attached console window that captures the `stdout` and `stderr` streams. This is a critical enhancement for diagnostics, as it makes all print statements, logging output, warnings, and unhandled exception tracebacks immediately visible, providing a clear and persistent record of the application's runtime behavior for effective bug reporting and debugging.
+- **Persistent Console for Runtime Output**: The PyInstaller build configuration was modified to set `console=True`. This forces the application to run with an attached console window that captures the `stdout` and `stderr` streams. This is a critical enhancement for diagnostics, as it makes all print statements, logging output, warnings, and unhandled exception tracebacks immediately visible, providing a clear and persistent record of the application's runtime behavior for effective bug reporting and debugging.
 
 ---
 
@@ -475,6 +547,3 @@
 ### 2. Minor Fixes
 
 - User‑interface tweaks for better accessibility (focus indicators, tab order).
-
-
-

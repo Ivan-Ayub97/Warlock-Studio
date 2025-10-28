@@ -90,22 +90,6 @@ from PIL import Image
 from PIL.Image import fromarray as pillow_image_fromarray
 from PIL.Image import open as pillow_image_open
 
-
-def show_providers_in_gui():
-    """Obtiene y muestra los providers disponibles en una ventana de la GUI."""
-    try:
-        from onnxruntime import get_available_providers
-        providers = get_available_providers()
-
-        # En lugar de crear una ventana, imprimimos en la consola
-        print("Available ONNX Runtime Providers:")
-        for p in providers:
-            print(f"- {p}")
-
-    except ImportError as e:
-        print(f"Error: The onnxruntime library is not installed.{e}")
-
-
 # Define supported file extensions
 supported_image_extensions = [".jpg", ".jpeg",
                               ".png", ".bmp", ".tiff", ".tif", ".webp"]
@@ -126,22 +110,20 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "4.2"
+version = "4.2.1"
 
-
-# Esquema de colores mejorado - Rojo, Gris, Amarillo, Negro, Blanco
-background_color = "#1A1A1A"  # Negro profundo
-app_name_color = "#DFDFDF"  # Rojo brillante para el nombre de la app
-widget_background_color = "#2D2D2D"  # Gris oscuro para widgets
-text_color = "#FFFFFF"  # Blanco puro para texto principal
-secondary_text_color = "#E0E0E0"  # Gris claro para texto secundario
-accent_color = "#FFD700"  # Amarillo dorado para acentos
-button_hover_color = "#FF6666"  # Rojo claro para hover
-border_color = "#404040"  # Gris medio para bordes
-info_button_color = "#B22222"  # Rojo oscuro para botones de info
-warning_color = "#FF8C00"  # Naranja para advertencias
-success_color = "#32CD32"  # Verde para éxito
-error_color = "#DC143C"  # Rojo carmesí para errores
+background_color = "#480B0B"
+app_name_color = "#FFFFFF"
+widget_background_color = "#252525"
+text_color = "#FFE32C"
+secondary_text_color = "#D0D0D0"
+accent_color = "#FFFFFF"
+button_hover_color = "#FF6666"
+border_color = "#404040"
+info_button_color = "#A80000"
+warning_color = "#E02CDA"
+success_color = "#32CD32"
+error_color = "#070087"
 
 VRAM_model_usage = {
     'RealESR_Gx4':     2.2,
@@ -155,7 +137,7 @@ VRAM_model_usage = {
     'GFPGAN':          1.8,
 }
 
-MENU_LIST_SEPARATOR = ["----"]
+MENU_LIST_SEPARATOR = ["<------------------>"]
 SRVGGNetCompact_models_list = ["RealESR_Gx4", "RealESR_Animex4"]
 BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
@@ -965,54 +947,6 @@ class AI_face_restoration:
             AI_model_name, self.model_configs["GFPGAN"])
         self.inferenceSession = None
 
-    def create_onnx_session(model_path: str, selected_gpu: str) -> InferenceSession:
-        """
-        Crea una sesión de inferencia de ONNX seleccionando el mejor proveedor disponible.
-        Prioridad: CUDA -> DmlExecutionProvider -> CPU.
-        """
-        if not os_path_exists(model_path):
-            raise FileNotFoundError(f"AI model file not found: {model_path}")
-
-        # Mapea la selección de la GUI al device_id numérico
-        device_id_map = {'GPU 1': "0", 'GPU 2': "1",
-                         'GPU 3': "2", 'GPU 4': "3"}
-        # Default a 0 si es 'Auto' o no se encuentra
-        device_id = device_id_map.get(selected_gpu, "0")
-
-        # Lista de proveedores en orden de prioridad
-        providers_priority = [
-            ('CUDAExecutionProvider', [{'device_id': device_id}]),
-            ('DmlExecutionProvider', [
-             {'device_id': device_id, "performance_preference": "high_performance"}]),
-            ('CPUExecutionProvider', None)
-        ]
-
-        available_providers = onnxruntime.get_available_providers()
-
-        session = None
-        for provider, options in providers_priority:
-            if provider in available_providers:
-                try:
-                    session = InferenceSession(
-                        path_or_bytes=model_path,
-                        providers=[(provider, options[0])] if options else [
-                            provider],  # Asegura el formato correcto
-                    )
-                    print(
-                        f"[AI] Successfully loaded model '{os_path_basename(model_path)}' using '{provider}'")
-                    return session
-                except Exception as e:
-                    print(
-                        f"[AI WARNING] Failed to load model with {provider}: {e}")
-                    print(
-                        f"[AI WARNING] Falling back to the next available provider...")
-
-        if session is None:
-            raise RuntimeError(
-                f"Failed to load AI model '{os_path_basename(model_path)}' with any available provider.")
-
-        return session
-
     def _get_model_path(self) -> str:
         """
         Get the appropriate model path based on the model name
@@ -1241,18 +1175,19 @@ class MessageBox(CTkToplevel):
         self._ctkwidgets_index = 0
 
         self.title('')
-        self.lift()                # lift window on top
-        self.attributes("-topmost", True)    # stay on top
+
+        # --> ESTA LÍNEA DEBE SER ELIMINADA O COMENTADA
+        # self.attributes("-topmost", True)    # stay on top
+
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         # create widgets with slight delay, to avoid white flickering of background
         self.after(10, self._create_widgets)
-        self.resizable(True, True)
         self.grab_set()                # make other windows not clickable
 
         # Set minimum and maximum window sizes for better scrolling
-        self.minsize(700, 500)
-        self.maxsize(1000, 800)
+        self.minsize(650, 500)
+        self.maxsize(900, 800)
 
         # Set initial window size based on content
         self.geometry("750x600")
@@ -1551,8 +1486,11 @@ class FileWidget(CTkScrollableFrame):
         new_height = int(source_icon.shape[0] * ratio)
         source_icon = opencv_resize(
             source_icon, (new_width, new_height), interpolation=INTER_AREA)
-        ctk_icon = CTkImage(pillow_image_fromarray(
-            source_icon, mode="RGB"), size=(new_width, new_height))
+
+        # Convertir a PIL y luego a CTkImage sin usar mode=
+        pil_img = pillow_image_fromarray(source_icon)
+        pil_img = pil_img.convert("RGB")  # conversión explícita
+        ctk_icon = CTkImage(pil_img, size=(new_width, new_height))
 
         return ctk_icon
 
@@ -4461,6 +4399,9 @@ def open_output_path_action():
 
 def select_AI_from_menu(selected_option: str) -> None:
     global selected_AI_model
+    global selected_blending_factor       # <-- AÑADIR
+    global selected_frame_generation_option  # <-- AÑADIR
+
     selected_AI_model = selected_option
     update_file_widget(1, 2, 3)
 
@@ -4470,9 +4411,20 @@ def select_AI_from_menu(selected_option: str) -> None:
     # FluidFrames/RIFE: Show frame generation menu, otherwise show blending
     if selected_AI_model in RIFE_models_list:
         place_frame_generation_menu()
-    # Face restoration models don't need blending (they work differently)
-    elif selected_AI_model not in Face_restoration_models_list:
-        place_AI_blending_menu()
+        # Restablecer el factor de blending a OFF cuando RIFE es elegido
+        selected_blending_factor = 0
+    else:
+        # Restablecer la generación de frames a OFF para cualquier modelo que no sea RIFE
+        selected_frame_generation_option = "OFF"
+
+        # Face restoration models don't need blending (they work differently)
+        if selected_AI_model not in Face_restoration_models_list:
+            place_AI_blending_menu()
+        # Los modelos de restauración facial (GFPGAN) tampoco usan blending
+        elif selected_AI_model in Face_restoration_models_list:
+            # Asegurarse de que el blending esté en OFF para GFPGAN
+            selected_blending_factor = 0
+
     # Always restore other key controls
     place_AI_multithreading_menu()
     place_input_output_resolution_textboxs()
@@ -4577,9 +4529,10 @@ def place_loadFile_section():
     background = CTkFrame(
         master=window, fg_color=background_color, corner_radius=1)
 
+    # --> ESTE TEXTO HA SIDO ACTUALIZADO
     text_drop = (" SUPPORTED FILES \n\n "
-                 + "IMAGES • jpg, png, tif, bmp, webp, heic \n "
-                 + "VIDEOS • mp4, webm, mkv, flv, gif, avi, mov, mpg, qt, 3gp ")
+                 + "IMAGES • jpg, jpeg, png, bmp, tiff, tif, webp \n "
+                 + "VIDEOS • mp4, avi, mkv, mov, wmv, flv, webm ")
 
     input_file_text = CTkLabel(
         master=window,
@@ -5253,7 +5206,10 @@ class App():
         y_position = (screen_height - default_height) // 2
         window.geometry(
             f"{default_width}x{default_height}+{x_position}+{y_position}")
-        window.resizable(True, True)
+
+        # --> AQUÍ ESTÁ EL CAMBIO
+        window.resizable(False, False)
+
         window.iconbitmap(find_by_relative_path(
             "Assets" + os_separator + "logo.ico"))
 
@@ -5281,8 +5237,9 @@ class App():
         place_message_label()
         place_upscale_button()
 
-
 # Splash Screen class for application startup
+
+
 class SplashScreen(CTkToplevel):
     def __init__(self):
         super().__init__()
@@ -5290,7 +5247,6 @@ class SplashScreen(CTkToplevel):
         # Configure window
         self.title("")
         self.overrideredirect(True)  # Remove window decorations
-        self.attributes('-topmost', True)
 
         # Calculate window position for center of screen
         screen_width = self.winfo_screenwidth()
@@ -5557,7 +5513,7 @@ if __name__ == "__main__":
     selected_input_resize_factor.trace_add('write', update_file_widget)
     selected_output_resize_factor.trace_add('write', update_file_widget)
 
-    font = "Segoe UI"
+    font = "Consola"
     bold8 = CTkFont(family=font, size=8, weight="bold")
     bold9 = CTkFont(family=font, size=9, weight="bold")
     bold10 = CTkFont(family=font, size=10, weight="bold")
