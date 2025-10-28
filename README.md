@@ -36,7 +36,7 @@ Get the latest stable release from:
       </a>
     </td>
     <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
       </a>
     </td>
@@ -50,7 +50,7 @@ We highly recommend consulting the official user manual. The documentation provi
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/Warlock-Studio_Manual.pdf">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf">
         <img src="https://img.shields.io/badge/Download-Manual-005A9B?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download Manual">
       </a>
     </td>
@@ -272,5 +272,6 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
