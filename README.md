@@ -64,7 +64,6 @@ The documentation provides detailed technical explanations, troubleshooting guid
 ---
 
 ## 🖼️ Quality Comparison
-
 ## AI-Driven Visual Transformation: Before & After
 [WsvideovsFun.webm](https://github.com/user-attachments/assets/55f07034-c53b-4e76-8708-65c8dd85113d)
 
@@ -244,6 +243,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
