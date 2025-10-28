@@ -75,7 +75,7 @@ The documentation provides detailed technical explanations, troubleshooting guid
 
 ---
 
-**v4.2.1 Summary**
+## 🆕 v4.2.1 Summary
 
 This update focuses on **stability**, **usability**, and a **major visual redesign**.
 
@@ -242,6 +242,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
