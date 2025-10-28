@@ -65,8 +65,10 @@ The documentation provides detailed technical explanations, troubleshooting guid
 
 ## 🖼️ Quality Comparison
 ## AI-Driven Visual Transformation: Before & After
-[WsvideovsFun.webm](https://github.com/user-attachments/assets/55f07034-c53b-4e76-8708-65c8dd85113d)
-[WsvideovsFun (2).webm](https://github.com/user-attachments/assets/7fea4f7c-2e4c-417e-8cdf-73084828f488)
+[WsvideovsGit.webm](https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22)
+
+[WsvideovsGit2.webm](https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2)
+
 
 Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
@@ -241,6 +243,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
