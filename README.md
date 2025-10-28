@@ -2,8 +2,6 @@
 
 <div align="center">
 
-### _AI Media Enhancement Suite_
-
 [![Build Status](https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 [![Version](https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1)
 [![License](https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white)](LICENSE)
@@ -20,13 +18,9 @@
 
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**, Warlock-Studio provides a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
 
-Version **4.2.1** delivers critical stability fixes, including the resolution of a major audio failure bug, and introduces a comprehensive Redesign for a modern, high-contrast visual experience.
-
 ---
 
-## 📥 Download Installer (v4.2.1)
-
-Get the latest stable release from:
+## 📥 Download Installer (v4.2.1) from:
 
 <table>
   <tr>
@@ -45,7 +39,7 @@ Get the latest stable release from:
 
 ### 📚 User Manuals & Documentation
 
-We highly recommend consulting the official user manual. The documentation provides detailed technical explanations, troubleshooting guides, and best practices.
+The documentation provides detailed technical explanations, troubleshooting guides, and best practices.
 
 <table>
   <tr>
@@ -56,6 +50,16 @@ We highly recommend consulting the official user manual. The documentation provi
     </td>
   </tr>
 </table>
+
+---
+
+## 🖼️ Interface Previews
+
+**Main Window**
+![Main interface](rsc/Capture.png)
+
+**Console**
+![Console](rsc/CaptureCONSOLE.png)
 
 ---
 
@@ -90,28 +94,6 @@ This maintenance release focuses on critical stability, usability, and a signifi
 
 ---
 
-## 🖼️ Interface Previews
-
-**Main Window**
-![Main interface](rsc/Capture.png)
-
-**Console**
-![Console](rsc/CaptureCONSOLE.png)
-
----
-
-## 🚀 How to Use
-
-1. Run Warlock-Studio as **Administrator** (recommended for full GPU access).
-2. **Load Media** – Import images or videos.
-3. **Configure Processing Settings**:
-   - Select AI model (Real-ESRGAN, GFPGAN, RIFE, etc.)
-   - Set resolution, format, frame interpolation, and quality.
-4. **Start Processing** using **"Make Magic"**.
-5. Retrieve the processed results from the designated output folder.
-
----
-
 ## 🖼️ Quality Comparison
 
 Enhanced image using **BSRGANx2**:
@@ -137,16 +119,6 @@ AI-Driven Visual Transformation: Before & After (**Click on the image to open th
 | **RealSRx4_Anime** | Anime / line-art enhancement | Medium    | High      | Sharp edges for 2D art              |
 | **IRCNN_L**        | Light denoising              | High      | Medium    | Mild artifact removal               |
 | **IRCNN_M**        | Medium denoising             | High      | Medium    | Stronger artifact cleanup           |
-
----
-
-## ⚙️ Installation
-
-1. **Download the Full Offline Installer** (see links above).
-2. Run the **setup wizard** and follow the prompts.
-3. Launch via Start Menu or Desktop shortcut.
-
-> Warlock-Studio is packaged using **PyInstaller** and deployed with **Inno Setup** for a seamless, self-contained installation experience.
 
 ---
 
@@ -272,6 +244,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
