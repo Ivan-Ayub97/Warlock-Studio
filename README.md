@@ -75,22 +75,20 @@ The documentation provides detailed technical explanations, troubleshooting guid
 
 ---
 
-## 🆕 What's New in v4.2.1
+**v4.2.1 Summary**
 
-This maintenance release focuses on critical stability, usability, and a significant visual overhaul.
+This update focuses on **stability**, **usability**, and a **major visual redesign**.
 
-### Stability & Usability Fixes
+### 🧩 Fixes & Improvements
+- **Audio:** Fixed a critical issue that removed audio from generated videos.  
+- **UI Settings:** Resolved conflicts between AI model options when switching model types.  
+- **Thumbnails:** Made file icon generation more stable and compatible.  
+- **Fixed Window Size:** The main window is now non-resizable to prevent layout issues.  
+- **Dialogs:** Standardized dialog behavior (removed “always on top” flag).  
 
-- **✅ Critical Audio Fix:** Resolved a major bug that caused all generated videos to be encoded without an audio track. The missing `ffprobe.exe` binary has been restored, ensuring proper audio stream detection and passthrough/re-encoding.
-- **✅ UI State Resilience:** Fixed an issue where conflicting AI model settings (e.g., blending and frame interpolation options) could persist incorrectly when switching between model types, preventing invalid setting combinations.
-- **✅ Robust Thumbnails:** Reworked the file thumbnail generation process (`FileWidget.extract_file_icon`) to be more robust, preventing potential crashes related to `Pillow`/`numpy` compatibility issues during image conversion.
-- **✅ Fixed Window Size:** The main application window is now non-resizable (`window.resizable(False, False)`) to ensure a stable and predictable UI layout, preventing widget placement errors.
-- **✅ Dialog Behavior:** Removed the aggressive "always-on-top" flag (`-topmost`) from dialog windows, ensuring they behave as standard application-modal windows.
-
-### Visual & Thematic Redesign
-
-- **🔥 "DarkRed" Theme:** Introduced a significant visual overhaul with a high-contrast, dark-mode palette. The theme uses a deep red background (`#480B0B`) with bright yellow (`#FFE32C`) and white text for enhanced readability and a distinct, technical aesthetic.
-- **💻 Monospaced Font:** Changed the global font from `"Segoe UI"` to `"Consola"` for a uniform, technical look across all UI elements, enhancing readability for file names and status messages.
+### 🎨 Visual Redesign
+- **New “DarkRed” Theme:** Dark mode with deep red background and high-contrast yellow/white text.  
+- **Monospaced Font:** Switched to **Consola** for a consistent, technical look and better readability.
 
 ---
 
@@ -244,6 +242,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
