@@ -63,6 +63,19 @@ The documentation provides detailed technical explanations, troubleshooting guid
 
 ---
 
+## 🖼️ Quality Comparison
+
+## AI-Driven Visual Transformation: Before & After
+[WsvideovsFun.webm](https://github.com/user-attachments/assets/55f07034-c53b-4e76-8708-65c8dd85113d)
+
+Enhanced image using **BSRGANx2**:
+![Comparison](rsc/image_comparison.png)
+
+[Vídeo sin título ‐ Hecho con Clipchamp (7).webm](https://github.com/user-attachments/assets/a5d2d021-313a-4375-a28b-97b5f3e32691)
+
+
+---
+
 ## ✨ Key Features
 
 - **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, and IRCNN** models for denoising, super-resolution, and detail recovery.
@@ -89,16 +102,6 @@ This update focuses on **stability**, **usability**, and a **major visual redesi
 ### 🎨 Visual Redesign
 - **New “DarkRed” Theme:** Dark mode with deep red background and high-contrast yellow/white text.  
 - **Monospaced Font:** Switched to **Consola** for a consistent, technical look and better readability.
-
----
-
-## 🖼️ Quality Comparison
-
-Enhanced image using **BSRGANx2**:
-![Comparison](rsc/image_comparison.png)
-
-## AI-Driven Visual Transformation: Before & After
-[WsvideovsFun.webm](https://github.com/user-attachments/assets/55f07034-c53b-4e76-8708-65c8dd85113d)
 
 ---
 
@@ -241,6 +244,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
