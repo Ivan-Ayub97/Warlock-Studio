@@ -50,13 +50,8 @@ We highly recommend consulting the official user manual. The documentation provi
 <table>
   <tr>
     <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/WS42_Manual_ES.pdf">
-        <img src="https://img.shields.io/badge/Download-Manual_(Español)-C11919?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download Spanish Manual">
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/WS42_Manual_EN.pdf">
-        <img src="https://img.shields.io/badge/Download-Manual_(English)-005A9B?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download English Manual">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2/Warlock-Studio_Manual.pdf">
+        <img src="https://img.shields.io/badge/Download-Manual-005A9B?style=for-the-badge&logo=read-the-docs&logoColor=white" alt="Download Manual">
       </a>
     </td>
   </tr>
@@ -277,3 +272,4 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
