@@ -98,11 +98,7 @@ Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
 
 ## AI-Driven Visual Transformation: Before & After
-
-<video src="rsc/WSVideovs.mp4" controls width="640">
-  Your browser does not support the video tag.
-</video>
-
+[![Watch the video](https://img.youtube.com/vi/kJOcctTM32c/hqdefault.jpg)](rsc/WSVideovs.mp4)
 
 ---
 
@@ -245,6 +241,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
