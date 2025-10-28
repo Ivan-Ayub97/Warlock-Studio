@@ -97,9 +97,12 @@ This update focuses on **stability**, **usability**, and a **major visual redesi
 Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
 
-AI-Driven Visual Transformation: Before & After (**Click on the image to open the video on YouTube**)
+## AI-Driven Visual Transformation: Before & After
 
-[![Watch the video](https://img.youtube.com/vi/kJOcctTM32c/hqdefault.jpg)](https://youtu.be/kJOcctTM32c)
+<video src="rsc/WSVideovs.mp4" controls width="640">
+  Your browser does not support the video tag.
+</video>
+
 
 ---
 
@@ -242,6 +245,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
