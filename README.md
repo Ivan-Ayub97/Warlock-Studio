@@ -98,7 +98,7 @@ Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
 
 ## AI-Driven Visual Transformation: Before & After
-[![Watch the video](https://img.youtube.com/vi/kJOcctTM32c/hqdefault.jpg)]([rsc/WSVideovs.mp4](https://github.com/Ivan-Ayub97/Warlock-Studio/blob/main/rsc/Wsvideovs.mp4)
+[![Watch the video](https://github.com/Ivan-Ayub97/Warlock-Studio/blob/main/rsc/Wsvideovs.mp4)
 
 ---
 
@@ -241,6 +241,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
