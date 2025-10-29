@@ -59,13 +59,10 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 ---
 
 ## 🖼️ Quality Comparison
-## AI-Driven Visual Transformation: Before & After
 [WsvideovsGit.webm](https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22)
 
 [WsvideovsGit2.webm](https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2)
 
-
-Enhanced image using **BSRGANx2**:
 ![Comparison](rsc/image_comparison.png)
 
 ---
@@ -99,6 +96,15 @@ This update focuses on **stability**, **usability**, and a **major visual redesi
 
 ---
 
+## 🖥️ System Requirements
+
+- **OS:** Windows 11 or higher (64-bit)
+- **RAM:** 8GB+ recommended
+- **GPU:** NVIDIA (for CUDA), AMD, or Intel GPU with up-to-date drivers recommended
+- **Storage:** Sufficient free space for input and processed media
+
+---
+
 ## 📊 Model Comparison
 
 | Model File         | Use Case                     | Speed     | Quality   | Notes                               |
@@ -113,15 +119,6 @@ This update focuses on **stability**, **usability**, and a **major visual redesi
 | **RealSRx4_Anime** | Anime / line-art enhancement | Medium    | High      | Sharp edges for 2D art              |
 | **IRCNN_L**        | Light denoising              | High      | Medium    | Mild artifact removal               |
 | **IRCNN_M**        | Medium denoising             | High      | Medium    | Stronger artifact cleanup           |
-
----
-
-## 🖥️ System Requirements
-
-- **OS:** Windows 11 or higher (64-bit)
-- **RAM:** 8GB+ recommended
-- **GPU:** NVIDIA (for CUDA), AMD, or Intel GPU with up-to-date drivers recommended
-- **Storage:** Sufficient free space for input and processed media
 
 ---
 
@@ -238,6 +235,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
