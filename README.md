@@ -36,9 +36,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 </table>
 
 ### 📚 User Manuals & Documentation
-
-The documentation provides detailed technical explanations and troubleshooting guides.
-
 <table>
   <tr>
     <td align="center">
@@ -241,6 +238,7 @@ We welcome contributions from the community:
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 </div>
+
 
 
 
