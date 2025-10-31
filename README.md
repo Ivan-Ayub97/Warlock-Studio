@@ -12,13 +12,11 @@
 [![Issues](https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 
----
-
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**, Warlock-Studio provides a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
 
 ---
 
-## 📥 Download Installer (v4.2.1) from:
+## 📥 Download Installer:
 
 <table>
   <tr>
@@ -49,11 +47,8 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 ---
 
 ## 🖼️ Interface Previews
-
-**Main Window**
 ![Main interface](rsc/Capture.png)
 
-**Console**
 ![Console](rsc/CaptureCONSOLE.png)
 
 ---
@@ -76,23 +71,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 - **Batch Processing** – Process multiple media files simultaneously, saving time and effort.
 - **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.
 - **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
-
----
-
-## 🆕 v4.2.1 Summary
-
-This update focuses on **stability**, **usability**, and a **major visual redesign**.
-
-### 🧩 Fixes & Improvements
-- **Audio:** Fixed a critical issue that removed audio from generated videos.  
-- **UI Settings:** Resolved conflicts between AI model options when switching model types.  
-- **Thumbnails:** Made file icon generation more stable and compatible.  
-- **Fixed Window Size:** The main window is now non-resizable to prevent layout issues.  
-- **Dialogs:** Standardized dialog behavior (removed “always on top” flag).  
-
-### 🎨 Visual Redesign
-- **New “DarkRed” Theme:** Dark mode with deep red background and high-contrast yellow/white text.  
-- **Monospaced Font:** Switched to **Consola** for a consistent, technical look and better readability.
 
 ---
 
@@ -119,22 +97,6 @@ This update focuses on **stability**, **usability**, and a **major visual redesi
 | **RealSRx4_Anime** | Anime / line-art enhancement | Medium    | High      | Sharp edges for 2D art              |
 | **IRCNN_L**        | Light denoising              | High      | Medium    | Mild artifact removal               |
 | **IRCNN_M**        | Medium denoising             | High      | Medium    | Stronger artifact cleanup           |
-
----
-
-## 📌 Development Status (v4.2.1)
-
-| Component                   | Status        | Notes                                                             |
-| :-------------------------- | :------------ | :---------------------------------------------------------------- |
-| ONNX Runtime Engine         | 🟢 Enhanced   | Prioritizes CUDA > DirectML > CPU with automatic fallback.        |
-| Installer & Packaging       | 🟢 Overhauled | Full offline installer; heavily optimized package size.           |
-| **Video Audio Passthrough** | **✅ Fixed**  | **Resolved critical failure to include audio in encoded videos.** |
-| **UI State Persistence**    | **✅ Fixed**  | **Settings no longer conflict when switching AI models.**         |
-| Upscaling Models            | 🟢 Stable     | Includes VRAM recovery integration.                               |
-| Face Restoration (GFPGAN)   | 🟢 Stable     | High-quality face reconstruction.                                 |
-| Frame Interpolation (RIFE)  | 🟢 Stable     | Smooth motion and slow-motion support.                            |
-| User Interface (UI/UX)      | 🟢 Redesigned | **New high-contrast "Inferno" theme.**                            |
-| Code Quality                | 🟢 Improved   | Refactored, modular, and more maintainable.                       |
 
 ---
 
@@ -195,26 +157,6 @@ Warlock-Studio/
 
 ---
 
-## 📊 Integrated Technologies & Licenses
-
-| Technology    | License               | Author / Maintainer                     | Source                                                     |
-| ------------- | --------------------- | --------------------------------------- | ---------------------------------------------------------- |
-| QualityScaler | MIT                   | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
-| FluidFrames   | MIT                   | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
-| Real-ESRGAN   | BSD 3-Clause / Apache | Xintao Wang                             | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
-| GFPGAN        | Apache 2.0            | TencentARC / Xintao Wang                | [GitHub](https://github.com/TencentARC/GFPGAN)             |
-| RIFE          | Apache 2.0            | hzwer                                   | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| BSRGAN        | Apache 2.0            | Kai Zhang                               | [GitHub](https://github.com/cszn/BSRGAN)                   |
-| IRCNN         | BSD / Mixed           | Kai Zhang                               | [GitHub](https://github.com/cszn/IRCNN)                    |
-| ONNX Runtime  | MIT                   | Microsoft                               | [GitHub](https://github.com/microsoft/onnxruntime)         |
-| FFmpeg        | LGPL / GPL            | FFmpeg Team                             | [Official Site](https://ffmpeg.org)                        |
-| ExifTool      | Artistic License      | Phil Harvey                             | [Official Site](https://exiftool.org/)                     |
-| Python        | PSF License           | Python Software Foundation              | [Official Site](https://www.python.org)                    |
-| PyInstaller   | GPLv2+                | PyInstaller Team                        | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
-| Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
-
----
-
 ## 🤝 Contributions
 
 We welcome contributions from the community:
@@ -234,7 +176,26 @@ We welcome contributions from the community:
 © 2025 Iván Eduardo Chavez Ayub
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
+## 📊 Integrated Technologies & Licenses
+
+| Technology    | License               | Author / Maintainer                     | Source                                                     |
+| ------------- | --------------------- | --------------------------------------- | ---------------------------------------------------------- |
+| QualityScaler | MIT                   | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
+| FluidFrames   | MIT                   | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
+| Real-ESRGAN   | BSD 3-Clause / Apache | Xintao Wang                             | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
+| GFPGAN        | Apache 2.0            | TencentARC / Xintao Wang                | [GitHub](https://github.com/TencentARC/GFPGAN)             |
+| RIFE          | Apache 2.0            | hzwer                                   | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
+| BSRGAN        | Apache 2.0            | Kai Zhang                               | [GitHub](https://github.com/cszn/BSRGAN)                   |
+| IRCNN         | BSD / Mixed           | Kai Zhang                               | [GitHub](https://github.com/cszn/IRCNN)                    |
+| ONNX Runtime  | MIT                   | Microsoft                               | [GitHub](https://github.com/microsoft/onnxruntime)         |
+| FFmpeg        | LGPL / GPL            | FFmpeg Team                             | [Official Site](https://ffmpeg.org)                        |
+| ExifTool      | Artistic License      | Phil Harvey                             | [Official Site](https://exiftool.org/)                     |
+| Python        | PSF License           | Python Software Foundation              | [Official Site](https://www.python.org)                    |
+| PyInstaller   | GPLv2+                | PyInstaller Team                        | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
+| Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 </div>
+
 
 
 
