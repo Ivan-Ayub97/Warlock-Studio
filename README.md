@@ -176,7 +176,7 @@ We welcome contributions from the community:
 © 2025 Iván Eduardo Chavez Ayub
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
-## 📊 Integrated Technologies & Licenses
+### 📊 Integrated Technologies & Licenses
 
 | Technology    | License               | Author / Maintainer                     | Source                                                     |
 | ------------- | --------------------- | --------------------------------------- | ---------------------------------------------------------- |
@@ -195,6 +195,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
 
 
