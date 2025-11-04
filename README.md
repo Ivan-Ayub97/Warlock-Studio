@@ -21,11 +21,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 <table style="width:100%; border-collapse:collapse;">
   <tr>
     <td align="center" style="vertical-align:top; padding:10px;">
-      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
-        <img alt="Download Warlock-Studio"
-             src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091"
-             width="200" style="display:block; margin-bottom:10px;">
-      </a>
       <div class="sf-root" data-id="3880091" data-badge="oss-rising-star-black"
            data-metadata="achievement=oss-rising-star"
            style="width:140px; margin:auto;">
@@ -51,7 +46,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
     </td>
   </tr>
 </table>
-
 
 
 ### 📚 User Manuals & Documentation
@@ -216,6 +210,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
 
 
