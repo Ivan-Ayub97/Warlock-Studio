@@ -18,20 +18,44 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ## 📥 Download Installer:
 
-<table>
+<table style="width:100%; border-collapse:collapse;">
   <tr>
-    <td align="center">
-      <a href="https://sourceforge.net/p/warlock-studio/">
-        <img alt="Download Warlock-Studio" src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091" width="200">
+    <!-- SourceForge -->
+    <td align="center" style="vertical-align:top; padding:10px;">
+      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+        <img alt="Download Warlock-Studio"
+             src="https://sourceforge.net/sflogo.php?type=18&amp;group_id=3880091"
+             width="200" style="display:block; margin-bottom:10px;">
       </a>
+      <!-- Begin SourceForge Dynamic Badge -->
+      <div class="sf-root" data-id="3880091" data-badge="oss-rising-star-black"
+           data-metadata="achievement=oss-rising-star"
+           style="width:140px; margin:auto;">
+        <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+          Warlock-Studio
+        </a>
+      </div>
+      <script>
+        (function () {
+          var sc = document.createElement('script');
+          sc.async = true;
+          sc.src = 'https://b.sf-syn.com/badge_js?sf_id=3880091';
+          var p = document.getElementsByTagName('script')[0];
+          p.parentNode.insertBefore(sc, p);
+        })();
+      </script>
+      <!-- End SourceForge Dynamic Badge -->
     </td>
-    <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe">
-        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="200" />
+    <!-- GitHub -->
+    <td align="center" style="vertical-align:top; padding:10px;">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe" target="_blank">
+        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
+             width="200" style="display:block; margin-bottom:10px;" />
       </a>
     </td>
   </tr>
 </table>
+
 
 ### 📚 User Manuals & Documentation
 <table>
