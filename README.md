@@ -47,7 +47,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
   </tr>
 </table>
 
-
 ### 📚 User Manuals & Documentation
 <table>
   <tr>
@@ -168,6 +167,7 @@ Warlock-Studio/
 └── SECURITY.md                       # Security reporting policies
 ```
 
+
 <div align="center">
 
 ---
@@ -176,10 +176,8 @@ Warlock-Studio/
 
 We welcome contributions from the community:
 
-**Fork** the repository.
-
-**Create a branch** for your feature or bug fix.
-
+**Fork** the repository.  
+**Create a branch** for your feature or bug fix.  
 **Submit a Pull Request** with a detailed description and testing notes.
 
 📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**
@@ -188,7 +186,7 @@ We welcome contributions from the community:
 
 ## 📜 License
 
-© 2025 Iván Eduardo Chavez Ayub
+© 2025 Iván Eduardo Chavez Ayub  
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 ### 📊 Integrated Technologies & Licenses
@@ -210,28 +208,3 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
