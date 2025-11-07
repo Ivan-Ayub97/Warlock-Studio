@@ -19,7 +19,7 @@
 
     <style>
         /* ============================================================
-        WARLOCK-STUDIO — Tema "Arcane Tech" v2 (Interactivo Avanzado)
+        WARLOCK-STUDIO — Tema "Full-Screen Snap" v3
         ============================================================ */
 
         /* === Variables de Color y Fuente === */
@@ -52,7 +52,9 @@
         }
 
         html {
-            scroll-behavior: smooth;
+            /* Desactivar scroll-behavior para que el snap se sienta instantáneo */
+            scroll-behavior: auto; 
+            overflow: hidden; /* Evitar scroll en 'html' */
         }
         
         /* Scrollbar Personalizado */
@@ -77,64 +79,8 @@
             font-family: var(--font-ui);
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Ocultar cursor nativo - Reemplazado por JS */
-        body, a, button, .slider-handle, .media-trigger {
-            cursor: none;
-        }
-
-        /* === Fondo de Partículas (Canvas) === */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.5;
-        }
-
-        /* === Cursor Personalizado === */
-        #custom-cursor-dot, #custom-cursor-outline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transition-property: transform, opacity, background-color, border-color, width, height;
-            transition-timing-function: ease-out;
-        }
-
-        #custom-cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--gold);
-            transition-duration: 0.1s;
-        }
-
-        #custom-cursor-outline {
-            width: 30px;
-            height: 30px;
-            border: 2px solid var(--gold);
-            opacity: 0.7;
-            transition-duration: 0.2s;
-        }
-        
-        /* Estado "interactivo" del cursor */
-        body.cursor-interactive #custom-cursor-dot {
-            width: 0;
-            height: 0;
-            opacity: 0;
-        }
-        body.cursor-interactive #custom-cursor-outline {
-            transform: translate(-50%, -50%) scale(1.5);
-            opacity: 1;
-            border-color: var(--red);
+            overflow: hidden; /* Evitar scroll en 'body' */
+            height: 100vh;
         }
 
         /* === Estilos de Selección === */
@@ -142,19 +88,33 @@
             background: var(--gold);
             color: var(--bg);
         }
+        
+        /* === Efecto Hover CSS (Optimizado) === */
+        /* Efecto para botones, enlaces, y elementos interactivos */
+        a, button, .slider-handle, .media-trigger, .hamburger, .badge-link, #scroll-to-top {
+            transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        }
+        a:hover, button:hover, .slider-handle:hover, .media-trigger:hover, .hamburger:hover, .badge-link:hover, #scroll-to-top:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+            z-index: 10; /* Asegura que el elemento hover esté por encima */
+        }
+        .btn:hover {
+            transform: translateY(-2px) scale(1.03); /* Efecto específico de botón */
+        }
 
         /* === Encabezado Fijo y "Glassmorphism" === */
         header.site-header {
-            position: sticky;
+            position: fixed; /* 'sticky' no funciona bien con el contenedor de scroll-snap */
             top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
             height: var(--header-height);
             transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-            /* Inicia transparente */
             background: transparent;
             border-bottom: 1px solid transparent;
         }
-        /* Estado "scrolled" (añadido por JS) */
         header.site-header.scrolled {
             background: var(--panel-glass);
             backdrop-filter: blur(10px);
@@ -188,18 +148,11 @@
             color: var(--red);
             transition: transform 0.3s ease;
         }
-        .brand .title span {
-            color: var(--silver);
-        }
-        .brand:hover .title {
-            transform: scale(1.05);
-        }
+        .brand .title span { color: var(--silver); }
+        .brand:hover .title { transform: scale(1.05); }
 
         /* === Navegación === */
-        nav.primary-nav {
-            display: flex;
-            gap: 0.5rem;
-        }
+        nav.primary-nav { display: flex; gap: 0.5rem; }
         nav.primary-nav a {
             color: var(--muted);
             font-family: var(--font-headings);
@@ -243,9 +196,6 @@
             z-index: 1002;
             transition: background 0.2s ease;
         }
-        .hamburger:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
         .hamburger .bar {
             width: 20px;
             height: 2px;
@@ -267,31 +217,51 @@
         }
         .hamburger .bar::before { top: -6px; }
         .hamburger .bar::after { top: 6px; }
-
         .hamburger.active .bar { background: transparent; }
         .hamburger.active .bar::before { transform: rotate(45deg); top: 0; }
         .hamburger.active .bar::after { transform: rotate(-45deg); top: 0; }
 
-        /* === Contenedor Principal === */
-        .container {
-            max-width: var(--max-width);
-            margin: 0 auto;
-            padding: 0 1rem;
+        /* ==================================================
+        NUEVO: Contenedor Principal (Full-Screen Snap)
+        ================================================== */
+        main.fullpage-container {
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory; /* Magia de Scroll Snap */
+            height: 100vh;
+            text-align: left;
+            position: relative;
+        }
+
+        section.fullpage-section {
+            scroll-snap-align: start; /* Snap al inicio de la sección */
+            height: 100vh;
+            width: 100%;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centrado vertical por defecto */
+            align-items: center; /* Centrado horizontal */
             text-align: center;
+            position: relative;
+            overflow-y: auto; /* Permite scroll *dentro* de la sección si el contenido es muy largo */
+        }
+        
+        /* Sección Home (Hero) tiene alineación y padding especial */
+        section#home {
+            justify-content: flex-start;
+            padding-top: calc(var(--header-height) + 3rem);
+        }
+
+        /* Wrapper de contenido dentro de cada sección */
+        .hero, section.content {
+            padding: 0;
+            border-bottom: none;
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0;
         }
 
         /* === Hero Banner (Deslizador Interactivo) === */
-        .hero {
-            padding: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.8rem;
-            text-align: center;
-            margin-top: calc(var(--header-height) * -1); /* Tira hacia arriba para que el header se superponga */
-            padding-top: calc(var(--header-height) + 2rem); /* Añade padding para compensar */
-        }
-        
         .hero-banner-interactive {
             position: relative;
             width: 100%;
@@ -319,16 +289,9 @@
             object-position: left;
             pointer-events: none;
         }
-        .slider-image-container.image-after {
-            width: 50%;
-            z-index: 2;
-        }
-        .slider-image-container.image-after img {
-             object-position: right;
-        }
-        .slider-image-container.image-before {
-            z-index: 1;
-        }
+        .slider-image-container.image-after { width: 50%; z-index: 2; }
+        .slider-image-container.image-after img { object-position: right; }
+        .slider-image-container.image-before { z-index: 1; }
         .slider-label {
             position: absolute;
             top: 1rem;
@@ -345,7 +308,6 @@
         }
         .image-before .slider-label { left: 1rem; }
         .image-after .slider-label { right: 1rem; }
-
         .slider-handle-line {
             position: absolute;
             top: 0;
@@ -374,11 +336,7 @@
             align-items: center;
             justify-content: center;
             color: var(--bg);
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-        .slider-handle:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            background: var(--gold-light);
+            cursor: ew-resize;
         }
         .slider-handle svg {
             width: 32px;
@@ -414,22 +372,10 @@
             margin-top: 1.5rem;
         }
         .badges a {
-            transition: transform 200ms ease;
-            display: block; /* Para que el cursor personalizado funcione bien */
-        }
-        .badges a:hover {
-            transform: scale(1.05);
+            display: block;
         }
 
-        /* === Secciones de Contenido === */
-        section.content {
-            padding: 3rem 0;
-            border-bottom: 1px solid var(--border);
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        section.content:last-of-type { border-bottom: none; }
+        /* === Secciones de Contenido (Scroll Snap) === */
         .content h2 {
             font-family: var(--font-headings);
             font-size: 2.2rem;
@@ -568,14 +514,11 @@
             transition: width 0.3s ease-out;
             z-index: -1;
         }
-        .btn:hover::before {
-            width: 100%;
-        }
+        .btn:hover::before { width: 100%; }
         .btn:hover {
             color: var(--bg);
             border-color: var(--gold);
             box-shadow: var(--glow);
-            transform: translateY(-2px);
         }
         .btn.primary {
             background: var(--red);
@@ -592,9 +535,7 @@
             color: var(--silver);
             border-color: var(--silver);
         }
-        .btn.ghost::before {
-            background: var(--glass);
-        }
+        .btn.ghost::before { background: var(--glass); }
         .btn.ghost:hover {
             color: var(--gold);
             border-color: var(--gold);
@@ -618,10 +559,7 @@
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
-        .download-links .badge-link img {
-            max-width: 200px;
-            transition: transform 200ms ease;
-        }
+        .download-links .badge-link img { max-width: 200px; }
 
         /* === Grillas de Medios (Triggers de Modal) === */
         .grid-2 {
@@ -638,10 +576,13 @@
             overflow: hidden;
             box-shadow: var(--shadow);
             border: 1px solid var(--border);
+            cursor: pointer;
         }
-        .media-trigger img {
+        .media-trigger img, .media-trigger video {
             display: block;
             width: 100%;
+            height: 100%;
+            object-fit: cover;
             transition: transform 0.3s ease;
         }
         .media-trigger::after {
@@ -667,7 +608,7 @@
             opacity: 1;
             transform: scale(1.1);
         }
-        .media-trigger:hover img {
+        .media-trigger:hover img, .media-trigger:hover video {
             transform: scale(1.05);
         }
 
@@ -678,8 +619,6 @@
             margin-top: 1.5rem;
             align-items: center;
         }
-        
-        /* Imagen estática de comparación (si no es interactiva) */
         .media-container > img {
             max-width: 100%;
             width: 100%;
@@ -699,6 +638,7 @@
             background: var(--panel);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             text-align: left;
+            max-height: 40vh; /* Limitar altura en secciones 100vh */
         }
         table {
             width: 100%;
@@ -716,24 +656,30 @@
             letter-spacing: 0.5px;
             font-weight: 700;
             color: var(--red);
+            position: sticky; /* Encabezados de tabla pegajosos */
+            top: 0;
         }
         table tbody tr:last-child td { border-bottom: 0; }
         table tbody tr { transition: background 150ms ease; }
-        table tbody tr:hover {
-            background: rgba(255, 215, 0, 0.05);
-        }
+        table tbody tr:hover { background: rgba(255, 215, 0, 0.05); }
         table td { color: var(--muted); }
         table td strong { color: var(--text); }
         table td a { color: var(--muted); text-decoration: none; }
         table td a:hover { color: var(--gold); text-decoration: underline; }
 
-        /* === Pie de Página === */
+        /* === Pie de Página (Sección Snap) === */
         footer.site-footer {
+            scroll-snap-align: start;
+            height: auto; /* Altura auto, pero mínima */
+            min-height: 20vh;
             border-top: 1px solid var(--border);
-            margin-top: 3rem;
+            margin-top: 0;
             padding: 2rem 1rem;
             color: var(--muted);
             font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         footer .footer-inner {
             max-width: var(--max-width);
@@ -762,6 +708,7 @@
             transform: translateY(20px);
             transition: opacity 0.3s ease, transform 0.3s ease;
             text-decoration: none;
+            cursor: pointer;
         }
         #scroll-to-top.active {
             opacity: 1;
@@ -771,6 +718,7 @@
             background: var(--gold);
             color: var(--bg);
             border-color: var(--gold);
+            transform: scale(1.1); /* Anulación de hover general */
         }
 
         /* === Modal Unificado (Lightbox / Video) === */
@@ -783,18 +731,14 @@
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             z-index: 1001;
-            display: none; /* Oculto por defecto */
+            display: none;
             align-items: center;
             justify-content: center;
             padding: 1rem;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        #media-modal.active {
-            display: flex;
-            opacity: 1;
-        }
-
+        #media-modal.active { display: flex; opacity: 1; }
         .modal-content-wrapper {
             position: relative;
             width: 100%;
@@ -803,7 +747,6 @@
             align-items: center;
             justify-content: center;
         }
-
         #modal-content {
             max-width: 90vw;
             max-height: 90vh;
@@ -811,7 +754,6 @@
             align-items: center;
             justify-content: center;
         }
-
         #modal-content img,
         #modal-content video {
             display: block;
@@ -825,14 +767,9 @@
             transform: scale(0.95);
             animation: modal-fade-in 0.3s ease forwards;
         }
-
         @keyframes modal-fade-in {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            to { opacity: 1; transform: scale(1); }
         }
-        
         #modal-close {
             position: absolute;
             top: 1rem;
@@ -847,14 +784,13 @@
             text-align: center;
             border-radius: 50%;
             text-decoration: none;
-            transition: all 0.2s ease;
+            cursor: pointer;
         }
         #modal-close:hover {
             background: var(--red);
             color: var(--text);
             transform: scale(1.1) rotate(90deg);
         }
-
 
         /* === Animaciones de Scroll === */
         .reveal {
@@ -863,10 +799,7 @@
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
             will-change: opacity, transform;
         }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
         
         /* === Responsivo === */
         @media (max-width: 920px) {
@@ -886,23 +819,35 @@
                 opacity: 0;
                 transition: transform 0.4s ease-out, opacity 0.4s ease-out;
             }
-            nav.primary-nav.active {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            nav.primary-nav.active { transform: translateY(0); opacity: 1; }
             nav.primary-nav a { font-size: 1.2rem; padding: 0.5rem; }
             nav.primary-nav a.active::after { bottom: -2px; left: 0.5rem; right: 0.5rem; }
             
             .hamburger { display: flex; }
             .hero-text h1 { font-size: 2.2rem; }
             .content h2 { font-size: 1.8rem; }
-            /* Ocultar cursor personalizado en móvil */
-            #custom-cursor-dot, #custom-cursor-outline { display: none; }
-            body, a, button, .slider-handle, .media-trigger { cursor: auto; }
+            
+            /* En móvil, el contenido puede ser más largo que la pantalla,
+               así que volvemos a un scroll más tradicional */
+            html, body, main.fullpage-container {
+                height: auto;
+                overflow: visible;
+            }
+            main.fullpage-container {
+                scroll-snap-type: none; /* Desactivar snap */
+            }
+            section.fullpage-section {
+                height: auto; /* Altura automática */
+                min-height: 90vh; /* Mantener sensación de sección */
+                padding: 4rem 1rem;
+            }
+            section#home {
+                min-height: 100vh;
+                padding-top: calc(var(--header-height) + 2rem);
+            }
         }
 
         @media (max-width: 520px) {
-            .hero { padding-top: calc(var(--header-height) + 1rem); }
             .hero-text h1 { font-size: 1.8rem; }
             .hero-text p.lead { font-size: 1rem; }
             .content p, .content .muted { font-size: 0.95rem; }
@@ -918,10 +863,6 @@
     </style>
 </head>
 <body>
-
-    <canvas id="particle-canvas"></canvas>
-    <div id="custom-cursor-dot"></div>
-    <div id="custom-cursor-outline"></div>
 
     <header class="site-header" role="banner">
         <div class="nav-inner">
@@ -952,379 +893,348 @@
         </div>
     </header>
 
-    <main class="container">
-        <section class="hero" id="home" aria-labelledby="hero-title">
-            
-            <div class="hero-banner-interactive reveal" id="hero-slider">
-                <div class="slider-image-container image-before">
-                    <img src="rsc/image_comparison.png" alt="Antes de la restauración" />
-                    <span class="slider-label">Original</span>
+    <main class="fullpage-container">
+        
+        <section class="fullpage-section" id="home">
+            <div class="hero">
+                <div class="hero-banner-interactive reveal" id="hero-slider">
+                    <div class="slider-image-container image-before">
+                        <img src="rsc/image_comparison.png" alt="Antes de la restauración" />
+                        <span class="slider-label">Original</span>
+                    </div>
+                    <div class="slider-image-container image-after">
+                        <img src="rsc/image_comparison.png" alt="Después de la restauración" />
+                        <span class="slider-label">Restaurado</span>
+                    </div>
+                    <div class="slider-handle-line"></div>
+                    <div class="slider-handle" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11 18h2v-5.5h3l-4-4-4 4h3V18zm-2 2v-1.5h6V20H9zm0-16.5V2H15v1.5H9z"/>
+                        </svg>
+                    </div>
                 </div>
-                <div class="slider-image-container image-after">
-                    <img src="rsc/image_comparison.png" alt="Después de la restauración" />
-                    <span class="slider-label">Restaurado</span>
-                </div>
-                <div class="slider-handle-line"></div>
-                <div class="slider-handle" aria-hidden="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M11 18h2v-5.5h3l-4-4-4 4h3V18zm-2 2v-1.5h6V20H9zm0-16.5V2H15v1.5H9z"/>
-                    </svg>
-                </div>
-            </div>
 
-            <div class="button-bar reveal" style="margin-top: 1.8rem">
-                <a
-                    href="https://github.com/Ivan-Ayub97/Warlock-Studio"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn primary"
-                >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z"></path>
-                    </svg>
-                    View on GitHub
-                </a>
-            </div>
-            
-            <div class="badges reveal" aria-hidden="true">
-                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700" alt="Build Status"/>
-                </a>
-                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white" alt="Version"/>
-                </a>
-                <a href="LICENSE" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="License"/>
-                </a>
-                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black" alt="Downloads"/>
-                </a>
-                <a href="#" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/badge/Platform-Windows%2011-0078D6?style=for-the-badge&logo=windows11&logoColor=white" alt="Platform"/>
-                </a>
-                <a href="https://www.python.org/" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700" alt="Python"/>
-                </a>
-                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/issues" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white" alt="Issues"/>
-                </a>
-                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main" target="_blank" rel="noopener">
-                    <img src="https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white" alt="Last Commit"/>
-                </a>
-            </div>
+                <div class="button-bar reveal" style="margin-top: 1.8rem">
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio" target="_blank" rel="noopener" class="btn primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z"></path>
+                        </svg>
+                        View on GitHub
+                    </a>
+                </div>
+                
+                <div class="badges reveal" aria-hidden="true">
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700" alt="Build Status"/></a>
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white" alt="Version"/></a>
+                    <a href="LICENSE" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="License"/></a>
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener"><img src="https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black" alt="Downloads"/></a>
+                    <a href="#" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Platform-Windows%2011-0078D6?style=for-the-badge&logo=windows11&logoColor=white" alt="Platform"/></a>
+                    <a href="https://www.python.org/" target="_blank" rel="noopener"><img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700" alt="Python"/></a>
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/issues" target="_blank" rel="noopener"><img src="https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white" alt="Issues"/></a>
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main" target="_blank" rel="noopener"><img src="https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white" alt="Last Commit"/></a>
+                </div>
 
-            <div class="hero-text reveal">
-                <p class="lead">
-                    Inspirado por herramientas de
-                    <a href="https://github.com/Djdefrag" target="_blank" rel="noopener">Djdefrag</a>
-                    como <strong>QualityScaler</strong> y <strong>FluidFrames</strong>,
-                    Warlock-Studio proporciona una plataforma unificada y de alto
-                    rendimiento para
-                    <strong>escalado, restauración, eliminación de ruido e
-                        interpolación de fotogramas</strong>.
+                <div class="hero-text reveal">
+                    <p class="lead">
+                        Inspirado por herramientas de <a href="https://github.com/Djdefrag" target="_blank" rel="noopener">Djdefrag</a> como <strong>QualityScaler</strong> y <strong>FluidFrames</strong>,
+                        Warlock-Studio proporciona una plataforma unificada y de alto rendimiento para
+                        <strong>escalado, restauración, eliminación de ruido e interpolación de fotogramas</strong>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="download">
+            <div class="content reveal" aria-labelledby="download-title">
+                <h2 id="download-title">Descargar Instalador</h2>
+                <p class="muted">
+                    Los instaladores y versiones se publican para Windows (64 bits).
+                </p>
+
+                <div class="download-links">
+                    <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5rem;">
+                        <div>
+                            <div class="sf-root" data-id="3880091" data-badge="oss-rising-star-black" data-metadata="achievement=oss-rising-star" style="width: 152px">
+                                <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank" rel="noopener">
+                                    <img src="rsc/oss-rising-star-black.svg" alt="Warlock-Studio on SourceForge" width="200" style="display: block; margin: auto; margin-bottom: 10px"/>
+                                </a>
+                                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe" target="_blank" rel="noopener" class="badge-link">
+                                    <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-bar">
+                        <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf" target="_blank" rel="noopener" class="btn ghost">
+                            Descargar Manual (PDF)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="previews">
+            <div class="content reveal" aria-labelledby="previews-title">
+                <h2 id="previews-title">Vistas Previas de la Interfaz</h2>
+                <div class="grid-2">
+                    <div class="media-trigger" data-type="image" data-src="rsc/Capture.png" tabindex="0" role="button" aria-label="Ampliar imagen de interfaz principal">
+                        <img src="rsc/Capture.png" alt="Vista previa de la interfaz principal" />
+                    </div>
+                    <div class="media-trigger" data-type="image" data-src="rsc/CaptureCONSOLE.png" tabindex="0" role="button" aria-label="Ampliar imagen de consola">
+                        <img src="rsc/CaptureCONSOLE.png" alt="Vista previa de la consola" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="comparison">
+            <div class="content reveal" aria-labelledby="comparison-title">
+                <h2 id="comparison-title">Comparación de Calidad</h2>
+                <p class="muted">
+                    Videos de demostración que muestran los resultados de restauración y escalado.
+                </p>
+
+                <div class="media-container grid-2"> <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22" tabindex="0" role="button" aria-label="Reproducir video de demostración 1">
+                        <video muted preload="metadata" playsinline>
+                            <source src="https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22#t=0.1" type="video/webm">
+                        </video>
+                    </div>
+                    <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2" tabindex="0" role="button" aria-label="Reproducir video de demostración 2">
+                        <video muted preload="metadata" playsinline>
+                             <source src="https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2#t=0.1" type="video/webm">
+                        </video>
+                    </div>
+
+                    </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="features">
+            <div class="content reveal" aria-labelledby="features-title">
+                <h2 id="features-title">Características Clave</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Escalado y Restauración IA</h3>
+                        <p>Utiliza modelos <strong>Real-ESRGAN, BSRGAN e IRCNN</strong> para eliminación de ruido, súper-resolución y recuperación de detalles.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Restauración Facial (GFPGAN)</h3>
+                        <p>Recupera detalles faciales de imágenes y fotogramas de video borrosos o de baja resolución.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Interpolación de Fotogramas (RIFE)</h3>
+                        <p>Suaviza el movimiento o genera contenido en cámara lenta con interpolación <strong>2×, 4× u 8×</strong>.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Aceleración por Hardware Avanzada</h3>
+                        <p>La selección inteligente de proveedores prioriza <strong>CUDA</strong>, recurre a <strong>DirectML</strong> y finalmente a <strong>CPU</strong>.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Procesamiento por Lotes</h3>
+                        <p>Procesa múltiples archivos multimedia simultáneamente, ahorrando tiempo y esfuerzo.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Código Abierto y Extensible</h3>
+                        <p>Con licencia MIT completa, para colaboradores y desarrolladores.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="requirements">
+            <div class="content reveal" aria-labelledby="requirements-title">
+                <h2 id="requirements-title">Requisitos del Sistema</h2>
+                <ul class="clean-list">
+                    <li><strong>SO:</strong> Windows 11 o superior (64 bits)</li>
+                    <li><strong>RAM:</strong> 8GB+ recomendado</li>
+                    <li><strong>GPU:</strong> Se recomienda GPU NVIDIA (para CUDA), AMD o Intel con controladores actualizados</li>
+                    <li><strong>Almacenamiento:</strong> Espacio libre suficiente para medios de entrada y procesados</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="models">
+            <div class="content reveal" aria-labelledby="models-title">
+                <h2 id="models-title">Comparación de Modelos</h2>
+                <p class="muted">
+                    Modelos comunes incluidos o compatibles con Warlock-Studio.
+                </p>
+                <div class="table-wrapper">
+                    <table aria-label="Comparación de Modelos">
+                        <thead>
+                            <tr>
+                                <th>Archivo de Modelo</th>
+                                <th>Caso de Uso</th>
+                                <th>Velocidad</th>
+                                <th>Calidad</th>
+                                <th>Notas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>GFPGANv1.4</strong></td>
+                                <td>Restauración facial</td>
+                                <td>Alta</td>
+                                <td>Alta</td>
+                                <td>Óptimo para retratos</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BSRGANx2</strong></td>
+                                <td>Escalado 2× + denoising</td>
+                                <td>Media</td>
+                                <td>Muy Alta</td>
+                                <td>Adecuado para medios ligeramente degradados</td>
+                            </tr>
+                            <tr>
+                                <td><strong>BSRGANx4</strong></td>
+                                <td>Escalado 4× + denoising</td>
+                                <td>Baja</td>
+                                <td>Muy Alta</td>
+                                <td>Para contenido muy degradado</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RIFE</strong></td>
+                                <td>Interpolación de fotogramas</td>
+                                <td>Alta</td>
+                                <td>Alta</td>
+                                <td>Soporte para cámara lenta y movimiento suave</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RealESRGANx4</strong></td>
+                                <td>Escalado general 4×</td>
+                                <td>Media</td>
+                                <td>Alta</td>
+                                <td>Rendimiento equilibrado</td>
+                            </tr>
+                            <tr>
+                                <td><strong>RealSRx4_Anime</strong></td>
+                                <td>Mejora de anime / line-art</td>
+                                <td>Media</td>
+                                <td>Alta</td>
+                                <td>Bordes nítidos para arte 2D</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IRCNN_L</strong></td>
+                                <td>Denoising ligero</td>
+                                <td>Alta</td>
+                                <td>Media</td>
+                                <td>Eliminación suave de artefactos</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="fullpage-section" id="contribute">
+            <div class="content reveal" aria-labelledby="contribute-title">
+                <h2 id="contribute-title">Contribuciones</h2>
+                <p class="muted">Aceptamos contribuciones de la comunidad:</p>
+                <ol>
+                    <li><strong>Fork</strong> del repositorio en <strong>GitHub.</strong></li>
+                    <li><strong>Crea una rama</strong> para tu característica o corrección de error.</li>
+                    <li><strong>Envía un Pull Request</strong> con una descripción detallada y notas de prueba.</li>
+                </ol>
+                <p style="margin-top: 1.5rem">
+                    Contacto:
+                    <a href="mailto:negroayub97@gmail.com">negroayub97@gmail.com</a>
                 </p>
             </div>
         </section>
 
-        <section id="download" class="content reveal" aria-labelledby="download-title">
-            <h2 id="download-title">Descargar Instalador</h2>
-            <p class="muted">
-                Los instaladores y versiones se publican para Windows (64 bits).
-            </p>
-
-            <div class="download-links">
-                <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5rem;">
-                    <div>
-                        <div class="sf-root" data-id="3880091" data-badge="oss-rising-star-black" data-metadata="achievement=oss-rising-star" style="width: 152px">
-                            <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank" rel="noopener">
-                                <img src="rsc/oss-rising-star-black.svg" alt="Warlock-Studio on SourceForge" width="200" style="display: block; margin: auto; margin-bottom: 10px"/>
-                            </a>
-                            <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe" target="_blank" rel="noopener" class="badge-link">
-                                <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" />
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="button-bar">
-                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf" target="_blank" rel="noopener" class="btn ghost">
-                        Descargar Manual (PDF)
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <section id="previews" class="content reveal" aria-labelledby="previews-title">
-            <h2 id="previews-title">Vistas Previas de la Interfaz</h2>
-            <div class="grid-2">
-                <div class="media-trigger" data-type="image" data-src="rsc/Capture.png" tabindex="0" role="button" aria-label="Ampliar imagen de interfaz principal">
-                    <img src="rsc/Capture.png" alt="Vista previa de la interfaz principal" />
-                </div>
-                <div class="media-trigger" data-type="image" data-src="rsc/CaptureCONSOLE.png" tabindex="0" role="button" aria-label="Ampliar imagen de consola">
-                    <img src="rsc/CaptureCONSOLE.png" alt="Vista previa de la consola" />
-                </div>
-            </div>
-        </section>
-
-        <section id="comparison" class="content reveal" aria-labelledby="comparison-title">
-            <h2 id="comparison-title">Comparación de Calidad</h2>
-            <p class="muted">
-                Muestras lado a lado y videos de demostración cortos que
-                muestran los resultados de restauración y escalado.
-            </p>
-
-            <div class="media-container">
-                <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22" tabindex="0" role="button" aria-label="Reproducir video de demostración 1">
-                    <img src="rsc/image_comparison.png" alt="Miniatura de video 1" /> </div>
-                <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2" tabindex="0" role="button" aria-label="Reproducir video de demostración 2">
-                    <img src="rsc/image_comparison.png" alt="Miniatura de video 2" /> </div>
-
-                <img src="rsc/image_comparison.png" alt="Comparación de imagen estática" />
-            </div>
-        </section>
-
-        <section id="features" class="content reveal" aria-labelledby="features-title">
-            <h2 id="features-title">Características Clave</h2>
-            
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h3>Escalado y Restauración IA</h3>
-                    <p>Utiliza modelos <strong>Real-ESRGAN, BSRGAN e IRCNN</strong> para eliminación de ruido, súper-resolución y recuperación de detalles.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Restauración Facial (GFPGAN)</h3>
-                    <p>Recupera detalles faciales de imágenes y fotogramas de video borrosos o de baja resolución.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Interpolación de Fotogramas (RIFE)</h3>
-                    <p>Suaviza el movimiento o genera contenido en cámara lenta con interpolación <strong>2×, 4× u 8×</strong>.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Aceleración por Hardware Avanzada</h3>
-                    <p>La selección inteligente de proveedores prioriza <strong>CUDA</strong>, recurre a <strong>DirectML</strong> y finalmente a <strong>CPU</strong> para máxima compatibilidad y rendimiento.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Procesamiento por Lotes</h3>
-                    <p>Procesa múltiples archivos multimedia simultáneamente, ahorrando tiempo y esfuerzo.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Flujos de Trabajo Personalizados</h3>
-                    <p>Control detallado sobre modelos, resolución, formatos de salida y parámetros de calidad.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Código Abierto y Extensible</h3>
-                    <p>Con licencia MIT completa, para colaboradores y desarrolladores.</p>
+        <section class="fullpage-section" id="license">
+            <div class="content reveal" aria-labelledby="license-title">
+                <h2 id="license-title">Licencia y Tecnologías</h2>
+                <h3>Tecnologías Integradas y Licencias</h3>
+                <div class="table-wrapper">
+                    <table aria-label="Tecnologías Integradas">
+                        <thead>
+                            <tr>
+                                <th>Tecnología</th>
+                                <th>Licencia</th>
+                                <th>Autor / Mantenedor</th>
+                                <th>Fuente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>QualityScaler</td>
+                                <td>MIT</td>
+                                <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
+                                <td><a href="https://github.com/Djdefrag/QualityScaler" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>FluidFrames</td>
+                                <td>MIT</td>
+                                <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
+                                <td><a href="https://github.com/Djdefrag/FluidFrames" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>Real-ESRGAN</td>
+                                <td>BSD 3-Clause / Apache</td>
+                                <td>Xintao Wang</td>
+                                <td><a href="https://github.com/xinntao/Real-ESRGAN" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>GFPGAN</td>
+                                <td>Apache 2.0</td>
+                                <td>TencentARC / Xintao Wang</td>
+                                <td><a href="https://github.com/TencentARC/GFPGAN" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>RIFE</td>
+                                <td>Apache 2.0</td>
+                                <td>hzwer</td>
+                                <td><a href="https://github.com/megvii-research/ECCV2022-RIFE" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>BSRGAN</td>
+                                <td>Apache 2.0</td>
+                                <td>Kai Zhang</td>
+                                <td><a href="https://github.com/cszn/BSRGAN" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>IRCNN</td>
+                                <td>BSD / Mixed</td>
+                                <td>Kai Zhang</td>
+                                <td><a href="https://github.com/cszn/IRCNN" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>ONNX Runtime</td>
+                                <td>MIT</td>
+                                <td>Microsoft</td>
+                                <td><a href="https://github.com/microsoft/onnxruntime" target="_blank">GitHub</a></td>
+                            </tr>
+                            <tr>
+                                <td>FFmpeg</td>
+                                <td>LGPL / GPL</td>
+                                <td>FFmpeg Team</td>
+                                <td><a href="https://ffmpeg.org/" target="_blank">ffmpeg.org</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
 
-        <section id="requirements" class="content reveal" aria-labelledby="requirements-title">
-            <h2 id="requirements-title">Requisitos del Sistema</h2>
-            <ul class="clean-list">
-                <li><strong>SO:</strong> Windows 11 o superior (64 bits)</li>
-                <li><strong>RAM:</strong> 8GB+ recomendado</li>
-                <li><strong>GPU:</strong> Se recomienda GPU NVIDIA (para CUDA), AMD o Intel con controladores actualizados</li>
-                <li><strong>Almacenamiento:</strong> Espacio libre suficiente para medios de entrada y procesados</li>
-            </ul>
-        </section>
-
-        <section id="models" class="content reveal" aria-labelledby="models-title">
-            <h2 id="models-title">Comparación de Modelos</h2>
-            <p class="muted">
-                Modelos comunes incluidos o compatibles con Warlock-Studio y
-                sus casos de uso típicos.
-            </p>
-
-            <div class="table-wrapper">
-                <table aria-label="Comparación de Modelos">
-                    <thead>
-                        <tr>
-                            <th>Archivo de Modelo</th>
-                            <th>Caso de Uso</th>
-                            <th>Velocidad</th>
-                            <th>Calidad</th>
-                            <th>Notas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>GFPGANv1.4</strong></td>
-                            <td>Restauración facial</td>
-                            <td>Alta</td>
-                            <td>Alta</td>
-                            <td>Óptimo para retratos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>BSRGANx2</strong></td>
-                            <td>Escalado 2× + denoising</td>
-                            <td>Media</td>
-                            <td>Muy Alta</td>
-                            <td>Adecuado para medios ligeramente degradados</td>
-                        </tr>
-                        <tr>
-                            <td><strong>BSRGANx4</strong></td>
-                            <td>Escalado 4× + denoising</td>
-                            <td>Baja</td>
-                            <td>Muy Alta</td>
-                            <td>Para contenido muy degradado</td>
-                        </tr>
-                        <tr>
-                            <td><strong>RIFE</strong></td>
-                            <td>Interpolación de fotogramas</td>
-                            <td>Alta</td>
-                            <td>Alta</td>
-                            <td>Soporte para cámara lenta y movimiento suave</td>
-                        </tr>
-                        <tr>
-                            <td><strong>RIFE-Lite</strong></td>
-                            <td>Interpolación ligera</td>
-                            <td>Muy Alta</td>
-                            <td>Media</td>
-                            <td>Más rápido, menor uso de recursos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>RealESRGANx4</strong></td>
-                            <td>Escalado general 4×</td>
-                            <td>Media</td>
-                            <td>Alta</td>
-                            <td>Rendimiento equilibrado</td>
-                        </tr>
-                        <tr>
-                            <td><strong>RealESRNetx4</strong></td>
-                            <td>Restauración sutil</td>
-                            <td>Media</td>
-                            <td>Alta</td>
-                            <td>Conserva la textura natural de la imagen</td>
-                        </tr>
-                        <tr>
-                            <td><strong>RealSRx4_Anime</strong></td>
-                            <td>Mejora de anime / line-art</td>
-                            <td>Media</td>
-                            <td>Alta</td>
-                            <td>Bordes nítidos para arte 2D</td>
-                        </tr>
-                        <tr>
-                            <td><strong>IRCNN_L</strong></td>
-                            <td>Denoising ligero</td>
-                            <td>Alta</td>
-                            <td>Media</td>
-                            <td>Eliminación suave de artefactos</td>
-                        </tr>
-                        <tr>
-                            <td><strong>IRCNN_M</strong></td>
-                            <td>Denoising medio</td>
-                            <td>Alta</td>
-                            <td>Media</td>
-                            <td>Limpieza de artefactos más fuerte</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <footer class="site-footer">
+            <div class="footer-inner">
+                <p>
+                    Copyright © 2024
+                    <a href="httpshttps://github.com/Ivan-Ayub97" target="_blank" rel="noopener">Iván Ayub</a>.
+                    Warlock-Studio es un proyecto de código abierto bajo la
+                    <a href="LICENSE" target="_blank" rel="noopener">Licencia MIT</a>.
+                </p>
             </div>
-        </section>
+        </footer>
 
-        <section id="contribute" class="content reveal" aria-labelledby="contribute-title">
-            <h2 id="contribute-title">Contribuciones</h2>
-            <p class="muted">Aceptamos contribuciones de la comunidad:</p>
-            <ol>
-                <li><strong>Fork</strong> del repositorio en <strong>GitHub.</strong></li>
-                <li><strong>Crea una rama</strong> para tu característica o corrección de error.</li>
-                <li><strong>Envía un Pull Request</strong> con una descripción detallada y notas de prueba.</li>
-            </ol>
-            <p style="margin-top: 1.5rem">
-                Contacto:
-                <a href="mailto:negroayub97@gmail.com">negroayub97@gmail.com</a>
-            </p>
-        </section>
-
-        <section id="license" class="content reveal" aria-labelledby="license-title">
-            <h2 id="license-title">Licencia y Tecnologías</h2>
-            <h3>Tecnologías Integradas y Licencias</h3>
-            <div class="table-wrapper">
-                <table aria-label="Tecnologías Integradas">
-                    <thead>
-                        <tr>
-                            <th>Tecnología</th>
-                            <th>Licencia</th>
-                            <th>Autor / Mantenedor</th>
-                            <th>Fuente</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>QualityScaler</td>
-                            <td>MIT</td>
-                            <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
-                            <td><a href="https://github.com/Djdefrag/QualityScaler" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>FluidFrames</td>
-                            <td>MIT</td>
-                            <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
-                            <td><a href="https://github.com/Djdefrag/FluidFrames" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>Real-ESRGAN</td>
-                            <td>BSD 3-Clause / Apache</td>
-                            <td>Xintao Wang</td>
-                            <td><a href="https://github.com/xinntao/Real-ESRGAN" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>GFPGAN</td>
-                            <td>Apache 2.0</td>
-                            <td>TencentARC / Xintao Wang</td>
-                            <td><a href="https://github.com/TencentARC/GFPGAN" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>RIFE</td>
-                            <td>Apache 2.0</td>
-                            <td>hzwer</td>
-                            <td><a href="https://github.com/megvii-research/ECCV2022-RIFE" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>BSRGAN</td>
-                            <td>Apache 2.0</td>
-                            <td>Kai Zhang</td>
-                            <td><a href="https://github.com/cszn/BSRGAN" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>IRCNN</td>
-                            <td>BSD / Mixed</td>
-                            <td>Kai Zhang</td>
-                            <td><a href="https://github.com/cszn/IRCNN" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>ONNX Runtime</td>
-                            <td>MIT</td>
-                            <td>Microsoft</td>
-                            <td><a href="https://github.com/microsoft/onnxruntime" target="_blank">GitHub</a></td>
-                        </tr>
-                        <tr>
-                            <td>FFmpeg</td>
-                            <td>LGPL / GPL</td>
-                            <td>FFmpeg Team</td>
-                            <td><a href="https://ffmpeg.org/" target="_blank">ffmpeg.org</a></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
     </main>
 
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <p>
-                Copyright © 2024
-                <a href="httpshttps://github.com/Ivan-Ayub97" target="_blank" rel="noopener">Iván Ayub</a>.
-                Warlock-Studio es un proyecto de código abierto bajo la
-                <a href="LICENSE" target="_blank" rel="noopener">Licencia MIT</a>.
-            </p>
-        </div>
-    </footer>
-
-    <a href="#home" id="scroll-to-top" aria-label="Volver arriba">↑</a>
+    <a id="scroll-to-top" aria-label="Volver arriba">↑</a>
 
     <div id="media-modal">
         <div class="modal-content-wrapper">
-            <a href="#" id="modal-close" aria-label="Cerrar modal">&times;</a>
+            <a href="#" id="modal-close" aria-label="Cerrar modal" role="button">&times;</a>
             <div id="modal-content">
                 </div>
         </div>
@@ -1335,37 +1245,41 @@
         document.addEventListener("DOMContentLoaded", () => {
             
             const body = document.body;
+            const mainContainer = document.querySelector('main.fullpage-container');
+            const header = document.querySelector(".site-header");
+            const scrollToTopBtn = document.getElementById("scroll-to-top");
+            const navLinks = document.querySelectorAll("nav.primary-nav a");
 
             /**
              * -----------------------------------------------------------------
-             * Lógica del Encabezado Dinámico (Sombra al hacer scroll)
+             * Lógica de Scroll (Header Dinámico y Botón "Volver Arriba")
              * -----------------------------------------------------------------
              */
-            const header = document.querySelector(".site-header");
-            const scrollToTopBtn = document.getElementById("scroll-to-top");
-
             const handleScroll = () => {
+                // El scroll es ahora del 'mainContainer', no de 'window'
+                const scrollTop = mainContainer.scrollTop;
+
                 // Efecto del encabezado
-                if (window.scrollY > 10) {
+                if (scrollTop > 10) {
                     header.classList.add("scrolled");
                 } else {
                     header.classList.remove("scrolled");
                 }
 
                 // Botón "Volver Arriba"
-                if (window.scrollY > 300) {
+                if (scrollTop > 300) {
                     scrollToTopBtn.classList.add("active");
                 } else {
                     scrollToTopBtn.classList.remove("active");
                 }
             };
             
-            window.addEventListener("scroll", handleScroll, { passive: true });
+            mainContainer.addEventListener("scroll", handleScroll, { passive: true });
             
             // Clic en "Volver Arriba"
             scrollToTopBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                mainContainer.scrollTo({ top: 0, behavior: "smooth" });
             });
 
 
@@ -1385,6 +1299,34 @@
                     hamburger.setAttribute("aria-expanded", isExpanded);
                 });
             }
+            
+            /**
+             * -----------------------------------------------------------------
+             * Lógica de Navegación (Scroll-Snap)
+             * -----------------------------------------------------------------
+             */
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const href = link.getAttribute('href');
+                    const targetSection = document.querySelector(href);
+                    
+                    if (targetSection) {
+                        mainContainer.scrollTo({
+                            top: targetSection.offsetTop,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Cerrar menú móvil al hacer clic
+                        if (nav.classList.contains('active')) {
+                            hamburger.classList.remove('active');
+                            nav.classList.remove('active');
+                            hamburger.setAttribute('aria-expanded', false);
+                        }
+                    }
+                });
+            });
+
 
             /**
              * -----------------------------------------------------------------
@@ -1392,7 +1334,6 @@
              * -----------------------------------------------------------------
              */
             const slider = document.getElementById("hero-slider");
-
             if (slider) {
                 const handle = slider.querySelector(".slider-handle");
                 const line = slider.querySelector(".slider-handle-line");
@@ -1405,29 +1346,21 @@
                 const onDrag = (e) => {
                     if (!isDragging) return;
                     e.preventDefault();
-                    
                     const x = e.clientX || (e.touches && e.touches[0].clientX);
                     if (x === undefined) return;
-                    
                     const rect = slider.getBoundingClientRect();
                     let newWidth = x - rect.left;
-
                     if (newWidth < 0) newWidth = 0;
                     if (newWidth > rect.width) newWidth = rect.width;
-
                     const percent = (newWidth / rect.width) * 100;
-                    
                     imageAfter.style.width = percent + "%";
                     handle.style.left = percent + "%";
                     line.style.left = percent + "%";
                 };
-
-                // Eventos de Mouse
+                
                 slider.addEventListener("mousedown", startDrag);
                 document.addEventListener("mouseup", stopDrag);
                 document.addEventListener("mousemove", onDrag);
-                
-                // Eventos Táctiles
                 slider.addEventListener("touchstart", startDrag, { passive: false });
                 document.addEventListener("touchend", stopDrag);
                 document.addEventListener("touchmove", onDrag, { passive: false });
@@ -1441,27 +1374,26 @@
             
             // --- 1. Animaciones al revelar elementos ---
             const revealElements = document.querySelectorAll(".reveal, .feature-card");
-            
             const revealObserver = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add("visible");
-                        observer.unobserve(entry.target); // Dejar de observar una vez visible
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.1 });
-
-            revealElements.forEach(el => {
-                revealObserver.observe(el);
+            }, { 
+                root: mainContainer, // Observar dentro del 'main' scrolleable
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
             });
+            revealElements.forEach(el => { revealObserver.observe(el); });
 
             // --- 2. "Scroll Spy" para la Navegación ---
-            const sections = document.querySelectorAll("section[id]");
-            const navLinks = document.querySelectorAll("nav.primary-nav a");
-
+            const sections = document.querySelectorAll("section.fullpage-section");
             const spyObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    if (entry.isIntersecting) {
+                    // Usar un ratio > 0.5 asegura que la sección que ocupa la mayor parte de la pantalla sea la activa
+                    if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
                         const id = entry.target.getAttribute("id");
                         navLinks.forEach(link => {
                             link.classList.remove("active");
@@ -1472,63 +1404,10 @@
                     }
                 });
             }, { 
-                rootMargin: "-40% 0px -60% 0px",
-                threshold: 0 
+                root: mainContainer, // Observar dentro del 'main'
+                threshold: 0.5 // Activar cuando el 50% de la sección es visible
             });
-
-            sections.forEach(section => {
-                spyObserver.observe(section);
-            });
-
-
-            /**
-             * -----------------------------------------------------------------
-             * Lógica del Cursor Personalizado
-             * -----------------------------------------------------------------
-             */
-            const cursorDot = document.getElementById('custom-cursor-dot');
-            const cursorOutline = document.getElementById('custom-cursor-outline');
-            let mouseX = 0, mouseY = 0;
-            let dotX = 0, dotY = 0;
-            let outlineX = 0, outlineY = 0;
-            
-            // No ejecutar en táctil
-            if (!('ontouchstart' in window)) {
-                window.addEventListener('mousemove', (e) => {
-                    mouseX = e.clientX;
-                    mouseY = e.clientY;
-                });
-
-                const animateCursor = () => {
-                    // Dot sigue directamente
-                    dotX = mouseX;
-                    dotY = mouseY;
-                    
-                    // Outline sigue con un "easing" (retraso)
-                    outlineX += (mouseX - outlineX) * 0.15;
-                    outlineY += (mouseY - outlineY) * 0.15;
-                    
-                    cursorDot.style.transform = `translate(${dotX}px, ${dotY}px)`;
-                    cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px)`;
-                    
-                    requestAnimationFrame(animateCursor);
-                };
-                requestAnimationFrame(animateCursor);
-
-                // Añadir clase "interactive" al body cuando se pasa sobre elementos
-                const interactiveElements = document.querySelectorAll(
-                    'a, button, .slider-handle, .media-trigger, .hamburger'
-                );
-                
-                interactiveElements.forEach(el => {
-                    el.addEventListener('mouseenter', () => body.classList.add('cursor-interactive'));
-                    el.addEventListener('mouseleave', () => body.classList.remove('cursor-interactive'));
-                });
-            } else {
-                // Ocultar cursores si es táctil
-                cursorDot.style.display = 'none';
-                cursorOutline.style.display = 'none';
-            }
+            sections.forEach(section => { spyObserver.observe(section); });
 
 
             /**
@@ -1542,7 +1421,7 @@
             const mediaTriggers = document.querySelectorAll(".media-trigger");
 
             const openModal = (type, src) => {
-                modalContent.innerHTML = ''; // Limpiar contenido anterior
+                modalContent.innerHTML = ''; // Limpiar
                 if (type === 'image') {
                     const img = document.createElement('img');
                     img.src = src;
@@ -1561,22 +1440,16 @@
 
             const closeModal = () => {
                 modal.classList.remove("active");
-                modalContent.innerHTML = ''; // Detener video/limpiar imagen
+                modalContent.innerHTML = ''; // Detiene el video
             };
 
             mediaTriggers.forEach(trigger => {
                 trigger.addEventListener("click", () => {
-                    const type = trigger.dataset.type;
-                    const src = trigger.dataset.src;
-                    openModal(type, src);
+                    openModal(trigger.dataset.type, trigger.dataset.src);
                 });
-                
-                // Accesibilidad: Abrir con tecla Enter
                 trigger.addEventListener("keydown", (e) => {
                     if (e.key === "Enter") {
-                        const type = trigger.dataset.type;
-                        const src = trigger.dataset.src;
-                        openModal(type, src);
+                        openModal(trigger.dataset.type, trigger.dataset.src);
                     }
                 });
             });
@@ -1585,113 +1458,14 @@
                 e.preventDefault();
                 closeModal();
             });
-
-            // Cerrar al hacer clic fuera del contenido (en el overlay)
             modal.addEventListener("click", (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
+                if (e.target === modal) { closeModal(); }
             });
-            
-            // Cerrar con la tecla "Escape"
             document.addEventListener("keydown", (e) => {
                 if (e.key === "Escape" && modal.classList.contains("active")) {
                     closeModal();
                 }
             });
-
-            /**
-             * -----------------------------------------------------------------
-             * Lógica del Fondo de Partículas (Canvas)
-             * -----------------------------------------------------------------
-             */
-            const canvas = document.getElementById('particle-canvas');
-            if (canvas && !('ontouchstart' in window)) { // No ejecutar en táctil
-                const ctx = canvas.getContext('2d');
-                let particles = [];
-                let mouse = { x: null, y: null, radius: 100 };
-                
-                window.addEventListener('mousemove', (e) => {
-                    mouse.x = e.clientX;
-                    mouse.y = e.clientY;
-                });
-                window.addEventListener('mouseout', () => {
-                    mouse.x = null;
-                    mouse.y = null;
-                });
-
-                class Particle {
-                    constructor(x, y, dirX, dirY, size, color) {
-                        this.x = x;
-                        this.y = y;
-                        this.dirX = dirX;
-                        this.dirY = dirY;
-                        this.size = size;
-                        this.color = color;
-                    }
-                    
-                    draw() {
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                        ctx.fillStyle = this.color;
-                        ctx.fill();
-                    }
-                    
-                    update() {
-                        if (this.x > canvas.width || this.x < 0) this.dirX = -this.dirX;
-                        if (this.y > canvas.height || this.y < 0) this.dirY = -this.dirY;
-
-                        // Interacción con el ratón
-                        let dx = mouse.x - this.x;
-                        let dy = mouse.y - this.y;
-                        let distance = Math.sqrt(dx*dx + dy*dy);
-                        if (distance < mouse.radius) {
-                            if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 1;
-                            if (mouse.x > this.x && this.x > this.size * 10) this.x -= 1;
-                            if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 1;
-                            if (mouse.y > this.y && this.y > this.size * 10) this.y -= 1;
-                        }
-
-                        this.x += this.dirX;
-                        this.y += this.dirY;
-                        this.draw();
-                    }
-                }
-
-                function init() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    particles = [];
-                    let numParticles = (canvas.width * canvas.height) / 9000;
-                    for (let i=0; i < numParticles; i++) {
-                        let size = Math.random() * 0.5 + 0.5;
-                        let x = Math.random() * (canvas.width - size * 2) + size;
-                        let y = Math.random() * (canvas.height - size * 2) + size;
-                        let dirX = (Math.random() * 0.4) - 0.2;
-                        let dirY = (Math.random() * 0.4) - 0.2;
-                        let color = 'rgba(255, 215, 0, 0.3)'; // Color dorado
-                        particles.push(new Particle(x, y, dirX, dirY, size, color));
-                    }
-                }
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    for (let i=0; i < particles.length; i++) {
-                        particles[i].update();
-                    }
-                }
-
-                window.addEventListener('resize', () => {
-                    clearTimeout(window.resizeTimer);
-                    window.resizeTimer = setTimeout(init, 100);
-                });
-
-                init();
-                animate();
-            } else if (canvas) {
-                canvas.style.display = 'none'; // Ocultar canvas en móvil
-            }
 
         });
     </script>
