@@ -1,1256 +1,1699 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<html lang="es">
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Warlock-Studio — AI Upscale & Restoration Platform</title>
+    <title>Warlock-Studio — Plataforma de Escalado y Restauración IA</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Oswald:wght@400;700&display=swap"
-      rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Oswald:wght@400;700&display=swap"
+        rel="stylesheet"
     />
 
     <meta
-      name="description"
-      content="Warlock-Studio — High-performance unified platform for AI upscaling, restoration, denoising and frame interpolation."
+        name="description"
+        content="Warlock-Studio — Plataforma unificada de alto rendimiento para escalado, restauración, eliminación de ruido e interpolación de fotogramas por IA."
     />
 
     <style>
-      /* ============================================================
-    WARLOCK-STUDIO — Banner Theme (Red, Gold, Silver)
-    ============================================================ */
+        /* ============================================================
+        WARLOCK-STUDIO — Tema "Arcane Tech" v2 (Interactivo Avanzado)
+        ============================================================ */
 
-      /* === Color & Font Variables === */
-      :root {
-        --bg: #111111;
-        --panel: #1c1c1c;
-        --text: #e0e0e0; /* Silver from "Studio" */
-        --muted: #a0a0a0;
-        --gold: #ffd700; /* Gold from logo */
-        --gold-light: #f0e68c;
-        --red: #b31b1b; /* Red from "Warlock" */
-        --silver: #d0d0d0; /* Silver from "Studio" */
-        --border: rgba(255, 255, 255, 0.08);
-        --shadow: 0 10px 35px rgba(0, 0, 0, 0.75);
-        --glass: rgba(255, 255, 255, 0.02);
-        --glow: 0 0 14px rgba(255, 215, 0, 0.25);
-        --font-ui: "Roboto", system-ui, sans-serif;
-        --font-headings: "Oswald", sans-serif;
-        --max-width: 1200px;
-      }
-
-      /* === Global Reset === */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      html {
-        scroll-behavior: smooth;
-      }
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family: var(--font-ui);
-        line-height: 1.65;
-        -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
-      }
-
-      /* === Header === */
-      header.site-header {
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        background: rgba(17, 17, 17, 0.8); /* Darker bg */
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid var(--border);
-      }
-
-      .nav-inner {
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0.8rem 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        text-decoration: none;
-      }
-
-      .brand .title {
-        font-family: var(--font-headings);
-        letter-spacing: 1px;
-        font-weight: 700;
-        font-size: 1.5rem; /* Larger */
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-        color: var(--red); /* "Warlock" color */
-      }
-      .brand .title span {
-        color: var(--silver); /* "Studio" color */
-      }
-
-      /* === Navigation === */
-      nav.primary-nav {
-        display: flex;
-        gap: 0.5rem;
-      }
-      nav.primary-nav a {
-        color: var(--muted);
-        font-family: var(--font-headings);
-        font-weight: 400; /* Oswald 400 */
-        font-size: 1rem;
-        text-decoration: none;
-        padding: 0.5rem 0.7rem;
-        border-radius: 8px;
-        transition: all 220ms ease;
-        text-transform: uppercase;
-      }
-      nav.primary-nav a:hover {
-        color: var(--gold);
-        background: var(--glass);
-        transform: translateY(-2px);
-      }
-
-      /* === Mobile Menu === */
-      .hamburger {
-        display: none;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
-        background: var(--glass);
-        border: 1px solid var(--border);
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-      }
-      .hamburger .bar {
-        width: 20px;
-        height: 2px;
-        background: var(--gold);
-        border-radius: 2px;
-        position: relative;
-      }
-      .hamburger .bar::before,
-      .hamburger .bar::after {
-        content: "";
-        position: absolute;
-        width: 20px;
-        height: 2px;
-        left: 0;
-        background: var(--gold);
-        border-radius: 2px;
-      }
-      .hamburger .bar::before {
-        top: -6px;
-      }
-      .hamburger .bar::after {
-        top: 6px;
-      }
-
-      /* === Main Container === */
-      .container {
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1rem;
-        /* Global Centering */
-        text-align: center;
-      }
-
-      /* === Hero Banner === */
-      .hero {
-        padding: 2rem 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1.8rem;
-        text-align: center;
-      }
-
-      .hero-banner {
-        width: 100%;
-        max-width: 1080px;
-        border-radius: 14px;
-        overflow: hidden;
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow);
-      }
-      .hero-banner img {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
-
-      .hero-text {
-        max-width: 800px;
-      }
-      .hero-text h1 {
-        font-family: var(--font-headings);
-        font-size: 2.8rem;
-        letter-spacing: 0.8px;
-        color: var(--red); /* "Warlock" */
-      }
-      .hero-text h1 span {
-        color: var(--silver); /* "Studio" */
-      }
-
-      .hero-text p.lead {
-        color: var(--text);
-        font-size: 1.15rem;
-        margin-top: 0.6rem;
-      }
-      .hero-text p.lead strong {
-        color: var(--gold);
-      }
-      .hero-text p.lead a {
-        color: var(--gold-light);
-        text-decoration: none;
-      }
-      .hero-text p.lead a:hover {
-        text-decoration: underline;
-      }
-
-      /* === Badges === */
-      .badges {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-        margin-top: 1.5rem;
-      }
-      .badges img {
-        transition: transform 200ms ease;
-      }
-      .badges img:hover {
-        transform: scale(1.05);
-      }
-
-      /* === Content Sections === */
-      section.content {
-        padding: 3rem 0;
-        border-bottom: 1px solid var(--border);
-        /* Center content blocks */
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      section.content:last-of-type {
-        border-bottom: none;
-      }
-      .content h2 {
-        font-family: var(--font-headings);
-        font-size: 2.2rem;
-        color: var(--gold);
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-      }
-      .content h3 {
-        font-family: var(--font-headings);
-        font-size: 1.5rem;
-        color: var(--silver);
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-      }
-      .content p,
-      .content .muted {
-        color: var(--muted);
-        font-size: 1.05rem;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .content p a {
-        color: var(--gold);
-        text-decoration: none;
-      }
-      .content p a:hover {
-        text-decoration: underline;
-      }
-
-      /* === Lists (Override Centering) === */
-      .content ul,
-      .content ol {
-        margin-left: 1.5rem;
-        padding-left: 0.5rem;
-        margin-top: 1rem;
-        text-align: left; /* Override */
-      }
-      .content li {
-        margin-bottom: 0.5rem;
-        color: var(--muted);
-      }
-      .content li strong {
-        color: var(--text);
-      }
-      .clean-list {
-        list-style: none;
-        margin-left: 0;
-        padding-left: 0;
-      }
-      .clean-list li {
-        position: relative;
-        padding-left: 1.7rem;
-        margin-bottom: 0.8rem;
-      }
-      .clean-list li::before {
-        content: "◈";
-        position: absolute;
-        left: 0;
-        top: 0.05em;
-        color: var(--gold);
-        font-weight: 700;
-        font-size: 1.1rem;
-      }
-
-      /* === Buttons === */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.6rem;
-        padding: 0.7rem 1.3rem;
-        border-radius: 10px;
-        font-family: var(--font-headings);
-        font-weight: 700;
-        font-size: 1rem;
-        text-decoration: none;
-        transition: all 200ms ease;
-        border: 1px solid transparent;
-        cursor: pointer;
-        text-transform: uppercase;
-      }
-      .btn.primary {
-        background: var(--red);
-        color: var(--text);
-        border: 1px solid var(--red);
-        box-shadow: 0 0 20px rgba(179, 27, 27, 0.25);
-      }
-      .btn.primary:hover {
-        background: var(--gold);
-        color: var(--bg);
-        border-color: var(--gold);
-        box-shadow: var(--glow);
-        transform: translateY(-2px);
-      }
-      .btn.ghost {
-        background: transparent;
-        color: var(--silver);
-        border: 1px solid var(--silver);
-      }
-      .btn.ghost:hover {
-        color: var(--gold);
-        border-color: var(--gold);
-        background: var(--glass);
-        transform: translateY(-2px);
-      }
-      .button-bar {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-top: 1.5rem;
-        align-items: center;
-        justify-content: center; /* Center buttons */
-      }
-      .btn svg {
-        opacity: 0.9;
-      }
-
-      /* === Download Area Specifics === */
-      .download-links {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-      }
-      .download-links .badge-link img {
-        max-width: 200px;
-        transition: transform 200ms ease;
-      }
-      .download-links .badge-link:hover img {
-        transform: scale(1.05);
-      }
-
-      /* === Image/Video Grids === */
-      .grid-2 {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-      }
-      .grid-2 img {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow);
-      }
-      .media-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-        align-items: center;
-      }
-      .media-container video,
-      .media-container img {
-        max-width: 100%;
-        width: 100%;
-        max-width: 900px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow);
-      }
-
-      /* === Tables (Override Centering) === */
-      .table-wrapper {
-        overflow-x: auto;
-        margin-top: 1.5rem;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        background: var(--panel);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-        text-align: left; /* Override */
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      table th,
-      table td {
-        padding: 0.9rem 1.1rem;
-        border-bottom: 1px solid var(--border);
-        vertical-align: top;
-        font-size: 0.95rem;
-      }
-      table th {
-        background: var(--glass);
-        font-family: var(--font-headings);
-        letter-spacing: 0.5px;
-        font-weight: 700;
-        color: var(--red); /* Red headers */
-      }
-      table tbody tr:last-child td {
-        border-bottom: 0;
-      }
-      table tbody tr {
-        transition: background 150ms ease;
-      }
-      table tbody tr:hover {
-        background: rgba(255, 255, 255, 0.03);
-      }
-      table td {
-        color: var(--muted);
-      }
-      table td strong {
-        color: var(--text);
-      }
-      table td a {
-        color: var(--muted);
-        text-decoration: none;
-      }
-      table td a:hover {
-        color: var(--gold);
-        text-decoration: underline;
-      }
-
-      /* === Code (Override Centering) === */
-      /* Special override for structure section */
-      #structure {
-        max-width: 1200px; /* Wider */
-        text-align: left; /* Override */
-      }
-      #structure p {
-        text-align: left; /* Override */
-      }
-      pre {
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 1.2rem;
-        overflow-x: auto;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 0.9rem;
-        line-height: 1.5;
-        margin-top: 1.5rem;
-        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
-        color: #b3cce6;
-        text-align: left; /* Override */
-      }
-      pre code {
-        font-family: inherit;
-        text-align: left; /* Override */
-      }
-
-      /* === Footer === */
-      footer.site-footer {
-        border-top: 1px solid var(--border);
-        margin-top: 3rem;
-        padding: 2rem 1rem;
-        color: var(--muted);
-        font-size: 0.9rem;
-      }
-      footer .footer-inner {
-        max-width: var(--max-width);
-        margin: 0 auto;
-        text-align: center;
-      }
-      footer a {
-        color: var(--gold);
-        text-decoration: none;
-      }
-      footer a:hover {
-        text-decoration: underline;
-      }
-
-      /* === Responsive === */
-      @media (max-width: 920px) {
-        nav.primary-nav {
-          display: none;
+        /* === Variables de Color y Fuente === */
+        :root {
+            --bg: #111111;
+            --panel: #1c1c1c;
+            --panel-glass: rgba(28, 28, 28, 0.75);
+            --text: #e0e0e0;
+            --muted: #a0a0a0;
+            --gold: #ffd700;
+            --gold-light: #f0e68c;
+            --red: #b31b1b;
+            --silver: #d0d0d0;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 10px 35px rgba(0, 0, 0, 0.75);
+            --glass: rgba(255, 255, 255, 0.02);
+            --glow: 0 0 14px rgba(255, 215, 0, 0.25);
+            --glow-red: 0 0 20px rgba(179, 27, 27, 0.25);
+            --font-ui: "Roboto", system-ui, sans-serif;
+            --font-headings: "Oswald", sans-serif;
+            --max-width: 1200px;
+            --header-height: 65px;
         }
-        .hamburger {
-          display: flex;
+
+        /* === Reseteo Global y Scrollbar Personalizado === */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        .hero-text h1 {
-          font-size: 2.2rem;
+
+        html {
+            scroll-behavior: smooth;
         }
-        .content h2 {
-          font-size: 1.8rem;
+        
+        /* Scrollbar Personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
         }
-      }
-      @media (max-width: 520px) {
-        .hero-text h1 {
-          font-size: 1.8rem;
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
         }
-        .hero-text p.lead {
-          font-size: 1rem;
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--panel);
+            border-radius: 10px;
+            border: 2px solid var(--bg);
         }
-        .content p,
-        .content .muted {
-          font-size: 0.95rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--red);
         }
-        .btn {
-          width: 100%;
-          justify-content: center;
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-ui);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            position: relative;
         }
-        .grid-2 {
-          grid-template-columns: 1fr;
+
+        /* Ocultar cursor nativo - Reemplazado por JS */
+        body, a, button, .slider-handle, .media-trigger {
+            cursor: none;
+        }
+
+        /* === Fondo de Partículas (Canvas) === */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* === Cursor Personalizado === */
+        #custom-cursor-dot, #custom-cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition-property: transform, opacity, background-color, border-color, width, height;
+            transition-timing-function: ease-out;
+        }
+
+        #custom-cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--gold);
+            transition-duration: 0.1s;
+        }
+
+        #custom-cursor-outline {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--gold);
+            opacity: 0.7;
+            transition-duration: 0.2s;
+        }
+        
+        /* Estado "interactivo" del cursor */
+        body.cursor-interactive #custom-cursor-dot {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        body.cursor-interactive #custom-cursor-outline {
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 1;
+            border-color: var(--red);
+        }
+
+        /* === Estilos de Selección === */
+        ::selection {
+            background: var(--gold);
+            color: var(--bg);
+        }
+
+        /* === Encabezado Fijo y "Glassmorphism" === */
+        header.site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: var(--header-height);
+            transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            /* Inicia transparente */
+            background: transparent;
+            border-bottom: 1px solid transparent;
+        }
+        /* Estado "scrolled" (añadido por JS) */
+        header.site-header.scrolled {
+            background: var(--panel-glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            height: 100%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
         }
         .brand .title {
-          font-size: 1.2rem;
+            font-family: var(--font-headings);
+            letter-spacing: 1px;
+            font-weight: 700;
+            font-size: 1.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            color: var(--red);
+            transition: transform 0.3s ease;
         }
-      }
+        .brand .title span {
+            color: var(--silver);
+        }
+        .brand:hover .title {
+            transform: scale(1.05);
+        }
+
+        /* === Navegación === */
+        nav.primary-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+        nav.primary-nav a {
+            color: var(--muted);
+            font-family: var(--font-headings);
+            font-weight: 400;
+            font-size: 1rem;
+            text-decoration: none;
+            padding: 0.5rem 0.7rem;
+            border-radius: 8px;
+            transition: all 220ms ease;
+            text-transform: uppercase;
+            position: relative;
+        }
+        nav.primary-nav a:hover {
+            color: var(--gold);
+            background: var(--glass);
+        }
+        nav.primary-nav a.active {
+            color: var(--gold);
+            text-shadow: var(--glow);
+        }
+        nav.primary-nav a.active::after {
+            content: "";
+            position: absolute;
+            bottom: 2px;
+            left: 0.7rem;
+            right: 0.7rem;
+            height: 2px;
+            background: var(--gold);
+        }
+
+        /* === Menú Móvil === */
+        .hamburger {
+            display: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+            transition: background 0.2s ease;
+        }
+        .hamburger:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .hamburger .bar {
+            width: 20px;
+            height: 2px;
+            background: var(--gold);
+            border-radius: 2px;
+            position: relative;
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger .bar::before,
+        .hamburger .bar::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            left: 0;
+            background: var(--gold);
+            border-radius: 2px;
+            transition: all 0.3s ease-in-out;
+        }
+        .hamburger .bar::before { top: -6px; }
+        .hamburger .bar::after { top: 6px; }
+
+        .hamburger.active .bar { background: transparent; }
+        .hamburger.active .bar::before { transform: rotate(45deg); top: 0; }
+        .hamburger.active .bar::after { transform: rotate(-45deg); top: 0; }
+
+        /* === Contenedor Principal === */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1rem;
+            text-align: center;
+        }
+
+        /* === Hero Banner (Deslizador Interactivo) === */
+        .hero {
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.8rem;
+            text-align: center;
+            margin-top: calc(var(--header-height) * -1); /* Tira hacia arriba para que el header se superponga */
+            padding-top: calc(var(--header-height) + 2rem); /* Añade padding para compensar */
+        }
+        
+        .hero-banner-interactive {
+            position: relative;
+            width: 100%;
+            max-width: 1080px;
+            aspect-ratio: 16 / 7.5;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            background: #000;
+            user-select: none;
+        }
+        .slider-image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .slider-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: left;
+            pointer-events: none;
+        }
+        .slider-image-container.image-after {
+            width: 50%;
+            z-index: 2;
+        }
+        .slider-image-container.image-after img {
+             object-position: right;
+        }
+        .slider-image-container.image-before {
+            z-index: 1;
+        }
+        .slider-label {
+            position: absolute;
+            top: 1rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            border-radius: 5px;
+            font-family: var(--font-headings);
+            font-weight: 700;
+            color: var(--gold);
+            text-transform: uppercase;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .image-before .slider-label { left: 1rem; }
+        .image-after .slider-label { right: 1rem; }
+
+        .slider-handle-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: var(--gold);
+            box-shadow: var(--glow);
+            z-index: 3;
+            transform: translateX(-2px);
+            pointer-events: none;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gold);
+            border: 3px solid var(--bg);
+            box-shadow: var(--shadow);
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .slider-handle:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: var(--gold-light);
+        }
+        .slider-handle svg {
+            width: 32px;
+            height: 32px;
+            fill: currentColor;
+            transform: rotate(90deg);
+        }
+
+        /* === Texto del Hero === */
+        .hero-text { max-width: 800px; }
+        .hero-text h1 {
+            font-family: var(--font-headings);
+            font-size: 2.8rem;
+            letter-spacing: 0.8px;
+            color: var(--red);
+        }
+        .hero-text h1 span { color: var(--silver); }
+        .hero-text p.lead {
+            color: var(--text);
+            font-size: 1.15rem;
+            margin-top: 0.6rem;
+        }
+        .hero-text p.lead strong { color: var(--gold); }
+        .hero-text p.lead a { color: var(--gold-light); text-decoration: none; }
+        .hero-text p.lead a:hover { text-decoration: underline; }
+
+        /* === Badges === */
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        .badges a {
+            transition: transform 200ms ease;
+            display: block; /* Para que el cursor personalizado funcione bien */
+        }
+        .badges a:hover {
+            transform: scale(1.05);
+        }
+
+        /* === Secciones de Contenido === */
+        section.content {
+            padding: 3rem 0;
+            border-bottom: 1px solid var(--border);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        section.content:last-of-type { border-bottom: none; }
+        .content h2 {
+            font-family: var(--font-headings);
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+        .content h3 {
+            font-family: var(--font-headings);
+            font-size: 1.5rem;
+            color: var(--silver);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .content p, .content .muted {
+            color: var(--muted);
+            font-size: 1.05rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .content p a { color: var(--gold); text-decoration: none; }
+        .content p a:hover { text-decoration: underline; }
+        .content ol {
+            margin-left: 1.5rem;
+            padding-left: 0.5rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .content li { margin-bottom: 0.5rem; color: var(--muted); }
+        .content li strong { color: var(--text); }
+
+        /* === Cuadrícula de Características === */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            text-align: left;
+            margin-top: 2rem;
+        }
+        .feature-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .feature-card.visible:nth-child(1) { transition-delay: 0.1s; }
+        .feature-card.visible:nth-child(2) { transition-delay: 0.2s; }
+        .feature-card.visible:nth-child(3) { transition-delay: 0.3s; }
+        .feature-card.visible:nth-child(4) { transition-delay: 0.4s; }
+        .feature-card.visible:nth-child(5) { transition-delay: 0.5s; }
+        .feature-card.visible:nth-child(6) { transition-delay: 0.6s; }
+        .feature-card.visible:nth-child(7) { transition-delay: 0.7s; }
+
+        .feature-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow);
+            border-color: var(--gold);
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            color: var(--silver);
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+            font-family: var(--font-headings);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .feature-card h3::before {
+            content: "◈";
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .feature-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+        .feature-card strong { color: var(--text); font-weight: 700; }
+
+        /* === Lista de Requisitos === */
+        #requirements .clean-list {
+            list-style: none;
+            margin-left: 0;
+            padding-left: 0;
+            text-align: left;
+        }
+        #requirements .clean-list li {
+            position: relative;
+            padding-left: 1.7rem;
+            margin-bottom: 0.8rem;
+        }
+        #requirements .clean-list li::before {
+            content: "◈";
+            position: absolute;
+            left: 0;
+            top: 0.05em;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* === Botones (Hover Mejorado) === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1.3rem;
+            border-radius: 10px;
+            font-family: var(--font-headings);
+            font-weight: 700;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 250ms ease;
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: var(--gold);
+            transition: width 0.3s ease-out;
+            z-index: -1;
+        }
+        .btn:hover::before {
+            width: 100%;
+        }
+        .btn:hover {
+            color: var(--bg);
+            border-color: var(--gold);
+            box-shadow: var(--glow);
+            transform: translateY(-2px);
+        }
+        .btn.primary {
+            background: var(--red);
+            color: var(--text);
+            border-color: var(--red);
+            box-shadow: var(--glow-red);
+        }
+        .btn.primary:hover {
+            color: var(--bg);
+            border-color: var(--gold);
+        }
+        .btn.ghost {
+            background: transparent;
+            color: var(--silver);
+            border-color: var(--silver);
+        }
+        .btn.ghost::before {
+            background: var(--glass);
+        }
+        .btn.ghost:hover {
+            color: var(--gold);
+            border-color: var(--gold);
+            box-shadow: none;
+        }
+        .button-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn svg { opacity: 0.9; }
+
+        /* === Área de Descarga === */
+        .download-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .download-links .badge-link img {
+            max-width: 200px;
+            transition: transform 200ms ease;
+        }
+
+        /* === Grillas de Medios (Triggers de Modal) === */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .media-trigger {
+            display: block;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .media-trigger img {
+            display: block;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+        .media-trigger::after {
+            content: "🔍"; /* Icono para imágenes */
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        /* Icono para videos */
+        .media-trigger[data-type="video"]::after {
+            content: "►";
+            font-size: 5rem;
+        }
+        .media-trigger:hover::after {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .media-trigger:hover img {
+            transform: scale(1.05);
+        }
+
+        .media-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            align-items: center;
+        }
+        
+        /* Imagen estática de comparación (si no es interactiva) */
+        .media-container > img {
+            max-width: 100%;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+
+        /* === Tablas === */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--panel);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 0.9rem 1.1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+            font-size: 0.95rem;
+        }
+        table th {
+            background: var(--glass);
+            font-family: var(--font-headings);
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: var(--red);
+        }
+        table tbody tr:last-child td { border-bottom: 0; }
+        table tbody tr { transition: background 150ms ease; }
+        table tbody tr:hover {
+            background: rgba(255, 215, 0, 0.05);
+        }
+        table td { color: var(--muted); }
+        table td strong { color: var(--text); }
+        table td a { color: var(--muted); text-decoration: none; }
+        table td a:hover { color: var(--gold); text-decoration: underline; }
+
+        /* === Pie de Página === */
+        footer.site-footer {
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+            padding: 2rem 1rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+        footer .footer-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            text-align: center;
+        }
+        footer a { color: var(--gold); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* === Botón Scroll-to-Top === */
+        #scroll-to-top {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 48px;
+            height: 48px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--gold);
+            font-size: 1.5rem;
+            line-height: 48px;
+            text-align: center;
+            z-index: 998;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            text-decoration: none;
+        }
+        #scroll-to-top.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #scroll-to-top:hover {
+            background: var(--gold);
+            color: var(--bg);
+            border-color: var(--gold);
+        }
+
+        /* === Modal Unificado (Lightbox / Video) === */
+        #media-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1001;
+            display: none; /* Oculto por defecto */
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #media-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modal-content img,
+        #modal-content video {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: scale(0.95);
+            animation: modal-fade-in 0.3s ease forwards;
+        }
+
+        @keyframes modal-fade-in {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        #modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: var(--silver);
+            font-size: 1.5rem;
+            line-height: 40px;
+            text-align: center;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        #modal-close:hover {
+            background: var(--red);
+            color: var(--text);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+
+        /* === Animaciones de Scroll === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* === Responsivo === */
+        @media (max-width: 920px) {
+            nav.primary-nav {
+                display: flex;
+                flex-direction: column;
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                right: 0;
+                background: var(--panel);
+                border-bottom: 1px solid var(--border);
+                padding: 1rem;
+                gap: 1rem;
+                z-index: 999;
+                transform: translateY(-120%);
+                opacity: 0;
+                transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+            }
+            nav.primary-nav.active {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            nav.primary-nav a { font-size: 1.2rem; padding: 0.5rem; }
+            nav.primary-nav a.active::after { bottom: -2px; left: 0.5rem; right: 0.5rem; }
+            
+            .hamburger { display: flex; }
+            .hero-text h1 { font-size: 2.2rem; }
+            .content h2 { font-size: 1.8rem; }
+            /* Ocultar cursor personalizado en móvil */
+            #custom-cursor-dot, #custom-cursor-outline { display: none; }
+            body, a, button, .slider-handle, .media-trigger { cursor: auto; }
+        }
+
+        @media (max-width: 520px) {
+            .hero { padding-top: calc(var(--header-height) + 1rem); }
+            .hero-text h1 { font-size: 1.8rem; }
+            .hero-text p.lead { font-size: 1rem; }
+            .content p, .content .muted { font-size: 0.95rem; }
+            .btn { width: 100%; justify-content: center; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .brand .title { font-size: 1.2rem; }
+            .slider-label { font-size: 0.8rem; padding: 0.2rem 0.5rem; top: 0.5rem; }
+            .image-before .slider-label { left: 0.5rem; }
+            .image-after .slider-label { right: 0.5rem; }
+            .slider-handle { width: 40px; height: 40px; }
+            #scroll-to-top { bottom: 1rem; right: 1rem; }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+    <div id="custom-cursor-dot"></div>
+    <div id="custom-cursor-outline"></div>
+
     <header class="site-header" role="banner">
-      <div class="nav-inner">
-        <a href="#home" class="brand" aria-label="Warlock-Studio Home">
-          <div class="title">Warlock<span>-Studio</span></div>
-        </a>
+        <div class="nav-inner">
+            <a href="#home" class="brand" aria-label="Warlock-Studio Home">
+                <div class="title">Warlock<span>-Studio</span></div>
+            </a>
 
-        <nav class="primary-nav" aria-label="Primary navigation">
-          <a href="#home">Home</a>
-          <a href="#download">Download</a>
-          <a href="#previews">Previews</a>
-          <a href="#comparison">Comparison</a>
-          <a href="#features">Features</a>
-          <a href="#requirements">Requirements</a>
-          <a href="#models">Models</a>
-          <a href="#contribute">Contribute</a>
-          <a href="#license">License</a>
-        </nav>
+            <nav class="primary-nav" aria-label="Primary navigation">
+                <a href="#home" class="active">Home</a>
+                <a href="#download">Download</a>
+                <a href="#previews">Previews</a>
+                <a href="#comparison">Comparison</a>
+                <a href="#features">Features</a>
+                <a href="#requirements">Requirements</a>
+                <a href="#models">Models</a>
+                <a href="#contribute">Contribute</a>
+                <a href="#license">License</a>
+            </nav>
 
-        <button
-          class="hamburger"
-          aria-label="Open menu"
-          onclick="toggleMobileMenu(event)"
-        >
-          <span class="bar"></span>
-        </button>
-      </div>
+            <button
+                class="hamburger"
+                aria-label="Abrir menú"
+                aria-expanded="false"
+                aria-controls="primary-nav"
+            >
+                <span class="bar"></span>
+            </button>
+        </div>
     </header>
 
     <main class="container">
-      <section class="hero" id="home" aria-labelledby="hero-title">
-        <div class="hero-banner">
-          <img src="Assets/banner.png"/>
-        </div>
-<div class="button-bar" style="margin-top: 1.8rem">
-      <a
-        href="https://github.com/Ivan-Ayub97/Warlock-Studio"
-        target="_blank"
-        rel="noopener"
-        class="btn primary"
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z"
-          ></path>
-        </svg>
-        View on GitHub
-      </a>
-    </div>
-    </div>
-<div class="badges" aria-hidden="true">
-  <!-- Badge de Build -->
-  <a
-    href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      src="https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700"
-      alt="Build Status"
-    />
-  </a>
+        <section class="hero" id="home" aria-labelledby="hero-title">
+            
+            <div class="hero-banner-interactive reveal" id="hero-slider">
+                <div class="slider-image-container image-before">
+                    <img src="rsc/image_comparison.png" alt="Antes de la restauración" />
+                    <span class="slider-label">Original</span>
+                </div>
+                <div class="slider-image-container image-after">
+                    <img src="rsc/image_comparison.png" alt="Después de la restauración" />
+                    <span class="slider-label">Restaurado</span>
+                </div>
+                <div class="slider-handle-line"></div>
+                <div class="slider-handle" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 18h2v-5.5h3l-4-4-4 4h3V18zm-2 2v-1.5h6V20H9zm0-16.5V2H15v1.5H9z"/>
+                    </svg>
+                </div>
+            </div>
 
-  <!-- Badge de Versión -->
-  <a
-    href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      src="https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white"
-      alt="Version"
-    />
-  </a>
-
-  <!-- Badge de Licencia -->
-  <a href="LICENSE" target="_blank" rel="noopener">
-    <img
-      src="https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white"
-      alt="License"
-    />
-  </a>
-
-  <!-- Badge de Descargas -->
-  <a
-    href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      src="https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black"
-      alt="Downloads"
-    />
-  </a>
-
-  <!-- Badge de Plataforma -->
-  <a href="#">
-    <img
-      src="https://img.shields.io/badge/Platform-Windows%2011-0078D6?style=for-the-badge&logo=windows11&logoColor=white"
-      alt="Platform"
-    />
-  </a>
-
-  <!-- Badge de Python -->
-  <a href="https://www.python.org/" target="_blank" rel="noopener">
-    <img
-      src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700"
-      alt="Python"
-    />
-  </a>
-
-  <!-- Badge de Issues (Nuevo) -->
-  <a
-    href="https://github.com/Ivan-Ayub97/Warlock-Studio/issues"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      src="https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white"
-      alt="Issues"
-    />
-  </a>
-
-  <!-- Badge de Last Commit (Nuevo) -->
-  <a
-    href="https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main"
-    target="_blank"
-    rel="noopener"
-  >
-    <img
-      src="https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white"
-      alt="Last Commit"
-    />
-  </a>
-</div>
-
-        <div class="hero-text">
-          <p class="lead">
-            Inspired by
-            <a href="https://github.com/Djdefrag" target="_blank" rel="noopener"
-              >Djdefrag</a
-            >
-            tools such as <strong>QualityScaler</strong> and
-            <strong>FluidFrames</strong>, Warlock-Studio provides a unified,
-            high-performance platform for
-            <strong
-              >upscaling, restoration, denoising, and frame
-              interpolation</strong
-            >.
-          </p>
-        </div>
-      </section>
-
-<section id="download" class="content" aria-labelledby="download-title">
-  <h2 id="download-title">Download Installer</h2>
-  <p class="muted">
-    Installers and releases are published for Windows (64-bit).
-  </p>
-
-  <div class="download-links">
-    <div
-      style="
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 1.5rem;
-      "
-    >
-      <div>
-        <div
-          class="sf-root"
-          data-id="3880091"
-          data-badge="oss-rising-star-black"
-          data-metadata="achievement=oss-rising-star"
-          style="width: 152px"
-        >
-<a
-  href="https://sourceforge.net/projects/warlock-studio/"
-  target="_blank"
-  rel="noopener"
->
-  <img
-    src="rsc/oss-rising-star-black.svg"
-    alt="Warlock-Studio on SourceForge"
-    width="200"
-    style="display:block; margin:auto; margin-bottom:10px;"
-  />
-</a>
-
-
-      <a
-        href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe"
-        target="_blank"
-        rel="noopener"
-        class="badge-link"
-      >
-        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" />
-      </a>
-    </div>
-  <div class="button-bar">
-    <a
-      href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf"
-      target="_blank"
-      rel="noopener"
-      class="btn ghost"
-    >
-      Download Manual (PDF)
-    </a>
-  </div>
-</section>
-
-      <section id="previews" class="content" aria-labelledby="previews-title">
-        <h2 id="previews-title">Interface Previews</h2>
-        <div class="grid-2">
-          <img src="rsc/Capture.png" alt="Main interface preview" />
-          <img src="rsc/CaptureCONSOLE.png" alt="Console preview" />
-        </div>
-      </section>
-
-      <section
-        id="comparison"
-        class="content"
-        aria-labelledby="comparison-title"
-      >
-        <h2 id="comparison-title">Quality Comparison</h2>
-        <p class="muted">
-          Side-by-side samples and short demo videos demonstrating restoration
-          and upscaling results.
-        </p>
-
-<div class="media-container">
-  <video controls>
-    <source
-      src="https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22"
-      type="video/webm"
-    />
-    Your browser does not support the video tag.
-  </video>
-
-  <video controls>
-    <source
-      src="https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2"
-      type="video/webm"
-    />
-    Your browser does not support the video tag.
-  </video>
-
-          <img src="rsc/image_comparison.png" alt="Still image comparison" />
-        </div>
-      </section>
-
-      <section id="features" class="content" aria-labelledby="features-title">
-        <h2 id="features-title">Key Features</h2>
-        <ul class="clean-list">
-          <li>
-            <strong>AI Upscaling & Restoration</strong> – Utilize
-            <strong>Real-ESRGAN, BSRGAN, and IRCNN</strong> models for
-            denoising, super-resolution, and detail recovery.
-          </li>
-          <li>
-            <strong>Face Restoration (GFPGAN)</strong> – Recover facial details
-            from low-resolution or blurry images and video frames.
-          </li>
-          <li>
-            <strong>Frame Interpolation (RIFE)</strong> – Smooth motion or
-            generate slow-motion content with
-            <strong>2×, 4×, or 8× interpolation</strong>.
-          </li>
-          <li>
-            <strong>Advanced Hardware Acceleration</strong> – Intelligent
-            provider selection prioritizes <strong>CUDA</strong>, falls back to
-            <strong>DirectML</strong>, and finally <strong>CPU</strong> for
-            maximum compatibility and performance.
-          </li>
-          <li>
-            <strong>Batch Processing</strong> – Process multiple media files
-            simultaneously, saving time and effort.
-          </li>
-          <li>
-            <strong>Custom Workflows</strong> – Fine-grained control over
-            models, resolution, output formats, and quality parameters.
-          </li>
-          <li>
-            <strong>Open-Source & Extensible</strong> – Fully MIT licensed, for
-            contributors and developers.
-          </li>
-        </ul>
-      </section>
-
-      <section
-        id="requirements"
-        class="content"
-        aria-labelledby="requirements-title"
-      >
-        <h2 id="requirements-title">System Requirements</h2>
-        <ul class="clean-list">
-          <li><strong>OS:</strong> Windows 11 or higher (64-bit)</li>
-          <li><strong>RAM:</strong> 8GB+ recommended</li>
-          <li>
-            <strong>GPU:</strong> NVIDIA (for CUDA), AMD, or Intel GPU with
-            up-to-date drivers recommended
-          </li>
-          <li>
-            <strong>Storage:</strong> Sufficient free space for input and
-            processed media
-          </li>
-        </ul>
-      </section>
-
-      <section id="models" class="content" aria-labelledby="models-title">
-        <h2 id="models-title">Model Comparison</h2>
-        <p class="muted">
-          Common models bundled or supported by Warlock-Studio and their typical
-          use cases.
-        </p>
-
-        <div class="table-wrapper">
-          <table aria-label="Model Comparison">
-            <thead>
-              <tr>
-                <th>Model File</th>
-                <th>Use Case</th>
-                <th>Speed</th>
-                <th>Quality</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>GFPGANv1.4</strong></td>
-                <td>Face restoration</td>
-                <td>High</td>
-                <td>High</td>
-                <td>Optimal for portraits</td>
-              </tr>
-              <tr>
-                <td><strong>BSRGANx2</strong></td>
-                <td>2× upscale + denoising</td>
-                <td>Medium</td>
-                <td>Very High</td>
-                <td>Suitable for lightly degraded media</td>
-              </tr>
-              <tr>
-                <td><strong>BSRGANx4</strong></td>
-                <td>4× upscale + denoising</td>
-                <td>Low</td>
-                <td>Very High</td>
-                <td>For heavily degraded content</td>
-              </tr>
-              <tr>
-                <td><strong>RIFE</strong></td>
-                <td>Frame interpolation</td>
-                <td>High</td>
-                <td>High</td>
-                <td>Smooth motion, slow-motion support</td>
-              </tr>
-              <tr>
-                <td><strong>RIFE-Lite</strong></td>
-                <td>Lightweight interpolation</td>
-                <td>Very High</td>
-                <td>Medium</td>
-                <td>Faster, lower resource usage</td>
-              </tr>
-              <tr>
-                <td><strong>RealESRGANx4</strong></td>
-                <td>General 4× upscaling</td>
-                <td>Medium</td>
-                <td>High</td>
-                <td>Balanced performance</td>
-              </tr>
-              <tr>
-                <td><strong>RealESRNetx4</strong></td>
-                <td>Subtle restoration</td>
-                <td>Medium</td>
-                <td>High</td>
-                <td>Preserves natural image texture</td>
-              </tr>
-              <tr>
-                <td><strong>RealSRx4_Anime</strong></td>
-                <td>Anime / line-art enhancement</td>
-                <td>Medium</td>
-                <td>High</td>
-                <td>Sharp edges for 2D art</td>
-              </tr>
-              <tr>
-                <td><strong>IRCNN_L</strong></td>
-                <td>Light denoising</td>
-                <td>High</td>
-                <td>Medium</td>
-                <td>Mild artifact removal</td>
-              </tr>
-              <tr>
-                <td><strong>IRCNN_M</strong></td>
-                <td>Medium denoising</td>
-                <td>High</td>
-                <td>Medium</td>
-                <td>Stronger artifact cleanup</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section
-        id="contribute"
-        class="content"
-        aria-labelledby="contribute-title"
-      >
-        <h2 id="contribute-title">Contributions</h2>
-        <p class="muted">We welcome contributions from the community:</p>
-        <ol>
-          <li><strong>Fork</strong> the repository on <strong>GitHub.</strong></li>
-          <li><strong>Create a branch</strong> for your feature or bug fix.</li>
-          <li>
-            <strong>Submit a Pull Request</strong> with a detailed description
-            and testing notes.
-          </li>
-        </ol>
-
-        <p style="margin-top: 1.5rem">
-          Contact:
-          <a href="mailto:negroayub97@gmail.com">negroayub97@gmail.com</a>
-        </p>
-      </section>
-
-      <section id="license" class="content" aria-labelledby="license-title">
-        <h2 id="license-title">License & Technologies</h2>
-        </p>
-
-        <h3>Integrated Technologies & Licenses</h3>
-        <div class="table-wrapper">
-          <table aria-label="Integrated Technologies">
-            <thead>
-              <tr>
-                <th>Technology</th>
-                <th>License</th>
-                <th>Author / Maintainer</th>
-                <th>Source</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>QualityScaler</td>
-                <td>MIT</td>
-                <td>
-                  <a href="https://github.com/Djdefrag" target="_blank"
-                    >Djdefrag</a
-                  >
-                </td>
-                <td>
-                  <a
-                    href="https://github.com/Djdefrag/QualityScaler"
+            <div class="button-bar reveal" style="margin-top: 1.8rem">
+                <a
+                    href="https://github.com/Ivan-Ayub97/Warlock-Studio"
                     target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>FluidFrames</td>
-                <td>MIT</td>
-                <td>
-                  <a href="https://github.com/Djdefrag" target="_blank"
-                    >Djdefrag</a
-                  >
-                </td>
-                <td>
-                  <a
-                    href="https://github.com/Djdefrag/FluidFrames"
-                    target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>Real-ESRGAN</td>
-                <td>BSD 3-Clause / Apache</td>
-                <td>Xintao Wang</td>
-                <td>
-                  <a
-                    href="https://github.com/xinntao/Real-ESRGAN"
-                    target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>GFPGAN</td>
-                <td>Apache 2.0</td>
-                <td>TencentARC / Xintao Wang</td>
-                <td>
-                  <a href="https://github.com/TencentARC/GFPGAN" target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>RIFE</td>
-                <td>Apache 2.0</td>
-                <td>hzwer</td>
-                <td>
-                  <a
-                    href="https://github.com/megvii-research/ECCV2022-RIFE"
-                    target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>BSRGAN</td>
-                <td>Apache 2.0</td>
-                <td>Kai Zhang</td>
-                <td>
-                  <a href="https://github.com/cszn/BSRGAN" target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>IRCNN</td>
-                <td>BSD / Mixed</td>
-                <td>Kai Zhang</td>
-                <td>
-                  <a href="https://github.com/cszn/IRCNN" target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>ONNX Runtime</td>
-                <td>MIT</td>
-                <td>Microsoft</td>
-                <td>
-                  <a
-                    href="https://github.com/microsoft/onnxruntime"
-                    target="_blank"
-                    >GitHub</a
-                  >
-                </td>
-              </tr>
-              <tr>
-                <td>FFmpeg</td>
-                <td>LGPL / GPL</td>
-                <td>FFmpeg Team</td>
-                <td>
-                  <a href="https://ffmpeg.org" target="_blank">Official Site</a>
-                </td>
-              </tr>
-              <tr>
-                <td>ExifTool</td>
-                <td>Artistic License</td>
-                <td>Phil Harvey</td>
-                <td>
-                  <a href="https://exiftool.org/" target="_blank"
-                    >Official Site</a
-                  >
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                    rel="noopener"
+                    class="btn primary"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297 24 5.67 18.627.297 12 .297z"></path>
+                    </svg>
+                    View on GitHub
+                </a>
+            </div>
+            
+            <div class="badges reveal" aria-hidden="true">
+                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700" alt="Build Status"/>
+                </a>
+                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white" alt="Version"/>
+                </a>
+                <a href="LICENSE" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white" alt="License"/>
+                </a>
+                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black" alt="Downloads"/>
+                </a>
+                <a href="#" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/badge/Platform-Windows%2011-0078D6?style=for-the-badge&logo=windows11&logoColor=white" alt="Platform"/>
+                </a>
+                <a href="https://www.python.org/" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700" alt="Python"/>
+                </a>
+                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/issues" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white" alt="Issues"/>
+                </a>
+                <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main" target="_blank" rel="noopener">
+                    <img src="https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white" alt="Last Commit"/>
+                </a>
+            </div>
+
+            <div class="hero-text reveal">
+                <p class="lead">
+                    Inspirado por herramientas de
+                    <a href="https://github.com/Djdefrag" target="_blank" rel="noopener">Djdefrag</a>
+                    como <strong>QualityScaler</strong> y <strong>FluidFrames</strong>,
+                    Warlock-Studio proporciona una plataforma unificada y de alto
+                    rendimiento para
+                    <strong>escalado, restauración, eliminación de ruido e
+                        interpolación de fotogramas</strong>.
+                </p>
+            </div>
+        </section>
+
+        <section id="download" class="content reveal" aria-labelledby="download-title">
+            <h2 id="download-title">Descargar Instalador</h2>
+            <p class="muted">
+                Los instaladores y versiones se publican para Windows (64 bits).
+            </p>
+
+            <div class="download-links">
+                <div style="display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5rem;">
+                    <div>
+                        <div class="sf-root" data-id="3880091" data-badge="oss-rising-star-black" data-metadata="achievement=oss-rising-star" style="width: 152px">
+                            <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank" rel="noopener">
+                                <img src="rsc/oss-rising-star-black.svg" alt="Warlock-Studio on SourceForge" width="200" style="display: block; margin: auto; margin-bottom: 10px"/>
+                            </a>
+                            <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe" target="_blank" rel="noopener" class="badge-link">
+                                <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="button-bar">
+                    <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf" target="_blank" rel="noopener" class="btn ghost">
+                        Descargar Manual (PDF)
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="previews" class="content reveal" aria-labelledby="previews-title">
+            <h2 id="previews-title">Vistas Previas de la Interfaz</h2>
+            <div class="grid-2">
+                <div class="media-trigger" data-type="image" data-src="rsc/Capture.png" tabindex="0" role="button" aria-label="Ampliar imagen de interfaz principal">
+                    <img src="rsc/Capture.png" alt="Vista previa de la interfaz principal" />
+                </div>
+                <div class="media-trigger" data-type="image" data-src="rsc/CaptureCONSOLE.png" tabindex="0" role="button" aria-label="Ampliar imagen de consola">
+                    <img src="rsc/CaptureCONSOLE.png" alt="Vista previa de la consola" />
+                </div>
+            </div>
+        </section>
+
+        <section id="comparison" class="content reveal" aria-labelledby="comparison-title">
+            <h2 id="comparison-title">Comparación de Calidad</h2>
+            <p class="muted">
+                Muestras lado a lado y videos de demostración cortos que
+                muestran los resultados de restauración y escalado.
+            </p>
+
+            <div class="media-container">
+                <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22" tabindex="0" role="button" aria-label="Reproducir video de demostración 1">
+                    <img src="rsc/image_comparison.png" alt="Miniatura de video 1" /> </div>
+                <div class="media-trigger" data-type="video" data-src="https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2" tabindex="0" role="button" aria-label="Reproducir video de demostración 2">
+                    <img src="rsc/image_comparison.png" alt="Miniatura de video 2" /> </div>
+
+                <img src="rsc/image_comparison.png" alt="Comparación de imagen estática" />
+            </div>
+        </section>
+
+        <section id="features" class="content reveal" aria-labelledby="features-title">
+            <h2 id="features-title">Características Clave</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Escalado y Restauración IA</h3>
+                    <p>Utiliza modelos <strong>Real-ESRGAN, BSRGAN e IRCNN</strong> para eliminación de ruido, súper-resolución y recuperación de detalles.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Restauración Facial (GFPGAN)</h3>
+                    <p>Recupera detalles faciales de imágenes y fotogramas de video borrosos o de baja resolución.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Interpolación de Fotogramas (RIFE)</h3>
+                    <p>Suaviza el movimiento o genera contenido en cámara lenta con interpolación <strong>2×, 4× u 8×</strong>.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Aceleración por Hardware Avanzada</h3>
+                    <p>La selección inteligente de proveedores prioriza <strong>CUDA</strong>, recurre a <strong>DirectML</strong> y finalmente a <strong>CPU</strong> para máxima compatibilidad y rendimiento.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Procesamiento por Lotes</h3>
+                    <p>Procesa múltiples archivos multimedia simultáneamente, ahorrando tiempo y esfuerzo.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Flujos de Trabajo Personalizados</h3>
+                    <p>Control detallado sobre modelos, resolución, formatos de salida y parámetros de calidad.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Código Abierto y Extensible</h3>
+                    <p>Con licencia MIT completa, para colaboradores y desarrolladores.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="requirements" class="content reveal" aria-labelledby="requirements-title">
+            <h2 id="requirements-title">Requisitos del Sistema</h2>
+            <ul class="clean-list">
+                <li><strong>SO:</strong> Windows 11 o superior (64 bits)</li>
+                <li><strong>RAM:</strong> 8GB+ recomendado</li>
+                <li><strong>GPU:</strong> Se recomienda GPU NVIDIA (para CUDA), AMD o Intel con controladores actualizados</li>
+                <li><strong>Almacenamiento:</strong> Espacio libre suficiente para medios de entrada y procesados</li>
+            </ul>
+        </section>
+
+        <section id="models" class="content reveal" aria-labelledby="models-title">
+            <h2 id="models-title">Comparación de Modelos</h2>
+            <p class="muted">
+                Modelos comunes incluidos o compatibles con Warlock-Studio y
+                sus casos de uso típicos.
+            </p>
+
+            <div class="table-wrapper">
+                <table aria-label="Comparación de Modelos">
+                    <thead>
+                        <tr>
+                            <th>Archivo de Modelo</th>
+                            <th>Caso de Uso</th>
+                            <th>Velocidad</th>
+                            <th>Calidad</th>
+                            <th>Notas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GFPGANv1.4</strong></td>
+                            <td>Restauración facial</td>
+                            <td>Alta</td>
+                            <td>Alta</td>
+                            <td>Óptimo para retratos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BSRGANx2</strong></td>
+                            <td>Escalado 2× + denoising</td>
+                            <td>Media</td>
+                            <td>Muy Alta</td>
+                            <td>Adecuado para medios ligeramente degradados</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BSRGANx4</strong></td>
+                            <td>Escalado 4× + denoising</td>
+                            <td>Baja</td>
+                            <td>Muy Alta</td>
+                            <td>Para contenido muy degradado</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RIFE</strong></td>
+                            <td>Interpolación de fotogramas</td>
+                            <td>Alta</td>
+                            <td>Alta</td>
+                            <td>Soporte para cámara lenta y movimiento suave</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RIFE-Lite</strong></td>
+                            <td>Interpolación ligera</td>
+                            <td>Muy Alta</td>
+                            <td>Media</td>
+                            <td>Más rápido, menor uso de recursos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RealESRGANx4</strong></td>
+                            <td>Escalado general 4×</td>
+                            <td>Media</td>
+                            <td>Alta</td>
+                            <td>Rendimiento equilibrado</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RealESRNetx4</strong></td>
+                            <td>Restauración sutil</td>
+                            <td>Media</td>
+                            <td>Alta</td>
+                            <td>Conserva la textura natural de la imagen</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RealSRx4_Anime</strong></td>
+                            <td>Mejora de anime / line-art</td>
+                            <td>Media</td>
+                            <td>Alta</td>
+                            <td>Bordes nítidos para arte 2D</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IRCNN_L</strong></td>
+                            <td>Denoising ligero</td>
+                            <td>Alta</td>
+                            <td>Media</td>
+                            <td>Eliminación suave de artefactos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IRCNN_M</strong></td>
+                            <td>Denoising medio</td>
+                            <td>Alta</td>
+                            <td>Media</td>
+                            <td>Limpieza de artefactos más fuerte</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="contribute" class="content reveal" aria-labelledby="contribute-title">
+            <h2 id="contribute-title">Contribuciones</h2>
+            <p class="muted">Aceptamos contribuciones de la comunidad:</p>
+            <ol>
+                <li><strong>Fork</strong> del repositorio en <strong>GitHub.</strong></li>
+                <li><strong>Crea una rama</strong> para tu característica o corrección de error.</li>
+                <li><strong>Envía un Pull Request</strong> con una descripción detallada y notas de prueba.</li>
+            </ol>
+            <p style="margin-top: 1.5rem">
+                Contacto:
+                <a href="mailto:negroayub97@gmail.com">negroayub97@gmail.com</a>
+            </p>
+        </section>
+
+        <section id="license" class="content reveal" aria-labelledby="license-title">
+            <h2 id="license-title">Licencia y Tecnologías</h2>
+            <h3>Tecnologías Integradas y Licencias</h3>
+            <div class="table-wrapper">
+                <table aria-label="Tecnologías Integradas">
+                    <thead>
+                        <tr>
+                            <th>Tecnología</th>
+                            <th>Licencia</th>
+                            <th>Autor / Mantenedor</th>
+                            <th>Fuente</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>QualityScaler</td>
+                            <td>MIT</td>
+                            <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
+                            <td><a href="https://github.com/Djdefrag/QualityScaler" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>FluidFrames</td>
+                            <td>MIT</td>
+                            <td><a href="https://github.com/Djdefrag" target="_blank">Djdefrag</a></td>
+                            <td><a href="https://github.com/Djdefrag/FluidFrames" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>Real-ESRGAN</td>
+                            <td>BSD 3-Clause / Apache</td>
+                            <td>Xintao Wang</td>
+                            <td><a href="https://github.com/xinntao/Real-ESRGAN" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>GFPGAN</td>
+                            <td>Apache 2.0</td>
+                            <td>TencentARC / Xintao Wang</td>
+                            <td><a href="https://github.com/TencentARC/GFPGAN" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>RIFE</td>
+                            <td>Apache 2.0</td>
+                            <td>hzwer</td>
+                            <td><a href="https://github.com/megvii-research/ECCV2022-RIFE" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>BSRGAN</td>
+                            <td>Apache 2.0</td>
+                            <td>Kai Zhang</td>
+                            <td><a href="https://github.com/cszn/BSRGAN" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>IRCNN</td>
+                            <td>BSD / Mixed</td>
+                            <td>Kai Zhang</td>
+                            <td><a href="https://github.com/cszn/IRCNN" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>ONNX Runtime</td>
+                            <td>MIT</td>
+                            <td>Microsoft</td>
+                            <td><a href="https://github.com/microsoft/onnxruntime" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>FFmpeg</td>
+                            <td>LGPL / GPL</td>
+                            <td>FFmpeg Team</td>
+                            <td><a href="https://ffmpeg.org/" target="_blank">ffmpeg.org</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
-    <footer class="site-footer" role="contentinfo">
-      <div class="footer-inner">
-<footer class="footer">
-  <p>© 2025 <strong>Iván Eduardo Chavez Ayub</strong> — Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
-  <p class="muted">Additional terms and attributions can be found in <code>NOTICE.md</code>.</p>
-</footer>
-
-          Hosted on
-          <a href="https://pages.github.com/" target="_blank" rel="noopener"
-            >GitHub Pages</a
-          >.
-        </p>
-      </div>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>
+                Copyright © 2024
+                <a href="httpshttps://github.com/Ivan-Ayub97" target="_blank" rel="noopener">Iván Ayub</a>.
+                Warlock-Studio es un proyecto de código abierto bajo la
+                <a href="LICENSE" target="_blank" rel="noopener">Licencia MIT</a>.
+            </p>
+        </div>
     </footer>
 
+    <a href="#home" id="scroll-to-top" aria-label="Volver arriba">↑</a>
+
+    <div id="media-modal">
+        <div class="modal-content-wrapper">
+            <a href="#" id="modal-close" aria-label="Cerrar modal">&times;</a>
+            <div id="modal-content">
+                </div>
+        </div>
+    </div>
+
+
     <script>
-      function toggleMobileMenu(e) {
-        const existingOverlay = document.getElementById("mobile-nav-overlay");
-        if (existingOverlay) {
-          existingOverlay.remove();
-          return;
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            
+            const body = document.body;
 
-        const overlay = document.createElement("div");
-        overlay.id = "mobile-nav-overlay";
-        overlay.style.position = "fixed";
-        overlay.style.top = "70px"; // Height of header
-        overlay.style.left = "0";
-        overlay.style.right = "0";
-        overlay.style.bottom = "0";
-        overlay.style.background =
-          "linear-gradient(180deg, rgba(17,17,17,0.9), rgba(17,17,17,0.98))";
-        overlay.style.zIndex = 1400;
-        overlay.style.padding = "1.5rem";
-        overlay.style.overflowY = "auto";
-        overlay.style.backdropFilter = "blur(6px)";
-        overlay.style.animation = "fadeIn 300ms ease";
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Encabezado Dinámico (Sombra al hacer scroll)
+             * -----------------------------------------------------------------
+             */
+            const header = document.querySelector(".site-header");
+            const scrollToTopBtn = document.getElementById("scroll-to-top");
 
-        const list = document.createElement("div");
-        list.style.display = "flex";
-        list.style.flexDirection = "column";
-        list.style.gap = "0.6rem";
-        list.style.maxWidth = "420px";
-        list.style.margin = "0 auto";
+            const handleScroll = () => {
+                // Efecto del encabezado
+                if (window.scrollY > 10) {
+                    header.classList.add("scrolled");
+                } else {
+                    header.classList.remove("scrolled");
+                }
 
-        const createLink = (txt, href) => {
-          const a = document.createElement("a");
-          a.href = href;
-          a.textContent = txt;
-          a.style.display = "block";
-          a.style.padding = "12px 18px";
-          a.style.borderRadius = "10px";
-          a.style.background = "rgba(255,255,255,0.02)";
-          a.style.border = "1px solid var(--border)";
-          a.style.color = "#e6eef6";
-          a.style.textDecoration = "none";
-          a.style.fontFamily = "var(--font-headings)";
-          a.style.fontWeight = "700";
-          a.style.fontSize = "1.1rem";
-          a.style.textTransform = "uppercase";
-          a.style.textAlign = "center";
-          a.addEventListener("click", () => {
-            setTimeout(() => {
-              if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
-              }
-            }, 150);
-          });
-          return a;
-        };
+                // Botón "Volver Arriba"
+                if (window.scrollY > 300) {
+                    scrollToTopBtn.classList.add("active");
+                } else {
+                    scrollToTopBtn.classList.remove("active");
+                }
+            };
+            
+            window.addEventListener("scroll", handleScroll, { passive: true });
+            
+            // Clic en "Volver Arriba"
+            scrollToTopBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
 
-        // --- UPDATED LINKS (English) ---
-        list.appendChild(createLink("Home", "#home"));
-        list.appendChild(createLink("Download", "#download"));
-        list.appendChild(createLink("Previews", "#previews"));
-        list.appendChild(createLink("Comparison", "#comparison"));
-        list.appendChild(createLink("Features", "#features"));
-        list.appendChild(createLink("Requirements", "#requirements"));
-        list.appendChild(createLink("Models", "#models"));
-        list.appendChild(createLink("Structure", "#structure"));
-        list.appendChild(createLink("Contribute", "#contribute"));
-        list.appendChild(createLink("License", "#license"));
 
-        overlay.appendChild(list);
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Menú Móvil
+             * -----------------------------------------------------------------
+             */
+            const hamburger = document.querySelector(".hamburger");
+            const nav = document.querySelector(".primary-nav");
 
-        overlay.addEventListener("click", (ev) => {
-          if (ev.target === overlay) document.body.removeChild(overlay);
-        });
-
-        document.body.appendChild(overlay);
-
-        if (!document.getElementById("mobile-nav-styles")) {
-          const styleSheet = document.createElement("style");
-          styleSheet.id = "mobile-nav-styles";
-          styleSheet.innerText = `
-            @keyframes fadeIn {
-              from { opacity: 0; transform: translateY(-10px); }
-              to { opacity: 1; transform: translateY(0); }
+            if (hamburger && nav) {
+                hamburger.addEventListener("click", () => {
+                    hamburger.classList.toggle("active");
+                    nav.classList.toggle("active");
+                    const isExpanded = nav.classList.contains("active");
+                    hamburger.setAttribute("aria-expanded", isExpanded);
+                });
             }
-          `;
-          document.head.appendChild(styleSheet);
-        }
-      }
 
-      // smooth in-view animation
-      const io = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((e) => {
-            if (e.isIntersecting) {
-              e.target.style.transform = "translateY(0)";
-              e.target.style.opacity = "1";
-              e.target.style.transition = "all 600ms cubic-bezier(.2,.9,.3,1)";
-              io.unobserve(e.target);
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Deslizador de Comparación
+             * -----------------------------------------------------------------
+             */
+            const slider = document.getElementById("hero-slider");
+
+            if (slider) {
+                const handle = slider.querySelector(".slider-handle");
+                const line = slider.querySelector(".slider-handle-line");
+                const imageAfter = slider.querySelector(".image-after");
+                let isDragging = false;
+
+                const startDrag = () => { isDragging = true; };
+                const stopDrag = () => { isDragging = false; };
+
+                const onDrag = (e) => {
+                    if (!isDragging) return;
+                    e.preventDefault();
+                    
+                    const x = e.clientX || (e.touches && e.touches[0].clientX);
+                    if (x === undefined) return;
+                    
+                    const rect = slider.getBoundingClientRect();
+                    let newWidth = x - rect.left;
+
+                    if (newWidth < 0) newWidth = 0;
+                    if (newWidth > rect.width) newWidth = rect.width;
+
+                    const percent = (newWidth / rect.width) * 100;
+                    
+                    imageAfter.style.width = percent + "%";
+                    handle.style.left = percent + "%";
+                    line.style.left = percent + "%";
+                };
+
+                // Eventos de Mouse
+                slider.addEventListener("mousedown", startDrag);
+                document.addEventListener("mouseup", stopDrag);
+                document.addEventListener("mousemove", onDrag);
+                
+                // Eventos Táctiles
+                slider.addEventListener("touchstart", startDrag, { passive: false });
+                document.addEventListener("touchend", stopDrag);
+                document.addEventListener("touchmove", onDrag, { passive: false });
             }
-          });
-        },
-        { threshold: 0.05 }
-      );
 
-      document
-        .querySelectorAll("section.content, section.hero")
-        .forEach((s) => {
-          s.style.transform = "translateY(15px)";
-          s.style.opacity = "0";
-          io.observe(s);
+            /**
+             * -----------------------------------------------------------------
+             * Lógica de Animación y "Scroll Spy" (IntersectionObserver)
+             * -----------------------------------------------------------------
+             */
+            
+            // --- 1. Animaciones al revelar elementos ---
+            const revealElements = document.querySelectorAll(".reveal, .feature-card");
+            
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                        observer.unobserve(entry.target); // Dejar de observar una vez visible
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            revealElements.forEach(el => {
+                revealObserver.observe(el);
+            });
+
+            // --- 2. "Scroll Spy" para la Navegación ---
+            const sections = document.querySelectorAll("section[id]");
+            const navLinks = document.querySelectorAll("nav.primary-nav a");
+
+            const spyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute("id");
+                        navLinks.forEach(link => {
+                            link.classList.remove("active");
+                            if (link.getAttribute("href") === `#${id}`) {
+                                link.classList.add("active");
+                            }
+                        });
+                    }
+                });
+            }, { 
+                rootMargin: "-40% 0px -60% 0px",
+                threshold: 0 
+            });
+
+            sections.forEach(section => {
+                spyObserver.observe(section);
+            });
+
+
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Cursor Personalizado
+             * -----------------------------------------------------------------
+             */
+            const cursorDot = document.getElementById('custom-cursor-dot');
+            const cursorOutline = document.getElementById('custom-cursor-outline');
+            let mouseX = 0, mouseY = 0;
+            let dotX = 0, dotY = 0;
+            let outlineX = 0, outlineY = 0;
+            
+            // No ejecutar en táctil
+            if (!('ontouchstart' in window)) {
+                window.addEventListener('mousemove', (e) => {
+                    mouseX = e.clientX;
+                    mouseY = e.clientY;
+                });
+
+                const animateCursor = () => {
+                    // Dot sigue directamente
+                    dotX = mouseX;
+                    dotY = mouseY;
+                    
+                    // Outline sigue con un "easing" (retraso)
+                    outlineX += (mouseX - outlineX) * 0.15;
+                    outlineY += (mouseY - outlineY) * 0.15;
+                    
+                    cursorDot.style.transform = `translate(${dotX}px, ${dotY}px)`;
+                    cursorOutline.style.transform = `translate(${outlineX}px, ${outlineY}px)`;
+                    
+                    requestAnimationFrame(animateCursor);
+                };
+                requestAnimationFrame(animateCursor);
+
+                // Añadir clase "interactive" al body cuando se pasa sobre elementos
+                const interactiveElements = document.querySelectorAll(
+                    'a, button, .slider-handle, .media-trigger, .hamburger'
+                );
+                
+                interactiveElements.forEach(el => {
+                    el.addEventListener('mouseenter', () => body.classList.add('cursor-interactive'));
+                    el.addEventListener('mouseleave', () => body.classList.remove('cursor-interactive'));
+                });
+            } else {
+                // Ocultar cursores si es táctil
+                cursorDot.style.display = 'none';
+                cursorOutline.style.display = 'none';
+            }
+
+
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Modal Unificado (Lightbox y Video)
+             * -----------------------------------------------------------------
+             */
+            const modal = document.getElementById("media-modal");
+            const modalContent = document.getElementById("modal-content");
+            const closeModalBtn = document.getElementById("modal-close");
+            const mediaTriggers = document.querySelectorAll(".media-trigger");
+
+            const openModal = (type, src) => {
+                modalContent.innerHTML = ''; // Limpiar contenido anterior
+                if (type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = "Vista ampliada";
+                    modalContent.appendChild(img);
+                } else if (type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = src;
+                    video.controls = true;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    modalContent.appendChild(video);
+                }
+                modal.classList.add("active");
+            };
+
+            const closeModal = () => {
+                modal.classList.remove("active");
+                modalContent.innerHTML = ''; // Detener video/limpiar imagen
+            };
+
+            mediaTriggers.forEach(trigger => {
+                trigger.addEventListener("click", () => {
+                    const type = trigger.dataset.type;
+                    const src = trigger.dataset.src;
+                    openModal(type, src);
+                });
+                
+                // Accesibilidad: Abrir con tecla Enter
+                trigger.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        const type = trigger.dataset.type;
+                        const src = trigger.dataset.src;
+                        openModal(type, src);
+                    }
+                });
+            });
+
+            closeModalBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                closeModal();
+            });
+
+            // Cerrar al hacer clic fuera del contenido (en el overlay)
+            modal.addEventListener("click", (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // Cerrar con la tecla "Escape"
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape" && modal.classList.contains("active")) {
+                    closeModal();
+                }
+            });
+
+            /**
+             * -----------------------------------------------------------------
+             * Lógica del Fondo de Partículas (Canvas)
+             * -----------------------------------------------------------------
+             */
+            const canvas = document.getElementById('particle-canvas');
+            if (canvas && !('ontouchstart' in window)) { // No ejecutar en táctil
+                const ctx = canvas.getContext('2d');
+                let particles = [];
+                let mouse = { x: null, y: null, radius: 100 };
+                
+                window.addEventListener('mousemove', (e) => {
+                    mouse.x = e.clientX;
+                    mouse.y = e.clientY;
+                });
+                window.addEventListener('mouseout', () => {
+                    mouse.x = null;
+                    mouse.y = null;
+                });
+
+                class Particle {
+                    constructor(x, y, dirX, dirY, size, color) {
+                        this.x = x;
+                        this.y = y;
+                        this.dirX = dirX;
+                        this.dirY = dirY;
+                        this.size = size;
+                        this.color = color;
+                    }
+                    
+                    draw() {
+                        ctx.beginPath();
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                    }
+                    
+                    update() {
+                        if (this.x > canvas.width || this.x < 0) this.dirX = -this.dirX;
+                        if (this.y > canvas.height || this.y < 0) this.dirY = -this.dirY;
+
+                        // Interacción con el ratón
+                        let dx = mouse.x - this.x;
+                        let dy = mouse.y - this.y;
+                        let distance = Math.sqrt(dx*dx + dy*dy);
+                        if (distance < mouse.radius) {
+                            if (mouse.x < this.x && this.x < canvas.width - this.size * 10) this.x += 1;
+                            if (mouse.x > this.x && this.x > this.size * 10) this.x -= 1;
+                            if (mouse.y < this.y && this.y < canvas.height - this.size * 10) this.y += 1;
+                            if (mouse.y > this.y && this.y > this.size * 10) this.y -= 1;
+                        }
+
+                        this.x += this.dirX;
+                        this.y += this.dirY;
+                        this.draw();
+                    }
+                }
+
+                function init() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    particles = [];
+                    let numParticles = (canvas.width * canvas.height) / 9000;
+                    for (let i=0; i < numParticles; i++) {
+                        let size = Math.random() * 0.5 + 0.5;
+                        let x = Math.random() * (canvas.width - size * 2) + size;
+                        let y = Math.random() * (canvas.height - size * 2) + size;
+                        let dirX = (Math.random() * 0.4) - 0.2;
+                        let dirY = (Math.random() * 0.4) - 0.2;
+                        let color = 'rgba(255, 215, 0, 0.3)'; // Color dorado
+                        particles.push(new Particle(x, y, dirX, dirY, size, color));
+                    }
+                }
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    for (let i=0; i < particles.length; i++) {
+                        particles[i].update();
+                    }
+                }
+
+                window.addEventListener('resize', () => {
+                    clearTimeout(window.resizeTimer);
+                    window.resizeTimer = setTimeout(init, 100);
+                });
+
+                init();
+                animate();
+            } else if (canvas) {
+                canvas.style.display = 'none'; // Ocultar canvas en móvil
+            }
+
         });
     </script>
-  </body>
+</body>
 </html>
-
-
-
-
-
-
