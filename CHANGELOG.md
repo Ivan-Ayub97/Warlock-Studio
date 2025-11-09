@@ -66,6 +66,8 @@
 - The conditional visibility logic for menus in `select_AI_from_menu` was refined for a smoother user experience:
   - The **Frame Interpolation** control is only visible for RIFE models.
   - The **Blending** control is only visible for Upscaling/Facial Restoration models (with automatic disabling logic for GFPGAN).
+ 
+  ---
 
 ## Version 4.2.1
 
@@ -616,3 +618,4 @@ The color scheme has been updated as follows:
 ### 2. Minor Fixes
 
 - User‑interface tweaks for better accessibility (focus indicators, tab order).
+
