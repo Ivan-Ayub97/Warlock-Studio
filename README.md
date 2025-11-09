@@ -3,7 +3,7 @@
 <div align="center">
 
 [![Build Status](https://img.shields.io/badge/Build-Stable_Release-0A192F?style=for-the-badge&logo=github&logoColor=FFD700)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![Version](https://img.shields.io/badge/Version-4.2.1-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.2.1)
+[![Version](https://img.shields.io/badge/Version-4.3-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.3)
 [![License](https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 
@@ -16,33 +16,21 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ---
 
-## 📥 Download Installer:
+## 📥 Download Installer
 
 <table style="width:100%; border-collapse:collapse;">
   <tr>
-    <td align="center" style="vertical-align:top; padding:10px;">
+    <td align="center" style="vertical-align:top; padding:px;">
       <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
         <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
              alt="Warlock-Studio on SourceForge"
-             width="200" style="display:block; margin:auto; margin-bottom:10px;" />
+             width="175" style="display:block; margin:auto; margin-bottom:1px;" />
       </a>
     </td>
     <td align="center" style="vertical-align:top; padding:10px;">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio-v4.2.1-Setup.exe" target="_blank">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.3/Warlock-Studio-v4.3-Setup.zip" target="_blank">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
-             width="200" style="display:block; margin:auto; margin-bottom:10px;" />
-      </a>
-    </td>
-  </tr>
-</table>
-
-### 📚 User Manuals & Documentation
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.2.1/Warlock-Studio_Manual.pdf">
-        <img src="https://img.shields.io/badge/Download-Manual-005A9B?style=for-the-badge&logo=read-the-docs&logoColor=white"
-             alt="Download Manual">
+             width="300" style="display:block; margin:auto; margin-bottom:10px;" />
       </a>
     </td>
   </tr>
@@ -51,13 +39,13 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 ---
 
 ## 🖼️ Interface Previews
-![Main interface](rsc/Capture.png)
 
-![Console](rsc/CaptureCONSOLE.png)
+![Main interface](rsc/Capture.png)
 
 ---
 
 ## 🖼️ Quality Comparison
+
 [WsvideovsGit.webm](https://github.com/user-attachments/assets/c72f389d-827e-49b9-91b7-fd13e5b59f22)
 
 [WsvideovsGit2.webm](https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2)
@@ -157,7 +145,6 @@ Warlock-Studio/
 └── SECURITY.md                       # Security reporting policies
 ```
 
-
 <div align="center">
 
 ---
@@ -166,8 +153,8 @@ Warlock-Studio/
 
 We welcome contributions from the community:
 
-**Fork** the repository.  
-**Create a branch** for your feature or bug fix.  
+**Fork** the repository.
+**Create a branch** for your feature or bug fix.
 **Submit a Pull Request** with a detailed description and testing notes.
 
 📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**
@@ -176,7 +163,7 @@ We welcome contributions from the community:
 
 ## 📜 License
 
-© 2025 Iván Eduardo Chavez Ayub  
+© 2025 Iván Eduardo Chavez Ayub
 Licensed under **MIT**. Additional terms and attributions are provided in `NOTICE.md`.
 
 ### 📊 Integrated Technologies & Licenses
@@ -198,4 +185,3 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
-

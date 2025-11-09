@@ -110,20 +110,32 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "4.2.1"
+version = "4.3"
 
-background_color = "#480B0B"
-app_name_color = "#FFFFFF"
-widget_background_color = "#252525"
-text_color = "#FFE32C"
-secondary_text_color = "#D0D0D0"
-accent_color = "#FFFFFF"
-button_hover_color = "#FF6666"
-border_color = "#404040"
-info_button_color = "#A80000"
-warning_color = "#E02CDA"
-success_color = "#32CD32"
-error_color = "#070087"
+# 🌑 Crimson Gold Dark Theme
+
+background_color = "#121212"           # Negro profundo con leve calidez
+app_name_color = "#FFFFFF"             # Blanco puro, nítido sobre fondo oscuro
+# Rojo vino muy oscuro (para paneles y marcos)
+widget_background_color = "#4B0000"
+text_color = "#FFFFFF"                 # Blanco principal para texto
+# Gris claro suave, para subtítulos o texto menos importante
+secondary_text_color = "#C8C8C8"
+# Dorado puro (detalle de lujo y contraste)
+accent_color = "#FFD700"
+button_hover_color = "#FF4444"         # Rojo claro brillante, resalta sin saturar
+border_color = "#2A2A2A"               # Gris oscuro para contornos discretos
+# Rojo sangre sobrio (botones secundarios)
+info_button_color = "#8B0000"
+warning_color = "#E6C200"              # Dorado cálido para alertas y avisos
+# Verde neón tenue (no rompe la estética)
+success_color = "#3FE55B"
+error_color = "#B00020"                # Rojo carmesí oscuro para errores
+# Dorado-anaranjado suave (resalta elementos activos)
+highlight_color = "#FFB84C"
+# Rojo oscuro translúcido para barras y scrolls
+scrollbar_color = "#660000"
+
 
 VRAM_model_usage = {
     'RealESR_Gx4':     2.2,
@@ -137,7 +149,7 @@ VRAM_model_usage = {
     'GFPGAN':          1.8,
 }
 
-MENU_LIST_SEPARATOR = ["<------------------>"]
+MENU_LIST_SEPARATOR = ["• • • • • • • • • • • •"]
 SRVGGNetCompact_models_list = ["RealESR_Gx4", "RealESR_Animex4"]
 BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
@@ -912,72 +924,103 @@ class AI_interpolation:
 
 class AI_face_restoration:
     """
-    Face restoration AI class for model like GFPGAN
-    These model are specialized for face enhancement and restoration tasks.
+    Clase para restauración facial (GFPGAN u otros modelos ONNX de face-restoration).
+    Reemplaza/actualiza la implementación anterior con:
+    - Preprocesado seguro (float32 por defecto)
+    - Conversión a float16 solo si la sesión ONNX realmente lo requiere
+    - Manejo de alpha channel y reescalados
+    - Logs diagnósticos y manejo robusto de errores
     """
 
     def __init__(
-            self,
-            AI_model_name: str,
-            directml_gpu: str,
-            input_resize_factor: float,
-            output_resize_factor: float,
-            max_resolution: int
+        self,
+        AI_model_name: str,
+        directml_gpu: str,
+        input_resize_factor: float,
+        output_resize_factor: float,
+        max_resolution: int
     ):
-        # Passed variables
+        # Parámetros pasados
         self.AI_model_name = AI_model_name
         self.directml_gpu = directml_gpu
         self.input_resize_factor = input_resize_factor
         self.output_resize_factor = output_resize_factor
         self.max_resolution = max_resolution
 
-        # Model-specific configurations
+        # Configuración por modelo (ajustable)
+        # GFPGAN suele usar 512x512; ajustar según tu modelo real
         self.model_configs = {
             "GFPGAN": {
                 "input_size": (512, 512),
                 "scale_factor": 1,
                 "description": "GFPGAN v1.4 for face restoration",
-                "fp16": True
+                "fp16": True  # indica que hay una variante fp16, pero no forzamos su uso
             }
         }
 
-        # Determine model path based on model name
+        # Rutas y estado
         self.AI_model_path = self._get_model_path()
         self.model_config = self.model_configs.get(
             AI_model_name, self.model_configs["GFPGAN"])
         self.inferenceSession = None
 
+    # -------------------
+    # CARGA Y SESIÓN ONNX
+    # -------------------
     def _get_model_path(self) -> str:
         """
-        Get the appropriate model path based on the model name
+        Construye la ruta al archivo ONNX del modelo.
         """
-        if self.AI_model_name == "GFPGAN":
-            return find_by_relative_path(f"AI-onnx{os_separator}GFPGANv1.4.fp16.onnx")
-        else:
-            # Default fallback to GFPGAN
-            return find_by_relative_path(f"AI-onnx{os_separator}GFPGANv1.4.fp16.onnx")
+        # Prioriza la versión fp16 si nombre lo sugiere, si no existe cae en fp32
+        candidate_fp16 = find_by_relative_path(
+            f"AI-onnx{os_separator}{self.AI_model_name}_fp16.onnx")
+        candidate_fp32 = find_by_relative_path(
+            f"AI-onnx{os_separator}{self.AI_model_name}_fp32.onnx")
+        candidate_default = find_by_relative_path(
+            f"AI-onnx{os_separator}{self.AI_model_name}.onnx")
 
-# REEMPLAZA ESTE MÉTODO EN LA CLASE AI_face_restoration
+        if os_path_exists(candidate_fp16):
+            return candidate_fp16
+        if os_path_exists(candidate_fp32):
+            return candidate_fp32
+        if os_path_exists(candidate_default):
+            return candidate_default
+
+        # Si no existe, retornamos la ruta esperada (la carga fallará y se informará)
+        return candidate_default
+
     def _load_inferenceSession(self) -> None:
-        """Carga la sesión de inferencia utilizando la función centralizada."""
+        """
+        Carga la sesión ONNX usando la función centralizada create_onnx_session.
+        Levanta RuntimeError si falla.
+        """
         try:
+            if not os_path_exists(self.AI_model_path):
+                raise FileNotFoundError(
+                    f"AI model not found: {self.AI_model_path}")
             self.inferenceSession = create_onnx_session(
                 self.AI_model_path, self.directml_gpu)
+            print(
+                f"[GFPGAN] Modelo cargado: {os_path_basename(self.AI_model_path)}")
         except Exception as e:
             error_msg = f"Failed to load face restoration model {os_path_basename(self.AI_model_path)}: {str(e)}"
             print(f"[AI ERROR] {error_msg}")
             raise RuntimeError(error_msg)
 
+    # -------------------
+    # UTILIDADES INTERNAS
+    # -------------------
     def get_image_mode(self, image: numpy_ndarray) -> str:
+        """
+        Devuelve 'Grayscale', 'RGB' o 'RGBA' según la forma del array.
+        """
         if image is None:
             raise ValueError("Image is None")
         shape = image.shape
-        if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
+        if len(shape) == 2:
             return "Grayscale"
-        # RGB: 3D array with 3 channels
         elif len(shape) == 3 and shape[2] == 3:
             return "RGB"
-        # RGBA: 3D array with 4 channels
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
         else:
@@ -989,164 +1032,244 @@ class AI_face_restoration:
         return height, width
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-        old_height, old_width = self.get_image_resolution(image)
-        new_width = int(old_width * self.input_resize_factor)
-        new_height = int(old_height * self.input_resize_factor)
-
-        new_width = new_width if new_width % 2 == 0 else new_width + 1
-        new_height = new_height if new_height % 2 == 0 else new_height + 1
+        """
+        Redimensiona la imagen según input_resize_factor y garantiza dimensiones pares.
+        """
+        old_h, old_w = self.get_image_resolution(image)
+        new_w = int(old_w * self.input_resize_factor)
+        new_h = int(old_h * self.input_resize_factor)
+        new_w = new_w if new_w % 2 == 0 else new_w + 1
+        new_h = new_h if new_h % 2 == 0 else new_h + 1
 
         if self.input_resize_factor > 1:
-            return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
+            return opencv_resize(image, (new_w, new_h), interpolation=INTER_CUBIC)
         elif self.input_resize_factor < 1:
-            return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
+            return opencv_resize(image, (new_w, new_h), interpolation=INTER_AREA)
         else:
             return image
 
     def resize_with_output_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-        old_height, old_width = self.get_image_resolution(image)
-        new_width = int(old_width * self.output_resize_factor)
-        new_height = int(old_height * self.output_resize_factor)
-
-        new_width = new_width if new_width % 2 == 0 else new_width + 1
-        new_height = new_height if new_height % 2 == 0 else new_height + 1
+        """
+        Redimensiona la imagen según output_resize_factor y garantiza dimensiones pares.
+        """
+        old_h, old_w = self.get_image_resolution(image)
+        new_w = int(old_w * self.output_resize_factor)
+        new_h = int(old_h * self.output_resize_factor)
+        new_w = new_w if new_w % 2 == 0 else new_w + 1
+        new_h = new_h if new_h % 2 == 0 else new_h + 1
 
         if self.output_resize_factor > 1:
-            return opencv_resize(image, (new_width, new_height), interpolation=INTER_CUBIC)
+            return opencv_resize(image, (new_w, new_h), interpolation=INTER_CUBIC)
         elif self.output_resize_factor < 1:
-            return opencv_resize(image, (new_width, new_height), interpolation=INTER_AREA)
+            return opencv_resize(image, (new_w, new_h), interpolation=INTER_AREA)
         else:
             return image
 
+    def add_alpha_channel(self, image: numpy_ndarray) -> numpy_ndarray:
+        """
+        Asegura que la imagen tenga canal alpha (lo añade opaco si no).
+        """
+        if len(image.shape) == 3 and image.shape[2] == 3:
+            alpha = numpy_full(
+                (image.shape[0], image.shape[1], 1), 255, dtype=uint8)
+            image = numpy_concatenate((image, alpha), axis=2)
+        return image
+
+    # -------------------
+    # PRE / POST PROCESS
+    # -------------------
     def preprocess_face_image(self, image: numpy_ndarray) -> tuple[numpy_ndarray, bool]:
         """
-        Preprocess image for face restoration models
-        Face restoration models typically expect normalized input in range [0, 1]
-        Returns: (preprocessed_image, has_alpha)
+        Prepara la imagen para la inferencia de restauración facial.
+        Devuelve (preprocessed_image_float32, had_alpha_bool).
+        - Siempre devuelve float32 por defecto.
+        - El caller decidirá convertir a float16 justo antes de la inferencia si la sesión lo requiere.
         """
-        # Optimización: Asegurar memoria contigua al inicio
+        # Asegurar memoria contigua
         image = numpy_ascontiguousarray(image)
 
-        # Check if image has alpha channel
-        has_alpha = False
+        # Detectar alpha
+        had_alpha = False
         if len(image.shape) == 3 and image.shape[2] == 4:
-            has_alpha = True
-            # Convert BGRA to BGR for model processing
-            image = opencv_cvtColor(image, COLOR_BGRA2BGR)
-        elif len(image.shape) == 3 and image.shape[2] != 3:
-            # Handle unexpected channel counts
-            if image.shape[2] > 4:
-                # Take only first 3 channels
+            had_alpha = True
+            # Guardamos alpha pero procesaremos solo BGR
+            # Convertir BGRA -> BGR para el modelo
+            try:
+                image = opencv_cvtColor(image, COLOR_BGRA2BGR)
+            except Exception:
+                # Fallback: eliminar canal alpha si cvtColor falla
                 image = image[:, :, :3]
-            elif image.shape[2] == 1:
-                # Convert grayscale to BGR
-                image = opencv_cvtColor(image, COLOR_GRAY2BGR)
 
-        # Resize to model's expected input size
-        target_size = self.model_config["input_size"]
-        image = opencv_resize(image, target_size, interpolation=INTER_AREA)
+        # Asegurar que la imagen tenga 3 canales
+        if len(image.shape) == 2:
+            image = opencv_cvtColor(image, COLOR_GRAY2RGB)
+        elif len(image.shape) == 3 and image.shape[2] != 3:
+            # si hay más canales, recortar a 3
+            image = image[:, :, :3]
 
-        # Determinar el tipo de dato correcto (float16 o float32)
-        if self.model_config.get("fp16", False):
-            dtype = float16
-        else:
-            dtype = float32
+        # Redimensionar a tamaño del modelo (input_size)
+        target_w, target_h = self.model_config["input_size"][1], self.model_config["input_size"][0]
+        try:
+            image_resized = opencv_resize(
+                image, (target_w, target_h), interpolation=INTER_AREA)
+        except Exception as e:
+            print(
+                f"[GFPGAN] Warning: resize failed: {e}. Using original size.")
+            image_resized = image
 
-        # Optimización: Normalizar usando memoria contigua
-        image = numpy_ascontiguousarray(image, dtype=dtype) / 255.0
+        # Normalizar a float32 en rango [0,1]
+        preprocessed = numpy_ascontiguousarray(
+            image_resized, dtype=float32) / 255.0
 
-        # Transpose to CHW format (channels, height, width)
-        image = numpy_transpose(image, (2, 0, 1))
+        # Transpose a NCHW
+        preprocessed = numpy_transpose(preprocessed, (2, 0, 1))
+        preprocessed = numpy_expand_dims(preprocessed, axis=0)  # batch dim
 
-        # Add batch dimension
-        image = numpy_expand_dims(image, axis=0)
-
-        return image, has_alpha
+        return preprocessed, had_alpha
 
     def postprocess_face_image(self, output: numpy_ndarray, original_size: tuple) -> numpy_ndarray:
         """
-        Postprocess face restoration model output
+        Postprocesa la salida del modelo:
+         - squeeze batch
+         - clamp [0,1]
+         - transpose a HWC
+         - convertir a uint8 y redimensionar a tamaño original
         """
-        # Remove batch dimension
+        # Squeeze batch
         output = numpy_squeeze(output, axis=0)
 
-        # Clamp values to [0, 1]
-        output = numpy_clip(output, 0, 1)
+        # Clamp y asegurar tipo float32
+        output = numpy_clip(output, 0.0, 1.0)
 
-        # Transpose back to HWC format
+        # Transpose a HWC
         output = numpy_transpose(output, (1, 2, 0))
 
-        # Convert back to uint8
-        output = (output * 255).astype(uint8)
+        # Convertir a uint8
+        output_uint8 = (output * 255.0).round().astype(uint8)
 
-        # Resize back to original size
-        if original_size != self.model_config["input_size"]:
-            output = opencv_resize(
-                output, (original_size[1], original_size[0]), interpolation=INTER_CUBIC)
+        # Redimensionar a tamaño original (original_size es (h, w))
+        try:
+            if (original_size[0], original_size[1]) != (self.model_config["input_size"][0], self.model_config["input_size"][1]):
+                # opencv resize espera (width, height)
+                output_uint8 = opencv_resize(
+                    output_uint8, (original_size[1], original_size[0]), interpolation=INTER_CUBIC)
+        except Exception as e:
+            print(f"[GFPGAN] Warning: postprocess resize failed: {e}")
 
-        return output
+        return output_uint8
 
+    # -------------------
+    # LÓGICA PRINCIPAL
+    # -------------------
     def face_restoration(self, image: numpy_ndarray) -> numpy_ndarray:
         """
-        Perform face restoration on the input image
+        Orquestador principal: aplica restauración facial usando el modelo ONNX.
+        Retorna la imagen restaurada (preservando alpha cuando sea necesario).
         """
         if self.inferenceSession is None:
             self._load_inferenceSession()
 
-        # Store original size and check for alpha channel
-        original_size = (image.shape[0], image.shape[1])
+        # Guardar tamaño original y alpha si existe
+        original_h, original_w = self.get_image_resolution(image)
         original_alpha = None
-
-        # Extract alpha channel if present
         if len(image.shape) == 3 and image.shape[2] == 4:
-            original_alpha = image[:, :, 3]  # Store original alpha
+            original_alpha = image[:, :, 3]
 
-        # Apply input resizing
-        image = self.resize_with_input_factor(image)
+        # Aplicar factor de input (si corresponde)
+        try:
+            resized_input = self.resize_with_input_factor(image)
+        except Exception as e:
+            print(f"[GFPGAN] Warning: resize_with_input_factor failed: {e}")
+            resized_input = image
 
-        # Preprocess for face restoration
-        preprocessed, had_alpha = self.preprocess_face_image(image)
+        # Preprocess -> float32
+        preprocessed, had_alpha = self.preprocess_face_image(resized_input)
 
-        # Run inference
-        input_name = self.inferenceSession.get_inputs()[0].name
-        output_name = self.inferenceSession.get_outputs()[0].name
+        # Detectar el dtype esperado por la sesión ONNX (si es posible)
+        session_input = None
+        input_type_str = None
+        try:
+            session_input = self.inferenceSession.get_inputs()[0]
+            # Algunos objetos tienen .type o .dtype, algunos no; usamos str() como fallback
+            if hasattr(session_input, 'type') and session_input.type:
+                input_type_str = str(session_input.type)
+            elif hasattr(session_input, 'dtype') and session_input.dtype:
+                input_type_str = str(session_input.dtype)
+            else:
+                # Intentar inspeccionar la información de la firma
+                try:
+                    input_type_str = str(session_input)  # puede contener info
+                except Exception:
+                    input_type_str = None
+        except Exception:
+            input_type_str = None
 
-        result = self.inferenceSession.run(
-            [output_name], {input_name: preprocessed})[0]
+        print(
+            f"[GFPGAN] Pre-infer dtype(preprocessed)={preprocessed.dtype}, session_input_type={input_type_str}")
 
-        # Postprocess the result
+        # Convertir a float16 SOLO si la sesión lo requiere explícitamente
+        run_input = preprocessed
+        try:
+            requires_fp16 = False
+            if input_type_str:
+                if 'float16' in input_type_str.lower() or 'fp16' in input_type_str.lower():
+                    requires_fp16 = True
+            if requires_fp16:
+                # Convertimos sólo aquí, antes de pasar al modelo
+                run_input = preprocessed.astype(float16)
+                print(
+                    "[GFPGAN] Convirtiendo input a float16 para la inferencia (según sesión).")
+        except Exception as e:
+            print(
+                f"[GFPGAN] Warning: no se pudo convertir a float16: {e}. Manteniendo float32.")
+
+        # Ejecutar la inferencia
+        try:
+            input_name = self.inferenceSession.get_inputs()[0].name
+            output_name = self.inferenceSession.get_outputs()[0].name
+            # Ejecutar la sesión (pasamos run_input)
+            output = self.inferenceSession.run(
+                [output_name], {input_name: run_input})[0]
+        except Exception as e:
+            raise RuntimeError(f"GFPGAN inference failed: {e}")
+
+        # Postprocess
         restored_face = self.postprocess_face_image(
-            result, (image.shape[0], image.shape[1]))
+            output, (resized_input.shape[0], resized_input.shape[1]))
 
-        # Restore alpha channel if original image had one
+        # Restaurar canal alpha si era necesario
         if had_alpha and original_alpha is not None:
-            # Resize alpha to match restored face size
-            alpha_resized = opencv_resize(original_alpha,
-                                          (restored_face.shape[1],
-                                           restored_face.shape[0]),
-                                          interpolation=INTER_CUBIC)
+            try:
+                alpha_resized = opencv_resize(
+                    original_alpha, (restored_face.shape[1], restored_face.shape[0]), interpolation=INTER_CUBIC)
+                if len(alpha_resized.shape) == 2:
+                    alpha_resized = numpy_expand_dims(alpha_resized, axis=-1)
+                restored_face = numpy_concatenate(
+                    (restored_face, alpha_resized), axis=2)
+            except Exception as e:
+                print(
+                    f"[GFPGAN] Warning: failed to restore alpha channel: {e}")
 
-            # Convert to RGBA
-            if len(alpha_resized.shape) == 2:  # Ensure alpha has correct shape
-                alpha_resized = numpy_expand_dims(alpha_resized, axis=-1)
-
-            restored_face = numpy_concatenate(
-                (restored_face, alpha_resized), axis=2)
-
-        # Apply output resizing
-        restored_face = self.resize_with_output_factor(restored_face)
+        # Aplicar factor de output (si corresponde)
+        try:
+            restored_face = self.resize_with_output_factor(restored_face)
+        except Exception as e:
+            print(f"[GFPGAN] Warning: resize_with_output_factor failed: {e}")
 
         return restored_face
 
+    # -------------------
+    # Orquestador público
+    # -------------------
     def AI_orchestration(self, image: numpy_ndarray) -> numpy_ndarray:
         """
-        Main orchestration function for face restoration
+        Método público que otros módulos llaman para aplicar restauración facial.
         """
         try:
             return self.face_restoration(image)
         except Exception as e:
             print(f"[FACE RESTORATION ERROR] {str(e)}")
-            # Return original image if restoration fails
+            # En caso de fallo devolvemos la imagen original (no alterada)
             return image
 
 
@@ -2998,152 +3121,162 @@ def create_frame_list_file(frame_paths: list[str], txt_path: str) -> bool:
 
 
 def video_encoding(
-        process_status_q: multiprocessing_Queue,
-        video_path: str,
-        video_output_path: str,
-        upscaled_frame_paths: list[str],
-        selected_video_codec: str,
+    process_status_q: multiprocessing_Queue,
+    video_path: str,
+    video_output_path: str,
+    upscaled_frame_paths: list[str],
+    selected_video_codec: str,
 ) -> None:
-    """Enhanced video encoding with robust error handling and codec support."""
+    """
+    Video encoding function for Warlock-Studio.
+    - Toma los frames mejorados por IA y los recompone en un video final.
+    - Detecta y conserva (o re-codifica) el audio original del video.
+    - Maneja errores de FFmpeg de forma robusta y limpia temporales.
+    """
 
     try:
-        # Validate inputs
-        if not upscaled_frame_paths:
-            raise ValueError("No frame paths provided for video encoding")
-
-        if not validate_ffmpeg_executable():
-            raise RuntimeError("FFmpeg validation failed")
-
-        # Get video information
-        video_info = get_video_info(video_path)
-        if not video_info:
-            raise ValueError("Could not get video information")
-
-        # Get optimized codec settings
-        codec_settings = get_video_codec_settings(
-            selected_video_codec, video_info)
-
-        # Test codec compatibility
-        if not test_codec_compatibility(codec_settings['codec']):
-            print(
-                f"[WARNING] Codec {codec_settings['codec']} not available, falling back to libx264")
-            codec_settings = get_video_codec_settings('x264', video_info)
-
-        # Prepare file paths
+        # --- Preparación de rutas temporales ---
         base_name = os_path_splitext(video_output_path)[0]
         txt_path = f"{base_name}_frames.txt"
         no_audio_path = f"{base_name}_no_audio{os_path_splitext(video_output_path)[1]}"
 
-        # Clean up any existing temporary files
+        # Eliminar residuos previos
         for temp_file in [txt_path, no_audio_path]:
             if os_path_exists(temp_file):
                 try:
                     os_remove(temp_file)
                 except Exception as e:
                     print(
-                        f"[WARNING] Could not remove temporary file {temp_file}: {e}")
+                        f"[WARNING] No se pudo eliminar temporal {temp_file}: {e}")
 
-        # Get video FPS with fallback
+        # --- Obtener FPS del video original ---
         try:
             video_fps = get_video_fps(video_path)
-            if video_fps <= 0 or video_fps > 1000:  # Sanity check
-                raise ValueError(f"Invalid frame rate: {video_fps}")
-            video_fps_str = f"{video_fps:.6f}"  # High precision for FFmpeg
+            if video_fps <= 0 or video_fps > 1000:
+                raise ValueError(f"FPS inválido: {video_fps}")
+            video_fps_str = f"{video_fps:.6f}"
         except Exception as e:
-            print(f"[WARNING] Could not get video FPS: {e}, using 30.0")
+            print(
+                f"[WARNING] No se pudieron obtener los FPS: {e}, usando 30.0 por defecto")
             video_fps_str = "30.000000"
 
-        # Create frame list file
+        # --- Crear lista de frames para FFmpeg ---
         if not create_frame_list_file(upscaled_frame_paths, txt_path):
-            raise RuntimeError("Failed to create frame list file")
+            raise RuntimeError("Error al crear el archivo de lista de frames")
 
-        # Build encoding command
+        # --- Configurar codificación principal ---
+        codec_settings = get_video_codec_settings(
+            selected_video_codec, {'fps': video_fps_str})
         encoding_command = build_encoding_command(
-            video_path, txt_path, no_audio_path, codec_settings, video_fps_str
-        )
+            video_path, txt_path, no_audio_path, codec_settings, video_fps_str)
 
-        # Execute video encoding
-        print(f"[FFMPEG] Starting encoding with {codec_settings['codec']}")
+        print(f"[FFMPEG] Iniciando codificación con {codec_settings['codec']}")
         print(
-            f"[FFMPEG] Processing {len(upscaled_frame_paths)} frames at {video_fps_str} FPS")
+            f"[FFMPEG] Procesando {len(upscaled_frame_paths)} frames a {video_fps_str} FPS")
 
+        # --- Ejecutar FFmpeg para generar video sin audio ---
         try:
             result = subprocess_run(
                 encoding_command,
                 check=True,
                 capture_output=True,
                 text=True,
-                timeout=3600  # 1 hour timeout
+                timeout=3600
             )
-
-            # Verify output file was created and has reasonable size
             if not os_path_exists(no_audio_path):
                 raise RuntimeError(
-                    "Video encoding completed but output file was not created")
-
+                    "FFmpeg terminó pero el archivo de salida no existe")
             output_size = os_path_getsize(no_audio_path)
-            if output_size < 1024:  # Less than 1KB indicates failure
+            if output_size < 1024:
                 raise RuntimeError(
-                    f"Video encoding produced suspiciously small file: {output_size} bytes")
-
+                    f"Archivo de salida sospechosamente pequeño: {output_size} bytes")
             print(
-                f"[FFMPEG] Video encoding completed: {output_size / (1024*1024):.1f} MB")
-
+                f"[FFMPEG] Codificación de video completada ({output_size / (1024*1024):.1f} MB)")
         except subprocess.TimeoutExpired:
-            error_msg = "Video encoding timeout (exceeded 1 hour)"
+            error_msg = "FFmpeg excedió el tiempo límite (1 hora)"
             log_and_report_error(error_msg)
             write_process_status(
                 process_status_q, f"{ERROR_STATUS}{error_msg}")
             return
         except CalledProcessError as e:
             error_details = e.stderr if e.stderr else str(e)
-            error_msg = f"FFmpeg encoding failed: {error_details}"
-
-            # Try to provide helpful error messages
+            error_msg = f"FFmpeg falló durante codificación: {error_details}"
             if "Unknown encoder" in error_details:
-                error_msg += "\nThe selected codec is not supported. Try x264 instead."
+                error_msg += "\nEl códec seleccionado no está soportado. Prueba con x264."
             elif "Device or resource busy" in error_details:
-                error_msg += "\nGPU encoder is busy. Try software encoding (x264/x265)."
+                error_msg += "\nEl codificador GPU está ocupado. Prueba codificación por software."
             elif "Invalid data" in error_details:
-                error_msg += "\nFrame data may be corrupted. Check input images."
-
+                error_msg += "\nLos datos de los frames podrían estar dañados."
             log_and_report_error(error_msg)
             write_process_status(
                 process_status_q, f"{ERROR_STATUS}{error_msg}")
             return
 
-        # Audio passthrough with multiple fallback strategies
-        print("[FFMPEG] Processing audio track")
+        # --- Detección de audio ---
+        print("[FFMPEG] Verificando pista de audio del video original...")
 
-        # Check if original video has audio
-        audio_info_command = [
-            FFMPEG_EXE_PATH,
-            "-i", video_path,
-            "-hide_banner",
-            "-loglevel", "error",
-            "-select_streams", "a:0",
-            "-show_entries", "stream=codec_name",
-            "-of", "csv=p=0"
-        ]
+        ffprobe_path = None
+        try:
+            ffprobe_guess = FFMPEG_EXE_PATH.replace(
+                "ffmpeg.exe", "ffprobe.exe")
+            if os_path_exists(ffprobe_guess):
+                ffprobe_path = ffprobe_guess
+            else:
+                ffprobe_guess2 = FFMPEG_EXE_PATH.replace(
+                    "ffmpeg.exe", "ffprobe")
+                if os_path_exists(ffprobe_guess2):
+                    ffprobe_path = ffprobe_guess2
+        except Exception:
+            ffprobe_path = None
 
         has_audio = False
-        try:
-            audio_result = subprocess_run(
-                audio_info_command,
-                capture_output=True,
-                text=True,
-                timeout=30
-            )
-            has_audio = audio_result.returncode == 0 and audio_result.stdout.strip()
-        except Exception:
-            print("[WARNING] Could not detect audio stream, assuming no audio")
+        audio_codec = ""
 
+        if ffprobe_path:
+            try:
+                probe_cmd = [
+                    ffprobe_path,
+                    "-v", "error",
+                    "-select_streams", "a",
+                    "-show_entries", "stream=codec_name",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    video_path
+                ]
+                probe = subprocess_run(
+                    probe_cmd, capture_output=True, text=True, timeout=30)
+                audio_codec = probe.stdout.strip()
+                print(f"[FFPROBE] stdout: {probe.stdout.strip()}")
+                print(f"[FFPROBE] stderr: {probe.stderr.strip()}")
+                has_audio = bool(audio_codec)
+            except Exception as e:
+                print(f"[WARNING] No se pudo detectar audio con ffprobe: {e}")
+                has_audio = False
+
+        if not ffprobe_path or not has_audio:
+            try:
+                probe_cmd = [FFMPEG_EXE_PATH, "-i", video_path]
+                probe = subprocess_run(
+                    probe_cmd, capture_output=True, text=True, timeout=20)
+                stderr_output = probe.stderr or probe.stdout or ""
+                print(f"[FFMPEG PROBE] Primeras líneas del stderr:")
+                print("\n".join(stderr_output.splitlines()[:10]))
+                for line in stderr_output.splitlines():
+                    if "Audio:" in line:
+                        has_audio = True
+                        audio_codec = line.strip()
+                        break
+            except Exception as e:
+                print(f"[WARNING] Fallback de detección con FFmpeg falló: {e}")
+                has_audio = False
+
+        print(f"[FFMPEG] has_audio={has_audio}, audio_codec={audio_codec!r}")
+
+        # --- Estrategias de audio ---
         if has_audio:
-            # Strategy 1: Copy audio as-is
-            audio_command = [
+            # Estrategia 1: copiar pista original
+            audio_copy_cmd = [
                 FFMPEG_EXE_PATH,
-                "-y",
-                "-loglevel", "error",
+                "-y", "-loglevel", "error",
                 "-i", video_path,
                 "-i", no_audio_path,
                 "-c:v", "copy",
@@ -3153,101 +3286,76 @@ def video_encoding(
                 "-shortest",
                 video_output_path
             ]
-
             try:
-                result = subprocess_run(
-                    audio_command,
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=600
-                )
-
+                print("[FFMPEG] Intentando copiar pista de audio...")
+                res = subprocess_run(
+                    audio_copy_cmd, check=True, capture_output=True, text=True, timeout=600)
+                print(f"[FFMPEG] stdout:\n{res.stdout}")
+                print(f"[FFMPEG] stderr:\n{res.stderr}")
                 if os_path_exists(no_audio_path):
                     os_remove(no_audio_path)
-                print("[FFMPEG] Audio passthrough completed successfully")
+                print("[FFMPEG] Copia de audio completada exitosamente.")
+                return
+            except Exception as e:
+                print(f"[WARNING] Copia de audio falló: {e}")
+                print("[FFMPEG] Intentando re-codificar audio a AAC...")
 
-            except (CalledProcessError, subprocess.TimeoutExpired) as e:
-                print(f"[WARNING] Audio copy failed: {e}")
+            # Estrategia 2: re-codificar audio
+            audio_reencode_cmd = [
+                FFMPEG_EXE_PATH,
+                "-y", "-loglevel", "error",
+                "-i", video_path,
+                "-i", no_audio_path,
+                "-c:v", "copy",
+                "-c:a", "aac",
+                "-b:a", "128k",
+                "-map", "1:v:0",
+                "-map", "0:a:0",
+                "-shortest",
+                video_output_path
+            ]
+            try:
+                res = subprocess_run(
+                    audio_reencode_cmd, check=True, capture_output=True, text=True, timeout=600)
+                print(f"[FFMPEG] Re-codificación de audio completada.")
+                if os_path_exists(no_audio_path):
+                    os_remove(no_audio_path)
+                return
+            except Exception as audio_error:
+                print(
+                    f"[WARNING] Re-codificación de audio falló: {audio_error}")
 
-                # Strategy 2: Re-encode audio
-                print("[FFMPEG] Trying audio re-encoding...")
-                audio_reencode_command = [
-                    FFMPEG_EXE_PATH,
-                    "-y",
-                    "-loglevel", "error",
-                    "-i", video_path,
-                    "-i", no_audio_path,
-                    "-c:v", "copy",
-                    "-c:a", "aac",
-                    "-b:a", "128k",
-                    "-map", "1:v:0",
-                    "-map", "0:a:0",
-                    "-shortest",
-                    video_output_path
-                ]
+            # Estrategia 3: sin audio
+            try:
+                if os_path_exists(no_audio_path):
+                    shutil_move(no_audio_path, video_output_path)
+                    print("[FFMPEG] Video final sin pista de audio (fallback).")
+                    return
+            except Exception as move_error:
+                raise RuntimeError(
+                    f"No se pudo mover archivo final sin audio: {move_error}")
 
-                try:
-                    result = subprocess_run(
-                        audio_reencode_command,
-                        check=True,
-                        capture_output=True,
-                        text=True,
-                        timeout=600
-                    )
-
-                    if os_path_exists(no_audio_path):
-                        os_remove(no_audio_path)
-                    print("[FFMPEG] Audio re-encoding completed successfully")
-
-                except Exception as audio_error:
-                    print(
-                        f"[WARNING] Audio re-encoding also failed: {audio_error}")
-                    # Strategy 3: Use video without audio
-                    try:
-                        if os_path_exists(no_audio_path):
-                            shutil_move(no_audio_path, video_output_path)
-                            print("[FFMPEG] Using video without audio")
-                    except Exception as move_error:
-                        raise RuntimeError(
-                            f"Failed to save final video: {move_error}")
         else:
-            # No audio in original, just rename the video file
+            # Video original sin pista de audio
             try:
                 shutil_move(no_audio_path, video_output_path)
-                print("[FFMPEG] Video saved successfully (no audio track)")
+                print(
+                    "[FFMPEG] Video guardado sin pista de audio (originalmente mudo).")
+                return
             except Exception as move_error:
-                raise RuntimeError(f"Failed to save final video: {move_error}")
-
-        # Clean up temporary files
-        for temp_file in [txt_path]:
-            if os_path_exists(temp_file):
-                try:
-                    os_remove(temp_file)
-                except Exception:
-                    pass
-
-        # Final validation
-        if not os_path_exists(video_output_path):
-            raise RuntimeError(
-                "Video encoding completed but final output file is missing")
-
-        final_size = os_path_getsize(video_output_path)
-        print(
-            f"[FFMPEG] Final video created: {final_size / (1024*1024):.1f} MB")
+                raise RuntimeError(
+                    f"No se pudo guardar video sin audio: {move_error}")
 
     except Exception as e:
-        error_msg = f"Video encoding failed: {str(e)}"
+        error_msg = f"Error general en video_encoding: {str(e)}"
         log_and_report_error(error_msg)
         write_process_status(process_status_q, f"{ERROR_STATUS}{error_msg}")
-
-        # Clean up on failure
-        for temp_file in [txt_path, no_audio_path] if 'txt_path' in locals() and 'no_audio_path' in locals() else []:
-            if os_path_exists(temp_file):
-                try:
-                    os_remove(temp_file)
-                except Exception:
-                    pass
+        # Limpieza de temporales
+        if 'txt_path' in locals() and os_path_exists(txt_path):
+            try:
+                os_remove(txt_path)
+            except Exception:
+                pass
 
 
 def check_video_upscaling_resume(
@@ -3686,7 +3794,6 @@ def fluidframes_video_interpolate(
         process_status_q, f"{file_number}. Encoding frame-generated video")
     video_encoding(
         process_status_q, video_path, video_output_path, total_frames_paths, selected_video_codec)
-    copy_file_metadata(video_path, video_output_path)
 
     # Step 7. Cleanup after video interpolation processing
     if not selected_keep_frames and os_path_exists(target_directory):
@@ -4184,7 +4291,6 @@ def upscale_video(
         process_status_q, f"{file_number}. Encoding upscaled video")
     video_encoding(process_status_q, video_path, video_output_path,
                    upscaled_frame_paths, selected_video_codec)
-    copy_file_metadata(video_path, video_output_path)
 
     # 7. Delete frames folder
     if not selected_keep_frames:

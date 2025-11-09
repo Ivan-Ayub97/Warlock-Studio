@@ -1,3 +1,72 @@
+## Version 4.3
+
+**Release date:** November 15, 2025
+
+### **1. Critical Stability & Process Synchronization**
+
+#### **1.1. Forced Writer Thread Synchronization (Critical Stability Fix)**
+
+- Implemented explicit and mandatory synchronization using the `t.join()` function for **all frame writing threads** (`writer_threads`) within the main video orchestrator (`upscale_orchestrator`).
+- This change is **critical for workflow integrity**, ensuring that all AI-upscaled frames are completely written and closed on disk before initiating the FFmpeg video encoding process.
+- **Technical Impact:** Resolves intermittent encoding failures (`File Not Found` or `Input/Output error`) that could occur when FFmpeg attempted to read files still being written by concurrent threads.
+
+#### **1.2. Graceful Termination for Process Monitoring Thread**
+
+- The status monitoring thread (`upscale_monitor_thread`) has been enhanced to handle unexpected failures or abrupt terminations of the main upscaling process.
+- An explicit `break` statement was added to the `except Exception` block that manages errors reading from the status queue (`process_status_q`).
+- **Technical Impact:** If the main upscaling process (`Process`) fails or hangs, the monitoring thread now **terminates its execution gracefully and immediately** instead of becoming a "zombie thread," allowing the user interface to correctly reset global status controls.
+
+#### **1.3. Reinforced Frame Sequence Integrity Validation**
+
+- A robust verification function was introduced to validate the integrity of the frame sequence on disk before starting the AI upscaling.
+- This measure is vital for `Resume` operations and now explicitly validates:
+  - The **physical existence** of every frame path (`os_path_exists`).
+  - The **readability** of the image file (`image_read`), preventing segmentation faults or memory errors if the file is corrupted or incomplete.
+
+### **2. Performance Improvements and Technical Refinements**
+
+#### **2.1. Aggressive Post-Process Memory Optimization**
+
+- A memory optimization step (`optimize_memory_usage`) with calls to `gc.collect()` was implemented after the last upscaled frames are saved to disk and before video encoding starts.
+- **Purpose:** To reduce peak RAM usage by aggressively freeing any residual NumPy arrays and image references held in memory, ensuring the system has maximum memory available for the FFmpeg encoding subprocess.
+
+#### **2.2. Clarification of Tiling and VRAM Logic**
+
+- Detailed internal documentation (`# comments`) was added to the validation function (`check_upscale_settings`) to **explain the calculation logic for tile size** based on the user's VRAM limiter and the AI model's usage factor.
+- **Clarified Formula:** `tiles_resolution = (ModelUsageFactor * VRAM_GB) * 100`. This is a technical refinement ensuring transparency and justification for the internal calculation.
+
+#### **2.3. Robustness and Clarification in Video Encoding (FFmpeg Command Line) 🎬**
+
+- **Explicit Stream Mapping:** Within `create_video_with_ffmpeg`, the FFmpeg command line now uses **more explicit and safer stream mapping** (`-map 0:v:0 -map 0:a:0?`). This ensures that the first video stream is selected obligatorily, and the first audio stream is selected optionally, resolving ambiguity issues in inputs containing multiple video or audio streams.
+- **Data Stream Exclusion:** The **`-dn`** (Disable Data stream) argument was introduced into the base FFmpeg command line. This instructs the encoder to ignore unnecessary _data streams_ (such as subtitles or complex metadata) that are not relevant to the video or audio, **simplifying the muxing process and improving compatibility** across various players.
+
+### **3. Aesthetic and UI/UX Refinements**
+
+#### **3.1. Complete Aesthetic Overhaul: Crimson Gold Dark Theme 🌑**
+
+- The application's entire color scheme was replaced (migrating from a v4.2.1 red/yellow palette) with a high-contrast **"Crimson Gold Dark Theme"**:
+  - **Background:** Deep Black (`#121212`).
+  - **Widgets/Panels:** Very dark Wine Red (`#4B0000`).
+  - **Primary Accent:** Pure Gold (`#FFD700`).
+- Dropdown menus (`CTkOptionMenu`) were styled with explicit **`corner_radius=0`** for a more modern, defined, and flat aesthetic.
+
+#### **3.2. Detailed Visualization of File Information in Queue**
+
+- Clarity of information in the queue widget (`FileWidget.add_file_information`) was improved by breaking down the complete resolution transformation sequence into three lines, eliminating ambiguity about intermediate dimensions:
+  - **AI Input:** Shows the final input resolution.
+  - **AI Output:** Shows the native resolution after upscaling by the AI model factor.
+  - **Video Output:** Shows the final resolution of the encoded video.
+
+#### **3.3. Visual Consistency and Updated Menu Separators**
+
+- The visual separator in all dropdown menus has been updated from the string `"<------------------>"` (v4.2.1) to a cleaner, more discreet sequence of dots: **`• • • • • • • • • • • •`**.
+
+#### **3.4. Refined Dynamic Menu Logic**
+
+- The conditional visibility logic for menus in `select_AI_from_menu` was refined for a smoother user experience:
+  - The **Frame Interpolation** control is only visible for RIFE models.
+  - The **Blending** control is only visible for Upscaling/Facial Restoration models (with automatic disabling logic for GFPGAN).
+
 ## Version 4.2.1
 
 **Release date:** 27 October 2025
