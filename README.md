@@ -35,7 +35,6 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
     </td>
   </tr>
 </table>
----
 
 ## 🧩 Version 4.3 – Fix Summary
 
@@ -194,4 +193,5 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
