@@ -11,7 +11,6 @@
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700)](https://www.python.org/)
 [![Issues](https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=FF0303&logo=github&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/issues)
 [![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
-[![Download Warlock-Studio](https://img.shields.io/sourceforge/dt/warlock-studio.svg)](https://sourceforge.net/projects/warlock-studio/files/latest/download)
 
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**, Warlock-Studio provides a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
 
@@ -32,7 +31,7 @@ from any of this options:
     <td align="center" style="vertical-align:top; padding:px;">
       <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
         <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
-             alt="Warlock-Studio on SourceForge"
+             alt="[![Download Warlock-Studio](https://img.shields.io/sourceforge/dt/warlock-studio.svg)](https://sourceforge.net/projects/warlock-studio/files/latest/download)"
              width="175" style="display:block; margin:auto; margin-bottom:1px;" />
       </a>
     </td>
@@ -194,6 +193,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
 
 
