@@ -4,11 +4,10 @@
   
 [![Version](https://img.shields.io/badge/Version-4.3-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/4.3)
 [![License](https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-0078D6?style=for-the-badge&logo=windows11&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=FFD700)](https://www.python.org/)
-
-[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 [![Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&color=FFD700&logo=download&logoColor=black)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**, Warlock-Studio provides a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
@@ -35,7 +34,7 @@ See CHANGELOG.md for full details.
       <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
         <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
              alt="Warlock-Studio on SourceForge"
-             width="175" style="display:block; margin:auto; margin-bottom:1px;" />
+             width="230" style="display:block; margin:auto; margin-bottom:1px;" />
       </a>
     </td>
     <td align="center" style="vertical-align:top; padding:10px;">
@@ -197,6 +196,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
 
 
