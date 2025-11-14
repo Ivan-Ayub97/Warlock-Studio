@@ -22,88 +22,30 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 See CHANGELOG.md for full details.
 
 ---
+## 📥 <span style="color:#00ffcc;">Download Installer</span>
 
-## 📥 <span style="color:#00ffcc;">Download Installer</span>  
-<span style="color:#ccc;">Choose your preferred source below:</span>
-
-<div style="
-  background:linear-gradient(180deg,#111 0%,#1a1a1a 100%);
-  border:1px solid #333;
-  border-radius:16px;
-  box-shadow:0 0 10px rgba(0,0,0,0.6);
-  padding:25px;
-  text-align:center;
-  width:95%;
-  max-width:780px;
-  margin:30px auto;
-  font-family:'Segoe UI',sans-serif;
-  color:#ccc;
-">
-
-  <table style="width:100%; border-collapse:collapse; text-align:center;">
-    <tr>
-      <td style="vertical-align:top; padding:20px; border-right:1px solid #333;">
-        <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank" style="text-decoration:none;">
-          <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
-               alt="SourceForge Rising Star Badge"
-               width="200"
-               style="display:block; margin:auto; filter:drop-shadow(0 0 4px #000);" />
-        </a>
-      </td>
-      <td style="vertical-align:top; padding:20px;">
-        <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.3/Warlock-Studio-v4.3-Setup.zip" target="_blank" style="text-decoration:none;">
-          <img src="rsc/GitHub_Logo_WS.png"
-               alt="Download from GitHub"
-               width="260"
-               style="display:block; margin:auto; filter:drop-shadow(0 0 4px #000);" />
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:25px 15px; border-right:1px solid #333; text-align:center;">
-        <div style="
-          display:inline-block;
-          border:1px solid #333;
-          border-radius:10px;
-          background:#181818;
-          padding:15px;
-          width:240px;
-          box-shadow:inset 0 0 6px rgba(0,0,0,0.6);
-          text-align:center;
-        ">
-          <a href="https://sourceforge.net/projects/warlock-studio/files/latest/download" target="_blank">
-            <img src="https://img.shields.io/sourceforge/dt/warlock-studio.svg?style=for-the-badge&label=DOWNLOADS&logo=sourceforge&color=303030"
-                 alt="Total Downloads on SourceForge"
-                 style="display:block; margin:auto; filter:drop-shadow(0 0 2px #000);" />
-          </a>
-        </div>
-      </td>
-      <td style="padding:25px 15px; text-align:center;">
-        <div style="
-          display:inline-block;
-          border:1px solid #333;
-          border-radius:10px;
-          background:#181818;
-          padding:15px;
-          width:240px;
-          box-shadow:inset 0 0 6px rgba(0,0,0,0.6);
-          text-align:center;
-        ">
-          <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/latest" target="_blank">
-            <img src="https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&label=DOWNLOADS&logo=github&color=181717"
-                 alt="Total Downloads on GitHub"
-                 style="display:block; margin:auto; filter:drop-shadow(0 0 2px #000);" />
-          </a>
-        </div>
-      </td>
-    </tr>
-  </table>
-
-  <div style="margin-top:25px; font-size:0.9em; color:#777;">
-    💡 <em>Both sources provide identical installers — choose your preferred platform.</em>
-  </div>
+<div style="color:#ccc; font-size:14px; margin-top:-6px;">
+  You can download the installer from either option below:
 </div>
 
+
+<table style="width:100%; border-collapse:collapse;">
+  <tr>
+    <td align="center" style="vertical-align:top; padding:px;">
+      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
+             alt="Warlock-Studio on SourceForge"
+             width="175" style="display:block; margin:auto; margin-bottom:1px;" />
+      </a>
+    </td>
+    <td align="center" style="vertical-align:top; padding:10px;">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v4.3/Warlock-Studio-v4.3-Setup.zip" target="_blank">
+        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
+             width="300" style="display:block; margin:auto; margin-bottom:10px;" />
+      </a>
+    </td>
+  </tr>
+</table>
 
 
 ---
@@ -255,6 +197,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in `NOTIC
 | Inno Setup    | Custom                | Jordan Russell                          | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
 
 </div>
+
 
 
 
