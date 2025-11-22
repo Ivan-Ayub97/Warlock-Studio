@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/Version-4.3-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/v5.0)
+[![Version](https://img.shields.io/badge/Version-4.3-FF4500?style=for-the-badge&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/tag/5.0)
 [![License](https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 
@@ -129,6 +129,7 @@ Licensed under **MIT**. Additional terms and attributions are provided in **NOTI
 | Inno Setup     | Custom                 | Jordan Russell                           | [Official Site](http://www.jrsoftware.org/isinfo.php)       |
 
 </div>
+
 
 
 
