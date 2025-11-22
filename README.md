@@ -56,6 +56,18 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ---
 
+## ✨ Update 5.0
+
+- **Modular Architecture (v5.0):** The code has been refactored into specialized components (`core`, `preferences`, `console`, `drag_drop`) for **superior stability, fault isolation, and code maintainability**.
+- **NEO Engine:** Advanced diagnostic subsystem that scans **VRAM, RAM, and CPU topology** to generate **optimal configuration recommendations** in real-time.
+- **⚙️ Centralized Preferences Panel:** Provides a quick-access **Settings Button** that opens a comprehensive panel for system management:
+  - **UI Control:** Customize the Theme (Light/Dark), Interface Scaling, and Window Opacity.
+  - **Hardware Configuration:** Adjust the **VRAM limit**, select the preferred GPU device, and configure \texttt{tiling} parameters based on **NEO Engine** data.
+  - **Maintenance:** Tools to clear the model cache, manage error logs, and perform online update checks.
+- **Integrated Console:** A GUI terminal that intercepts `sys.stdout` and `sys.stderr` to display inference logs, errors, and warnings with **syntax highlighting** for instant debugging.
+- **Native Drag & Drop:** Direct support for dragging and dropping image and video files from the operating system explorer.
+- ***
+
 ## ✨ Key Features
 
 - **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, and IRCNN** models for denoising, super-resolution, and detail recovery.
