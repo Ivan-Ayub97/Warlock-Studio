@@ -1,10 +1,6 @@
-; ===================================================================
-;  Warlock-Studio 4.3 - Inno Setup Script (Full Offline Installer)
-; ===================================================================
-
 #define AppName "Warlock-Studio"
-#define AppVersion "4.3"
-#define AppPublisher "Iván Eduardo Chavez Ayub"
+#define AppVersion "5.0"
+#define AppPublisher "Ivan-Ayub97|Ivanayub1997"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"
 
@@ -15,11 +11,10 @@ AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
 AppSupportURL={#AppURL}
 AppUpdatesURL={#AppURL}
-DefaultDirName={autopf}\{#AppName}
+DefaultDirName={userdocs}\{#AppName}
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
-PrivilegesRequired=admin
-ArchitecturesInstallIn64BitMode=x64
+PrivilegesRequired=none
 
 ; --- Configuración del Instalador ---
 OutputDir=Output
