@@ -43,6 +43,8 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 ## 🖼️ Interface Previews
 
 ![interface](rsc/Capture.png)
+[Preferences.webm](https://github.com/user-attachments/assets/933003de-7618-4ed4-8815-077c69bf1ebc)
+
 
 ---
 
@@ -126,3 +128,4 @@ Licensed under **MIT**. Additional terms and attributions are provided in **NOTI
 | Inno Setup     | Custom                 | Jordan Russell                           | [Official Site](http://www.jrsoftware.org/isinfo.php)       |
 
 </div>
+
