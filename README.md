@@ -2,15 +2,12 @@
 
 <div align="center">
 
-[![Release](https://img.shields.io/github/v/release/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=ff0000&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases/latest)
-[![Platform](https://img.shields.io/badge/Platform-Windows_10_%7C_11-blue?style=for-the-badge&logo=windows&labelColor=1a1a1a)](https://microsoft.com)
-[![Python](https://img.shields.io/badge/Python-3.10+-yellow?style=for-the-badge&logo=python&logoColor=gold&labelColor=1a1a1a)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-6A0DAD?style=for-the-badge&logo=open-source-initiative&logoColor=white&labelColor=1a1a1a)](LICENSE)
-
-[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=2E8B57&logo=git&logoColor=white&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
-[![Repo Size](https://img.shields.io/github/repo-size/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=teal&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio)
-[![GitHub Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total.svg?style=for-the-badge&color=FFD700&logo=github&logoColor=black&labelColor=1a1a1a&label=GH%20Downloads)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![SourceForge Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&color=orange&logo=sourceforge&labelColor=1a1a1a&label=SF%20Downloads)](https://sourceforge.net/projects/warlock-studio/)
+[![Platform](https://img.shields.io/badge/Platform-Windows_10_%7C_11-555555?style=for-the-badge&logo=windows&labelColor=1a1a1a)](https://microsoft.com)
+[![Python](https://img.shields.io/badge/Python-3.10+-800000?style=for-the-badge&logo=python&logoColor=FFD700&labelColor=1a1a1a)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-FFD700?style=for-the-badge&logo=open-source-initiative&logoColor=black&labelColor=1a1a1a)](LICENSE)
+[![GitHub Downloads](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total.svg?style=for-the-badge&color=D00000&logo=github&logoColor=white&labelColor=1a1a1a&label=GH%20Downloads)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+[![SourceForge Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&color=A52A2A&logo=sourceforge&logoColor=white&labelColor=1a1a1a&label=SF%20Downloads)](https://sourceforge.net/projects/warlock-studio/)
+[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=909090&logo=git&logoColor=white&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
 
 <br>
 
