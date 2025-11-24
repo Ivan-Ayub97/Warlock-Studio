@@ -27,24 +27,22 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
     By default, it includes <b>DirectML</b> support to ensure maximum compatibility with any graphics card (NVIDIA/AMD/INTEL).
   </p>
   <p style="color:#ccc; font-size:14px; margin-top: 15px;">
-    Select your preferred mirror to download the latest version (v5.0):
+    Select your preferred mirror to download the latest version (Direct Release/Mirror):
   </p>
 </div>
 
 <table align="center" style="width:100%; border-collapse:collapse; border:none;">
   <tr>
-    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
-      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
-        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black" alt="Warlock-Studio on SourceForge" width="200" style="display:block; margin:auto; margin-bottom:15px; border-radius:5px;" />
-      </a>
-      <p><i>Recommended Mirror</i></p>
     </td>
     <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
       <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.0/Warlock-Studio-5.0-Full-Installer.exe" target="_blank">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="300" style="display:block; margin:auto; margin-bottom:15px;" />
       </a>
-      <p><i>Direct Release</i></p>
     </td>
+    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
+      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black" alt="Warlock-Studio on SourceForge" width="200" style="display:block; margin:auto; margin-bottom:15px; border-radius:5px;" />
+      </a>
   </tr>
 </table>
 
@@ -143,5 +141,6 @@ We welcome contributions from the community:
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
