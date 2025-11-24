@@ -101,7 +101,7 @@ The **v5.0** release represents a foundational transformation of the application
 | :--- | :--- | :--- |
 | **OS** | Windows 10 (64-bit) | Windows 11 (64-bit) |
 | **RAM** | 8 GB | 16 GB+ (Recommended for 4K Video) |
-| **GPU** | DirectX 12 Compatible | NVIDIA RTX 3000/4000 Series (for CUDA) |
+| GPU | DirectX 12 Compatible | NVIDIA RTX 3060 / AMD RX 6700 XT | NVIDIA RTX 4070 Ti / AMD RX 7900 XT or better |
 | **VRAM** | 4 GB | 8 GB+ (NEO Engine auto-tunes limits) |
 | **Storage** | HDD Space | NVMe SSD (Highly recommended for RIFE) |
 
@@ -141,6 +141,7 @@ We welcome contributions from the community:
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
 
