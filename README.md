@@ -86,7 +86,7 @@ The **v5.0** release represents a foundational transformation of the application
 
 ## ✨ Key Features
 
-* **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, and IRCNN** models for denoising, super-resolution, and detail recovery.
+* **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, RealESRNet, RealESR_Animex4, and IRCNN** models for denoising, super-resolution, and detail recovery.
 * **Face Restoration (GFPGAN)** – Recover facial details from low-resolution or blurry images and video frames.
 * **Frame Interpolation (RIFE)** – Smooth motion or generate slow-motion content with **2×, 4×, or 8× interpolation**.
 * **Advanced Hardware Acceleration** – Intelligent provider selection prioritizes **CUDA**, falls back to **DirectML**, and finally **CPU** for maximum compatibility.
@@ -127,21 +127,31 @@ We welcome contributions from the community:
 
 ### 📊 Integrated Technologies & Licenses
 
-| Technology | License | Author / Maintainer | Source |
+| Technology / Model | License | Author / Maintainer | Source |
 | :--- | :--- | :--- | :--- |
-| **QualityScaler** | MIT | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/QualityScaler) |
-| **FluidFrames** | MIT | [Djdefrag](https://github.com/Djdefrag) | [GitHub](https://github.com/Djdefrag/FluidFrames) |
 | **Real-ESRGAN** | BSD 3-Clause | Xintao Wang | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
+| • RealESRGANx4 | BSD 3-Clause | Xintao Wang | Same as above |
+| • RealESRNetx4 | BSD 3-Clause | Xintao Wang | Same as above |
+| • RealESR_Gx4 (Custom Variant) | BSD 3-Clause | Xintao / Community | Same as above |
+| • RealESR_Animex4 (Anime Model) | BSD 3-Clause | Community | Same as above |
+| **BSRGAN** | Apache 2.0 | Kai Zhang | [GitHub](https://github.com/cszn/BSRGAN) |
+| • BSRGANx4 | Apache 2.0 | Kai Zhang | Same as above |
+| • BSRGANx2 | Apache 2.0 | Kai Zhang | Same as above |
+| **IRCNN** | BSD / Mixed | Kai Zhang | [GitHub](https://github.com/cszn/IRCNN) |
+| • IRCNN_Mx1 | BSD / Mixed | Kai Zhang | Same as above |
+| • IRCNN_Lx1 | BSD / Mixed | Kai Zhang | Same as above |
 | **GFPGAN** | Apache 2.0 | TencentARC | [GitHub](https://github.com/TencentARC/GFPGAN) |
 | **RIFE** | Apache 2.0 | hzwer | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| **BSRGAN** | Apache 2.0 | Kai Zhang | [GitHub](https://github.com/cszn/BSRGAN) |
-| **IRCNN** | BSD / Mixed | Kai Zhang | [GitHub](https://github.com/cszn/IRCNN) |
+| **QualityScaler** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/QualityScaler) |
+| **FluidFrames** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/FluidFrames) |
 | **ONNX Runtime** | MIT | Microsoft | [GitHub](https://github.com/microsoft/onnxruntime) |
 | **FFmpeg** | LGPL / GPL | FFmpeg Team | [Official Site](https://ffmpeg.org) |
 | **ExifTool** | Artistic | Phil Harvey | [Official Site](https://exiftool.org/) |
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
+
 
 
 
