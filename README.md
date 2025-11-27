@@ -2,18 +2,13 @@
 
 <div align="center">
 
-[![Platform](https://img.shields.io/badge/Platform-Windows_10_%7C_11-0A1E5A?style=for-the-badge&logo=windows&logoColor=0A1E5A&labelColor=1a1a1a)](https://microsoft.com)
-[![Python](https://img.shields.io/badge/Python-3.10+-7B4F00?style=for-the-badge&logo=python&logoColor=7B4F00&labelColor=1a1a1a)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-8C6239?style=for-the-badge&logo=open-source-initiative&logoColor=8C6239&labelColor=1a1a1a)](LICENSE)
+![Platform](https://img.shields.io/badge/Platform-Windows_10_%7C_11-003B6F?style=for-the-badge&logo=windows&logoColor=FFD43B&labelColor=1B1818)
+![Python](https://img.shields.io/badge/Python-3.10+-FFD43B?style=for-the-badge&logo=python&logoColor=FFD43B&labelColor=1B1818)
+![License: MIT](https://img.shields.io/badge/License-MIT-0A3B1E?style=for-the-badge&logo=open-source-initiative&logoColor=FFD43B&labelColor=1B1818)
 
-[![Downloads Total](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&logo=github&color=7B0F12&logoColor=7B0F12&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
-[![SF Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&logo=sourceforge&color=A14F03&logoColor=A14F03&labelColor=1a1a1a)](https://sourceforge.net/projects/warlock-studio/)
-
-[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=5A5A5A&logo=git&logoColor=5A5A5A&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
-[![Issues](https://img.shields.io/github/issues/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=6A0DAD&logo=github&logoColor=6A0DAD&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/issues)
-[![Issues Closed](https://img.shields.io/github/issues-closed/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=0F4D2C&logo=github&logoColor=0F4D2C&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio/issues?q=is%3Aissue+is%3Aclosed)
-[![Commits Month](https://img.shields.io/github/commit-activity/m/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=7A1FA2&logo=github&logoColor=7A1FA2&labelColor=1a1a1a)](https://github.com/Ivan-Ayub97/Warlock-Studio)
-
+[![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&color=6A1B9A&logo=git&logoColor=FFD43B&labelColor=1B1818)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
+[![Downloads Total](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&logo=github&color=7B0F12&logoColor=FFD43B&labelColor=1B1818)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
+[![SF Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&logo=sourceforge&color=C45500&logoColor=FFD43B&labelColor=1B1818)](https://sourceforge.net/projects/warlock-studio/)
 
 <br>
 
@@ -147,6 +142,7 @@ We welcome contributions from the community:
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
 
