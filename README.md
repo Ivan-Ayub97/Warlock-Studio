@@ -126,7 +126,6 @@ The **`WSNodes`** module is an advanced visual node editor, built on **PyQt5**, 
 
 **This represents a significant leap in Warlock-Studio's usability and capability, moving it towards a more flexible and visually powerful project development environment.**
 
-![WSNodes](rsc/Capture_Pipeline.png)
 ![WSNodes](rsc/WSNodes.png)
 
 ---
@@ -173,6 +172,7 @@ We welcome contributions from the community:
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
 
