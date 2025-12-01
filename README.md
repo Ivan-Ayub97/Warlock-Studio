@@ -11,15 +11,10 @@
 [![Downloads Total](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&logo=github&color=2E2E2E&labelColor=1B1818&logoColor=FFD43B)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 [![SF Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&logo=sourceforge&color=C45500&logoColor=FFD43B&labelColor=1B1818)](https://sourceforge.net/projects/warlock-studio/)
 
-
-
 <br>
 
-**Warlock-Studio** is a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
-<br>
+**Warlock-Studio** is a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.  
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**.
-
-</div>
 
 ---
 
