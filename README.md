@@ -106,25 +106,6 @@ The **v5.0** release represents a foundational transformation of the application
 
 ---
 
-## 🚀 What's Next?
-
-We are working on a **fundamental transformation** of how users create, manage, and execute pipelines within **Warlock-Studio**. The next major update introduces the **Visual Nodes** system, a powerful tool that will drastically improve the user experience and the complexity of the projects you can handle.
-
-### 🖼️ New Module: `WSNodes` (Visual Node Editor)
-
-The **`WSNodes`** module is an advanced visual node editor, built on **PyQt5**, that will allow users to:
-
-* **Design Pipelines Intuitively:** Instead of directly editing JSON files, you will be able to drag, connect, and configure modules as if you were drawing a flowchart.
-* **Simplified Visual Complexity:** Build complex, multi-step, and branching workflows in a clear and visual manner.
-* **Reusability and Modularity:** Each node will encapsulate a specific function, allowing for easy reuse and simpler code maintenance.
-* **Compilation and Execution:** Once designed, the editor will automatically compile the visual diagram into the internal pipeline format that **Warlock-Studio** already uses for execution.
-
-**This represents a significant leap in Warlock-Studio's usability and capability, moving it towards a more flexible and visually powerful project development environment.**
-
-![WSNodes](rsc/WSNodes.png)
-
----
-
 ## 🤝 Contributions
 
 We welcome contributions from the community:
@@ -167,6 +148,7 @@ We welcome contributions from the community:
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
 
