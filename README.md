@@ -48,6 +48,8 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ## 🖼️ Interface Previews
 
+[GUI.webm](https://github.com/user-attachments/assets/45b06dd7-47ac-46b9-aa3d-c0baf483147b)
+
 ---
 
 ## 🚀 <span style="color:#FFD43B;">Version 5.1 Highlights (Decoupling & Precision)</span>
@@ -87,12 +89,12 @@ Version 5.1 introduces significant structural and algorithmic improvements, tran
 
 ## 🖥️ System Requirements
 
-| Component   | Minimum Specification | Recommended Specification              |
-| :---------- | :-------------------- | :------------------------------------- | --------------------------------------------- |
-| **OS**      | Windows 10 (64-bit)   | Windows 11 (64-bit)                    |
-| **RAM**     | 8 GB                  | 16 GB+ (Recommended for 4K Video)      |
-| GPU         | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT       | NVIDIA RTX 4070 Ti / AMD RX 7900 XT or better |
-| **VRAM**    | 4 GB                  | 8 GB+ (NEO Engine auto-tunes limits)   |
+| Component   | Minimum Specification | Recommended Specification              |                                               
+| :---------- | :-------------------- | :------------------------------------- | 
+| **OS**      | Windows 10 (64-bit)   | Windows 11 (64-bit)                    |                                               
+| **RAM**     | 8 GB                  | 16 GB+ (Recommended for 4K Video)      |                  
+| GPU         | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT       | 
+| **VRAM**    | 4 GB                  | 8 GB+ (NEO Engine auto-tunes limits)   |                           
 | **Storage** | HDD Space             | NVMe SSD (Highly recommended for RIFE) |
 
 ---
@@ -139,3 +141,4 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
