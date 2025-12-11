@@ -24,6 +24,7 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
   <p style="color:#ccc; font-size:14px; line-height: 1.6;">
     This installer was built using <b>PyInstaller</b> and <b>Inno Setup</b>.<br>
     By default, it includes <b>DirectML</b> support to ensure maximum compatibility with any graphics card (NVIDIA/AMD/INTEL).
+  </p>
   <p style="color:#ccc; font-size:14px; margin-top: 15px;">
     Select your preferred option to download the latest version (Direct Release/SourceForge):
   </p>
@@ -141,4 +142,5 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
