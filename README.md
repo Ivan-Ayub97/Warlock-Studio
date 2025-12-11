@@ -52,6 +52,10 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 [GUI.webm](https://github.com/user-attachments/assets/45b06dd7-47ac-46b9-aa3d-c0baf483147b)
 
+![Capture](rsc/Capture1.png)
+
+![Capture](rsc/Capture2.png)
+
 ---
 
 ## 🚀 <span style="color:#FFD43B;">Version 5.1 Highlights (Decoupling & Precision)</span>
@@ -143,6 +147,7 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
