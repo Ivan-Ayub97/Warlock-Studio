@@ -1,514 +1,331 @@
-% =======================================================================================
-%   1. DOCUMENT SETUP & PACKAGES
-% =======================================================================================
-\documentclass[11pt, a4paper]{article}
+\documentclass[a4paper,11pt]{article}
 
-% --- ESSENTIAL PACKAGES ---
+% =========================================================
+% PACKAGES & CONFIGURATION
+% =========================================================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[english]{babel}
-
-% --- PAGE LAYOUT & STYLE ---
-\usepackage[a4paper, margin=2.2cm, headheight=15pt, footskip=30pt]{geometry}
-\usepackage{graphicx}
-\usepackage{float}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{fancyhdr}
+\usepackage[margin=1in, bottom=1.2in]{geometry}
 \usepackage{xcolor}
-\usepackage{titletoc}
-
-% --- TYPOGRAPHY & TEXT ---
-\usepackage{lato}
-\renewcommand*\familydefault{\sfdefault}
-\usepackage{textcomp}
-\usepackage{fontawesome5}
-\usepackage{microtype} % Improves line breaking and spacing
-
-% Slightly more readable line spacing and allow more flexible breaks
-\usepackage{setspace}
-\setstretch{1.05}
-\sloppy
-\emergencystretch=2em
-
-% --- TABLES, LISTS, & BOXES ---
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{tabularx}
-\usepackage{array}
-\usepackage{enumitem}
-\usepackage[skins, breakable, theorems]{tcolorbox}
-\tcbuselibrary{skins, breakable, shadows} % Load advanced libraries
-
-% --- TITLES & HYPERLINKS ---
+\usepackage{graphicx}
 \usepackage{titlesec}
-\usepackage{hyperref} % Always load this last
-
-% --- TIKZ FOR DIAGRAMS (STYLIZED WITH CORPORATE PALETTE) ---
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{fontawesome5} % For icons
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
 \usepackage{tikz}
-\usetikzlibrary{shapes, arrows.meta, positioning, shadows, calc, decorations.pathreplacing, backgrounds}
-\usepackage{pgfkeys}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{enumitem}
 
-% =======================================================================================
-%   2. COLOR & STYLE DEFINITIONS
-% =======================================================================================
+\usetikzlibrary{shapes.geometric, arrows, positioning}
+\tcbuselibrary{skins, breakable}
 
-% --- CORPORATE COLOR PALETTE ---
-\definecolor{WarlockRed}{HTML}{C11919}
-\definecolor{WarlockGold}{HTML}{ECD125}
-\definecolor{WarlockDark}{HTML}{1B1818} % Updated to match v5.0 Theme
-\definecolor{WarlockGray}{HTML}{333333}
-\definecolor{WarlockLightGray}{HTML}{F0F0F0}
-\definecolor{WarlockWhite}{HTML}{FFFFFF}
+% =========================================================
+% WARLOCK STUDIO BRANDING COLORS (From Source Code)
+% =========================================================
+\definecolor{WarlockBg}{HTML}{0A0A0A}       % Main Background
+\definecolor{WarlockRed}{HTML}{D41C1C}      % Accent Red
+\definecolor{WarlockGold}{HTML}{FDEF2F}     % Accent Gold
+\definecolor{WarlockDark}{HTML}{303030}     % Widget Background
+\definecolor{WarlockText}{HTML}{FFFFFF}     % White Text
+\definecolor{WarlockGray}{HTML}{B5B4B4}     % Secondary Text
 
-% --- SECTION COLOR PALETTE ---
-\definecolor{IntroColor}{HTML}{005A9B}      % Blue
-\definecolor{QuickStartColor}{HTML}{00796B} % Green
-\definecolor{InstallColor}{HTML}{8E44AD}    % Purple
-\definecolor{ModelsColor}{HTML}{D35400}     % Orange
-\definecolor{OptimizeColor}{HTML}{27AE60}   % Emerald Green
-\definecolor{TroubleColor}{HTML}{C0392B}    % Red
-\definecolor{ArchColor}{HTML}{2C3E50}       % Dark Blue
-\definecolor{GlossaryColor}{HTML}{7F8C8D}   % Gray
-\definecolor{SupportColor}{HTML}{34495E}    % Dark Gray
 
-% --- TEXTBOX COLOR PALETTE ---
-\definecolor{InfoFill}{HTML}{E7F3FE}
-\definecolor{InfoBorder}{HTML}{005A9B}
-\definecolor{WarnFill}{HTML}{FFFBE6}
-\definecolor{WarnBorder}{HTML}{FFBE0B}
-\definecolor{QuickStartFill}{HTML}{E6FFFA}
-\definecolor{QuickStartBorder}{HTML}{00796B}
-% New Palette for NEO Engine
-\definecolor{NeoFill}{HTML}{F3E5F5}
-\definecolor{NeoBorder}{HTML}{8E44AD}
+% Header and Footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{2pt}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{WarlockRed}\leaders\hrule height \footrulewidth\hfill}}
 
-% --- DEFAULT TEXT COLOR APPLICATION ---
-\color{WarlockGray}
+\fancyhead[R]{\textbf{\textcolor{WarlockDark}{Warlock-Studio v5.1}}}
+\fancyhead[L]{\textcolor{WarlockGray}{User Manual}}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{\includegraphics[height=0.8cm]{logo.png}} % Logo at footer
 
-% =======================================================================================
-%   3. DOCUMENT ELEMENT CONFIGURATION
-% =======================================================================================
+% Section Styling
+\titleformat{\section}
+{\color{WarlockRed}\normalfont\Large\bfseries\uppercase}
+{\thesection}{1em}{}[{\titlerule[1pt]}]
 
-% --- HYPERLINKS ---
+\titleformat{\subsection}
+{\color{WarlockDark}\normalfont\large\bfseries}
+{\thesubsection}{1em}{}
+
+% Custom Boxes for Information grouping
+\newtcolorbox{infobox}[1]{
+  colback=WarlockDark!10!white,
+  colframe=WarlockDark,
+  fonttitle=\bfseries,
+  title=#1,
+  arc=0mm,
+  boxrule=1pt,
+  leftrule=4pt
+}
+
+\newtcolorbox{warningbox}[1]{
+  colback=red!5!white,
+  colframe=WarlockRed,
+  fonttitle=\bfseries,
+  title=\faExclamationTriangle\ #1,
+  arc=0mm,
+  boxrule=1pt,
+  leftrule=4pt,
+  coltitle=white
+}
+
+\newtcolorbox{tipbox}[1]{
+  colback=WarlockGold!10!white,
+  colframe=orange!80!black,
+  fonttitle=\bfseries,
+  title=\faLightbulb\ #1,
+  arc=0mm,
+  boxrule=1pt,
+  leftrule=4pt,
+  coltitle=black
+}
+
+% Hyperlink Setup
 \hypersetup{
     colorlinks=true,
     linkcolor=WarlockRed,
-    filecolor=WarlockRed,
-    urlcolor=WarlockRed,
-    pdftitle={Warlock-Studio v5.0 | Technical Documentation and User Manual},
-    pdfauthor={Iván Eduardo Chavez Ayub}
+    filecolor=magenta,
+    urlcolor=blue,
+    pdftitle={Warlock-Studio Manual},
 }
 
-% --- SECTION & SUBSECTION TITLES ---
-\newcommand{\SectionColor}{WarlockGray} % Default color
-\newcommand{\setsectioncolor}[1]{\renewcommand{\SectionColor}{#1}}
+% =========================================================
+% DOCUMENT CONTENT
+% =========================================================
 
-\titleformat{\section}
-  {\normalfont\Large\bfseries}
-  {}
-  {0em}
-  {%
-    \begin{tcolorbox}[
-        enhanced,
-        colback=\SectionColor!90!black,
-        colframe=\SectionColor!90!black,
-        boxrule=0pt,
-        sharp corners,
-        halign=center,
-        valign=center,
-        boxsep=6pt,
-        left=0pt, right=0pt, top=0pt, bottom=0pt
-    ]
-    \color{white}\faBookmark\hspace{0.5em}\thesection.\hspace{1em}#1
-    \end{tcolorbox}
-  }
-\titleformat{\subsection}
-  {\normalfont\large\bfseries\color{\SectionColor!80!black}}
-  {\faCaretRight\ \thesubsection}
-  {1em}
-  {}
-\titlespacing*{\section}{0pt}{4ex plus 1ex minus .2ex}{3ex plus .2ex}
-\titlespacing*{\subsection}{0pt}{2.5ex plus 1ex minus .2ex}{1.3ex plus .2ex}
-
-% --- ENHANCED TEXTBOX DEFINITIONS ---
-\newtcolorbox{infobox}[2][]{
-    enhanced, breakable,
-    colback=InfoFill, colframe=InfoBorder,
-    fonttitle=\bfseries, coltitle=InfoBorder,
-    title=\faInfoCircle\hspace{0.5em}#2,
-    attach boxed title to top left={yshift=-2mm, xshift=3mm},
-    boxed title style={colback=InfoBorder, sharp corners},
-    coltext=WarlockDark,
-    shadow={2mm}{-1mm}{0mm}{black!20!white},
-    #1
-}
-\newtcolorbox{warnbox}[2][]{
-    enhanced, breakable,
-    colback=WarnFill, colframe=WarnBorder,
-    fonttitle=\bfseries, coltitle=WarnBorder!80!black,
-    title=\faExclamationTriangle\hspace{0.5em}#2,
-    attach boxed title to top left={yshift=-2mm, xshift=3mm},
-    boxed title style={colback=WarnBorder, sharp corners},
-    coltext=WarlockDark,
-    shadow={2mm}{-1mm}{0mm}{black!20!white},
-    #1
-}
-\newtcolorbox{quickstartbox}[2][]{
-    enhanced, breakable,
-    colback=QuickStartFill, colframe=QuickStartBorder,
-    fonttitle=\bfseries, coltitle=QuickStartBorder!80!black,
-    title=\faRocket\hspace{0.5em}#2,
-    attach boxed title to top left={yshift=-2mm, xshift=3mm},
-    boxed title style={colback=QuickStartBorder, sharp corners},
-    coltext=WarlockDark,
-    shadow={2mm}{-1mm}{0mm}{black!20!white},
-    #1
-}
-% New box for NEO Engine / Hardware features
-\newtcolorbox{neobox}[2][]{
-    enhanced, breakable,
-    colback=NeoFill, colframe=NeoBorder,
-    fonttitle=\bfseries, coltitle=NeoBorder!80!black,
-    title=\faMicrochip\hspace{0.5em}#2,
-    attach boxed title to top left={yshift=-2mm, xshift=3mm},
-    boxed title style={colback=NeoBorder, sharp corners},
-    coltext=WarlockDark,
-    shadow={2mm}{-1mm}{0mm}{black!20!white},
-    #1
-}
-
-% --- INLINE CODE COMMAND ---
-\newcommand{\inlinecode}[1]{\colorbox{WarlockLightGray}{\small\texttt{\detokenize{#1}}}}
-
-% --- HEADER & FOOTER ---
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\textit{Warlock-Studio v5.0}}
-\fancyhead[R]{\leftmark}
-\fancyfoot[L]{\includegraphics[height=0.8cm]{logo.png}}
-\fancyfoot[C]{\thepage}
-\fancyfoot[R]{\textcopyright~2025 Warlock-Studio}
-\renewcommand{\headrulewidth}{0.4pt}
-\renewcommand{\footrulewidth}{0.4pt}
-\renewcommand{\sectionmark}[1]{\markboth{\thesection. #1}{}}
-
-% =======================================================================================
-%   BEGIN DOCUMENT
-% =======================================================================================
 \begin{document}
 
-% --- REDESIGNED TITLE PAGE ---
+% --- COVER PAGE ---
 \begin{titlepage}
-    \begin{tcolorbox}[
-        enhanced, sharp corners,
-        colback=WarlockDark, colframe=WarlockGold,
-        boxrule=2pt,
-        height=\textheight,
-        halign=center, valign=center
-    ]
-        \centering
-        \includegraphics[width=0.4\textwidth]{logo.png}\par
+    \begin{center}
+        \vspace*{2cm}
+        \includegraphics[width=0.4\textwidth]{logo.png}\\[1cm]
+
+        {\Huge \textbf{WARLOCK-STUDIO}}\\[0.5cm]
+        {\Large \textit{AI Upscaling \& Interpolation Suite}}\\[0.2cm]
+        {\large Version 5.1}
+
+        \vspace{2cm}
+
+        \begin{tcolorbox}[colback=WarlockDark, colframe=WarlockRed, width=0.8\textwidth, arc=2mm]
+            \centering \textcolor{white}{\textbf{\Large USER OPERATING MANUAL}}
+        \end{tcolorbox}
+
         \vfill
-        \color{WarlockWhite}
-        {\Huge\bfseries\scshape Warlock-Studio\par}
-        \vspace{1.5cm}
-        \color{WarlockGold}
-        \rule{0.6\textwidth}{1pt}\par
-        \vspace{0.4cm}
-        \color{WarlockWhite}
-        {\Large\bfseries Technical Documentation and User Guide\par}
-        \vspace{0.2cm}
-        {\large Software Version: 5.0 (NEO-Refactor)\par}
-        \vspace{0.4cm}
-        \color{WarlockGold}
-        \rule{0.6\textwidth}{1pt}\par
-        \vfill
-        {\large Iván Eduardo Chavez Ayub\par}
-        \href{https://github.com/Ivan-Ayub97}{\texttt{\color{WarlockGold}\faGithub\ @Ivan-Ayub97}}\par
-        \vspace{1.5cm}
-        {\large \today\par}
-    \end{tcolorbox}
-    \thispagestyle{empty}
+
+        \textbf{Developed by Ivan-Ayub97}\\
+        \today
+
+    \end{center}
 \end{titlepage}
 
-\newpage
 \tableofcontents
 \newpage
 
-% =======================================================================================
-%   SECTION 1: INTRODUCTION
-% =======================================================================================
-\setsectioncolor{IntroColor}
-\section{Introduction to Warlock-Studio v5.0}
-Welcome to Warlock-Studio v5.0 — a major evolutionary leap in AI-powered media enhancement.
-This version introduces a robust \textbf{Modular Architecture} and the new \textbf{NEO Engine}, optimizing
-stability, hardware diagnostics, and processing efficiency. It provides advanced tools for super-resolution,
-artifact removal, and frame generation through an intuitive interface that now includes an \textbf{Integrated Console}
-and native \textbf{Drag \& Drop} support.
+% ---------------------------------------------------------
+% SECTION 1: INTRODUCTION
+% ---------------------------------------------------------
+\section{Introduction}
+Warlock-Studio is a comprehensive GUI application designed for AI-driven image and video enhancement. It integrates state-of-the-art neural networks to perform Upscaling, Denoising, Face Restoration, and Frame Interpolation.
 
-% =======================================================================================
-%   SECTION 2: QUICK START GUIDE
-% =======================================================================================
-\setsectioncolor{QuickStartColor}
-\section{Quick Start Guide}
-\begin{quickstartbox}{Accelerated Media Enhancement Procedure}
-Follow these steps to process your media using the new v5.0 workflow.
-\begin{enumerate}
-    \item \textbf{Load Files (Drag \& Drop):} You can now simply \textbf{drag and drop} your image or video files directly onto the application window. Alternatively, click the \textbf{"Select Files"} button.
-    \item \textbf{AI Model Selection:} In the \textbf{"AI model"} dropdown menu, select an inference model.
+Built on Python, CustomTkinter, and ONNX Runtime, Warlock-Studio optimizes hardware resources (CPU and GPU) to deliver great results.
+
+\begin{infobox}{System Requirements}
+\begin{itemize}
+    \item \textbf{OS:} Windows 10/11 (x64)
+    \item \textbf{RAM:} Minimum 8GB (16GB+ recommended)
+    \item \textbf{GPU:} NVIDIA (CUDA), AMD/Intel (DirectML), or CPU (Slow fallback)
+    \item \textbf{Dependencies:} FFmpeg (included in assets), Visual C++ Redistributable.
+\end{itemize}
+\end{infobox}
+
+% ---------------------------------------------------------
+% SECTION 2: INTERFACE & USAGE
+% ---------------------------------------------------------
+\section{Interface Overview & Usage}
+The interface is divided into functional blocks designed for a linear workflow: \textit{Load $\rightarrow$ Configure $\rightarrow$ Process}.
+
+\subsection{1. Input Section}
+Located on the left side (or top, depending on layout), this area handles file ingestion.
+\begin{itemize}
+    \item \textbf{Drag \& Drop:} You can drag images or videos directly onto the window.
+    \item \textbf{Manual Select:} Clicking the button opens a file dialog.
+    \item \textbf{File List:} Selected files appear in a scrollable list showing resolution, duration, and calculated output resolution based on current settings.
+\end{itemize}
+
+\subsection{2. AI Configuration}
+This is the core control panel.
+\begin{description}
+    \item[AI Model:] Selects the neural network architecture (see Chapter 3).
+    \item[AI Multithreading:] Controls how many frames are processed simultaneously.
     \begin{itemize}
-        \item For photorealistic images, \inlinecode{BSRGANx4} is recommended for texture reconstruction.
-        \item For animation/cartoons, \inlinecode{RealESR_Animex4} preserves sharp edges.
-        \item For video, \inlinecode{RealESR_Gx4} balances speed and quality.
-        \item For increasing framerate, use \inlinecode{RIFE} models (note: Blending controls will hide automatically).
+        \item \textit{Recommendation:} Set to "2 threads" for mid-range GPUs. Use "OFF" (1 thread) for high-resolution upscaling (4K) to save VRAM.
     \end{itemize}
-    \item \textbf{Verify Hardware (NEO Engine):} Click the \textbf{Gear Icon} (\faCog) to open Preferences. Check the \textbf{Hardware Diagnostics} to see the "Recommended Tiles" and "Safe VRAM Limit" calculated specifically for your PC.
-    \item \textbf{Adjust Settings:} Set the \textbf{"GPU VRAM (GB)"} based on the recommendation. For a quick test, set \textbf{"Input resolution"} to \texttt{75}\%.
-    \item \textbf{Start Processing:} Click \textbf{"Make Magic"}. You can now monitor real-time progress and logs via the new \textbf{Integrated Console} at the bottom of the window.
-\end{enumerate}
-\end{quickstartbox}
+    \item[Frame Generation (RIFE):] Only active when RIFE models are selected. Interpolates frames to increase smoothness (e.g., 30fps $\rightarrow$ 60fps).
+\end{description}
 
-% =======================================================================================
-%   SECTION 3: INSTALLATION & ARCHITECTURE
-% =======================================================================================
-\setsectioncolor{InstallColor}
-\section{Installation and Modular Architecture}
-\subsection{\faDownload\ Installation Process \& Path Change}
-Warlock-Studio uses a self-contained offline installer.
+\subsection{3. Hardware & Performance}
+\begin{itemize}
+    \item \textbf{GPU Selection:} Choose specific GPU or "Auto".
+    \item \textbf{VRAM Limiter:} \textbf{Crucial Setting.} This defines the tile size for processing.
+    \begin{itemize}
+        \item \textit{Integrated Graphics:} Set to 2GB or lower.
+        \item \textit{Dedicated GPU (e.g., RTX 3060):} Set to match your card's VRAM (e.g., 6GB-8GB).
+    \end{itemize}
+\end{itemize}
 
-\begin{warnbox}{Critical: Installation Directory Change}
-In version 5.0, the default installation directory has been migrated from \texttt{Program Files} to:
-\begin{center}
-\inlinecode{\%userprofile\%\\Documents\\Warlock-Studio}
-\end{center}
-\textbf{Reason:} This change prevents "Permission Denied" errors on Windows systems with strict UAC. It ensures the application has full read/write access to generate the \inlinecode{warlock_config.json}, write real-time logs, and manage video checkpoints without requiring constant Administrator privileges.
-\end{warnbox}
+\begin{tipbox}{Tiling Technology}
+Warlock-Studio uses "Tiling". If an image is too large for VRAM, it splits the image into small squares, processes them, and merges them back. The \textbf{VRAM Limiter} controls the size of these squares.
+\end{tipbox}
 
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Obtaining the Executable:} Download the `Warlock-Studio-Setup.exe` (Full Installer) from the official repositories.
-    \item \textbf{Run the Installer:} Run the setup. It will automatically default to your Documents folder.
-    \item \textbf{Launch:} Open Warlock-Studio via the Desktop shortcut.
-\end{enumerate}
+\subsection{4. Resolution Control}
+\begin{itemize}
+    \item \textbf{Input Resolution \%:} Downscales the image \textit{before} AI processing. Useful for speeding up 4K video processing (e.g., set to 50\%).
+    \item \textbf{Output Resolution \%:} Downscales the image \textit{after} AI processing.
+\end{itemize}
 
-\subsection{\faMicrochip\ System Requirements}
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\textwidth}{lX}
-        \toprule
-        \textbf{Component} & \textbf{Technical Specification} \\
-        \midrule
-        Operating System & Windows 11 or Windows 10 (64-bit architecture required). \\
-        RAM & 8 GB (minimum), 16 GB (recommended). \\
-        Graphics Card (GPU) & \textbf{Mandatory Requirement:} GPU with \textbf{DirectX 12} support. \\
-        & \textbf{NVIDIA:} CUDA support (Maxwell or newer). \\
-        & \textbf{AMD/Intel:} DirectML support. \\
-        & \textbf{4+ GB of VRAM} is recommended. \\
-        Storage & 2 GB of free disk space. SSD strongly recommended for video I/O. \\
-        \bottomrule
-    \end{tabularx}
-    \caption{Requirements for v5.0. The NEO Engine will verify these upon launch.}
+\subsection{5. Output Settings}
+\begin{itemize}
+    \item \textbf{Image Ext:} PNG (Lossless), JPG (Fast), BMP/TIFF (Uncompressed).
+    \item \textbf{Video Ext:} MP4, MKV, AVI, MOV.
+    \item \textbf{Video Codec:}
+    \begin{itemize}
+        \item \textbf{x264/x265:} CPU Encoding (High quality, slow).
+        \item \textbf{NVENC:} NVIDIA Hardware (Fast).
+        \item \textbf{AMF:} AMD Hardware.
+        \item \textbf{QSV:} Intel Hardware.
+    \end{itemize}
+\end{itemize}
+
+% ---------------------------------------------------------
+% SECTION 3: AI MODELS EXPLAINED
+% ---------------------------------------------------------
+\newpage
+\section{AI Models Library}
+Warlock-Studio includes varied models optimized for specific scenarios. Use this table to choose the right tool.
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabularx}{\textwidth}{|l|l|X|}
+\hline
+\rowcolor{WarlockDark} \textcolor{white}{\textbf{Category}} & \textcolor{white}{\textbf{Model Name}} & \textcolor{white}{\textbf{Best Use Case}} \\ \hline
+\multirow{2}{*}{\textbf{Denoising}} & IRCNN\_Mx1 & Removing grain/noise without changing resolution. Fast. \\
+ & IRCNN\_Lx1 & Heavier denoising for very grainy sources. \\ \hline
+\multirow{2}{*}{\textbf{Anime / Art}} & RealESR\_Animex4 & \textbf{Best for Cartoons/Anime.} Removes compression artifacts and sharpens lines. \\
+ & RealESR\_Gx4 & General purpose fast upscaling. \\ \hline
+\multirow{4}{*}{\textbf{Realistic}} & BSRGANx4 & \textbf{Best for Real World video.} Adds texture and realistic details. \\
+ & BSRGANx2 & 2x version of above. Slightly faster. \\
+ & RealESRGANx4 & Good balance between sharpness and texture. \\
+ & RealESRNetx4 & Smoother look, less texture hallucination. \\ \hline
+\textbf{Faces} & GFPGAN & \textbf{Face Restoration.} Miraculous recovery of blurry/small faces. \\ \hline
+\textbf{Interpolation} & RIFE / Lite & Increasing Frame Rate (30$\rightarrow$60fps). Creates intermediate frames. \\ \hline
+\end{tabularx}
+\caption{Warlock-Studio Model Reference Guide}
 \end{table}
 
-\subsection{\faPuzzlePiece\ Modular File Architecture (v5.0)}
-\begin{infobox}{From Monolithic to Modular}
-Version 5.0 abandons the single-script structure. The application is now composed of specialized modules to improve stability and maintainability.
-\end{infobox}
-
-\begin{itemize}[leftmargin=*]
-    \item \textbf{\inlinecode{Warlock-Studio.py} (Core Orchestrator):}
-    Manages the main GUI event loop and spawns multiprocessing tasks for AI inference.
-    \item \textbf{\inlinecode{warlock_preferences.py} (State Manager):}
-    Houses the \textbf{NEO Engine} for hardware telemetry, the \inlinecode{ConfigManager} for JSON persistence, and the OTA Update Manager.
-    \item \textbf{\inlinecode{console.py} (I/O Manager):}
-    Controls the new \textbf{Integrated Console}, redirecting \texttt{stdout} and \texttt{stderr} streams to the GUI for real-time debugging.
-    \item \textbf{\inlinecode{drag_drop.py} (Event Wrapper):}
-    Implements the \inlinecode{DnDCTk} class to handle native OS Drag \& Drop events.
-    \item \textbf{Assets:}
-    Includes \inlinecode{ffmpeg.exe}, \inlinecode{exiftool.exe}, and the AI Models (`.onnx`) in the \texttt{AI-onnx} directory.
+\subsection*{When NOT to use certain models:}
+\begin{itemize}
+    \item Do \textbf{not} use \textit{RealESR\_Animex4} on realistic photos; it will make skin look like plastic (oil painting effect).
+    \item Do \textbf{not} use \textit{GFPGAN} on non-human subjects or high-quality faces (it might alter facial features slightly).
 \end{itemize}
 
+% ---------------------------------------------------------
+% SECTION 4: WORKFLOW DIAGRAMS
+% ---------------------------------------------------------
+\section{Process Workflows}
 
-% =======================================================================================
-%   SECTION 4: DETAILED AI MODEL GUIDE
-% =======================================================================================
-\setsectioncolor{ModelsColor}
-\section{Detailed Analysis of Inference Models}
+\subsection{Video Upscaling Pipeline}
+Understanding the internal process helps in troubleshooting speed issues.
 
-\begin{infobox}{Dynamic Interface Adaptation}
-In v5.0, the interface adapts to your model selection. Selecting a \textbf{RIFE} model will automatically hide "Blending" controls and reveal "Frame Generation" options. Selecting an \textbf{Upscaling} model does the reverse.
-\end{infobox}
+\vspace{0.5cm}
 
-\subsection{\faTable\ Model Comparison Matrix}
-\begin{longtable}{p{2.8cm} p{1.8cm} p{1.2cm} p{1.5cm} p{7.2cm}}
-\toprule
-\textbf{Model} & \textbf{Function} & \textbf{Scale} & \textbf{VRAM} & \textbf{Use Case} \\
-\midrule
-\endhead
-\multicolumn{5}{c}{\textit{\textbf{\faEraser\ Denoising}}} \\
-\midrule
-\texttt{IRCNN\_Mx1} & Denoise & x1 & 4.0 & Moderate noise reduction (JPEG artifacts). \\
-\texttt{IRCNN\_Lx1} & Denoise & x1 & 4.0 & Intensive noise reduction for degraded images. \\
-\midrule
-\multicolumn{5}{c}{\textit{\textbf{\faTachometerAlt\ High-Fidelity Upscaling}}} \\
-\midrule
-\texttt{BSRGANx4} & Upscale & x4 & 0.6 & Photorealistic texture synthesis. Best for portraits/nature. \\
-\texttt{RealESRGANx4} & Upscale & x4 & 0.6 & General-purpose robust reconstruction. \\
-\midrule
-\multicolumn{5}{c}{\textit{\textbf{\faBolt\ High-Speed Upscaling}}} \\
-\midrule
-\texttt{RealESR\_Gx4} & Upscale & x4 & 2.2 & Fastest model. Optimized for video. \\
-\texttt{RealESR\_Animex4} & Upscale & x4 & 2.2 & Optimized for Anime/Cartoons (clean lines). \\
-\midrule
-\multicolumn{5}{c}{\textit{\textbf{\faUserCircle\ Facial Restoration}}} \\
-\midrule
-\texttt{GFPGAN} & Restore & x1 & 1.8 & Face reconstruction. v5.0 enforces \textbf{Float32} precision for stability. \\
-\midrule
-\multicolumn{5}{c}{\textit{\textbf{\faFilm\ Frame Interpolation (FluidFrames)}}} \\
-\midrule
-\texttt{RIFE} & Interpolate & N/A & \textasciitilde{}1.5 & Generates intermediate frames (x2, x4, x8). \\
-\texttt{RIFE\_Lite} & Interpolate & N/A & \textasciitilde{}1.2 & Faster variant for lower-end GPUs. \\
-\midrule
-\bottomrule
-\caption{Technical guide for AI models. VRAM values are base estimates.}
-\label{tab:modelos}
-\end{longtable}
+\begin{center}
+\begin{tikzpicture}[node distance=1.5cm]
+    \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=WarlockRed!30]
+    \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=WarlockGold!30]
+    \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!10]
+    \tikzstyle{arrow} = [thick,->,>=stealth]
 
-% =======================================================================================
-%   SECTION 5: OPTIMIZATION & NEO ENGINE
-% =======================================================================================
-\setsectioncolor{OptimizeColor}
-\section{Performance Optimization and NEO Engine}
+    \node (in) [startstop] {Input Video};
+    \node (extract) [process, below of=in] {Extract Frames (FFmpeg)};
+    \node (resize1) [process, below of=extract] {Input Resize \%};
+    \node (ai) [process, below of=resize1] {AI Inference (ONNX)};
+    \node (blend) [decision, below of=ai, yshift=-0.5cm] {Blending?};
+    \node (merge) [process, below of=blend, yshift=-0.5cm] {Merge Upscale + Original};
+    \node (encode) [process, below of=merge] {Encode Video (FFmpeg)};
+    \node (out) [startstop, below of=encode] {Output Video};
 
-\subsection{\faMagic\ The NEO Engine}
-\begin{neobox}{Automatic Hardware Heuristics}
-Warlock-Studio v5.0 introduces the \textbf{NEO Engine} (located in \inlinecode{warlock_preferences.py}). This system scans your CPU, RAM, and GPU capabilities in real-time to generate \textbf{Smart Recommendations}.
-\end{neobox}
+    \draw [arrow] (in) -- (extract);
+    \draw [arrow] (extract) -- (resize1);
+    \draw [arrow] (resize1) -- (ai);
+    \draw [arrow] (ai) -- (blend);
+    \draw [arrow] (blend) -- node[anchor=east] {Yes} (merge);
+    \draw [arrow] (blend.east) -- ++(1,0) |- node[anchor=south] {No} (encode.east);
+    \draw [arrow] (merge) -- (encode);
+    \draw [arrow] (encode) -- (out);
 
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Safe VRAM Limit:} The engine calculates a safe buffer using the formula: $\max(0.5, \text{Physical VRAM} - 1.5 \text{ GB})$.
-    \item \textbf{Recommended Tiles:} It suggests the optimal \inlinecode{tiles_resolution} to maximize speed while preventing Out-Of-Memory (OOM) crashes.
-    \item \textbf{Thread Concurrency:} It analyzes your CPU topology (physical vs. logical cores) to suggest safe multithreading levels for video processing.
-\end{itemize}
+\end{tikzpicture}
+\end{center}
 
-\subsection{\faSlidersH\ Critical Parameters}
-\begin{itemize}[leftmargin=*, itemsep=2pt]
-    \item \textbf{Input Resolution \%:} Setting this to \textbf{75\%} drastically reduces load with minimal quality loss.
-    \item \textbf{AI Multithreading:} (Video only) Processes multiple frames in parallel. Use the NEO Engine's recommendation to avoid system freezing.
-    \item \textbf{Keep Frames:} Enable this (\inlinecode{selected_keep_frames = True}) if you plan to experiment with different video encoding codecs later.
-\end{itemize}
+% ---------------------------------------------------------
+% SECTION 5: TROUBLESHOOTING
+% ---------------------------------------------------------
+\newpage
+\section{Troubleshooting & Error Codes}
 
-% =======================================================================================
-%   SECTION 6: TROUBLESHOOTING
-% =======================================================================================
-\setsectioncolor{TroubleColor}
-\section{Diagnostics and Troubleshooting}
-\begin{warnbox}{Integrated Console}
-Use the new **Integrated Console** at the bottom of the app window to view real-time error logs, warnings, and processing status. You can search, copy, and save these logs.
-\end{warnbox}
+The integrated console (bottom of the app) provides real-time logs. Here are common errors and fixes.
 
-\begin{description}[leftmargin=*, style=nextline, itemsep=0.8em]
-    \item[\faBan\ Error: "FFmpeg encoding failed..." / Fallback Active]
-        \textbf{Diagnosis:} The selected hardware codec (e.g., \inlinecode{hevc_nvenc}) failed due to driver issues or resource locking.
-        \textbf{v5.0 Solution:} The system now features an \textbf{Automatic Fallback}. If the GPU encoder fails, it automatically switches to the CPU-based \inlinecode{libx264} encoder to ensure the video is finished. Check the console for yellow warnings indicating this switch.
+\subsection{Common Runtime Errors}
 
-    \item[\faMemory\ Error: "Out of memory" / OOM Recovery]
-        \textbf{Diagnosis:} VRAM exhaustion during tiling.
-        \textbf{v5.0 Solution:} The application detects this exception and triggers \textbf{Recursive Dynamic Tiling}. It automatically halves the tile resolution (e.g., 100\% $\to$ 50\%) and retries the frame. You do not need to restart the process manually.
-
-    \item[\faRocket\ Error: "Failed to load model" (ONNX)]
-        \textbf{Diagnosis:} Issue initializing the execution provider.
-        \textbf{Solution:} v5.0 implements a strict priority chain: CUDA $\to$ DirectML $\to$ CPU. Ensure your GPU drivers are up to date. If using an older NVIDIA card, the system may default to DirectML or CPU.
-
-    \item[\faTachometerAlt\ Error: "NaN" (Not a Number)]
-        \textbf{Diagnosis:} GPU Driver Timeout (TDR).
-        \textbf{Solution:} Restart the process without deleting the temp frames folder. The app will resume from the last successful frame.
-\end{description}
-
-% =======================================================================================
-%   SECTION 7: ADVANCED TECHNICAL ARCHITECTURE
-% =======================================================================================
-\setsectioncolor{ArchColor}
-\section{Software Architecture Analysis (v5.0)}
-
-\subsection{\faCogs\ Modular Inference Engine}
-Warlock-Studio v5.0 utilizes a robust \textbf{ONNX Runtime} backend managed by the \inlinecode{create_onnx_session} factory in the core orchestrator. It enforces strict integer typing for device IDs to ensure compatibility with rigid DirectML backends.
-
-\subsection{\faSyncAlt\ Lossless Intermediate Pipeline}
-In v5.0, the video extraction pipeline (\inlinecode{extract_video_frames}) strictly enforces the use of \textbf{.PNG} containers for temporary frames. This eliminates the generation loss previously caused by JPEG artifacts before the image entered the neural network.
-
-\subsection{\faThLarge\ Architecture Diagram (Modular)}
-\noindent
-Updated component-level architecture illustrating the new modular design and the interaction between the GUI, the NEO Engine, and the Core Orchestrator.
-
-\begin{figure}[H]
-    \centering
-    \resizebox{\textwidth}{!}{%
-    \begin{tikzpicture}[node distance=12mm, every node/.style={font=\small}]
-      \tikzset{
-        module/.style={rectangle, rounded corners=3pt, draw=WarlockDark!70!black, fill=WarlockDark!6, minimum width=42mm, minimum height=10mm, align=center, drop shadow},
-        core/.style={rectangle, rounded corners=3pt, draw=WarlockGold!80!black, fill=WarlockGold!15, minimum width=42mm, minimum height=10mm, align=center, drop shadow},
-        hw/.style={rectangle, rounded corners=3pt, draw=WarlockGray!80!black, fill=WarlockLightGray, minimum width=42mm, minimum height=10mm, align=center},
-        line/.style={-Latex, thick, color=WarlockGray!90!black}
-      }
-
-      % Nodes
-      \node[module] (gui) {\textbf{GUI Frontend}\\(Main Window +\\Drag\&Drop Wrapper)};
-      \node[module, left=15mm of gui] (prefs) {\textbf{Warlock Prefs}\\(NEO Engine +\\Update Manager)};
-      \node[module, right=15mm of gui] (console) {\textbf{Console Manager}\\(Stream Redirection)};
-
-      \node[core, below=15mm of gui] (orch) {\textbf{Core Orchestrator}\\(Multiprocessing)};
-
-      \node[module, below=15mm of orch] (ai) {\textbf{AI Engine}\\(ONNX Runtime)};
-      \node[module, right=15mm of ai] (io) {\textbf{I/O \& Encoding}\\(FFmpeg / Fallback)};
-
-      \node[hw, below=12mm of ai] (gpu) {\textbf{Hardware}\\(CUDA / DirectML)};
-      \node[hw, below=12mm of io] (disk) {\textbf{Storage}\\(Logs/Config/Frames)};
-
-      % Connections
-      \draw[line] (prefs) -- (gui);
-      \draw[line] (console) -- (gui);
-      \draw[line] (gui) -- (orch);
-      \draw[line] (orch) -- (ai);
-      \draw[line] (orch) -- (io);
-      \draw[line] (ai) -- (gpu);
-      \draw[line] (io) -- (disk);
-      \draw[line, dashed] (prefs) |- (disk);
-
-    \end{tikzpicture}
-    }
-    \caption{Warlock-Studio v5.0 Modular Component Architecture.}
-\end{figure}
-
-% =======================================================================================
-%   SECTION 8: GLOSSARY
-% =======================================================================================
-\setsectioncolor{GlossaryColor}
-\section{Glossary}
-\begin{description}[leftmargin=*, style=nextline, itemsep=0.8em]
-    \item[NEO Engine] The new heuristic subsystem in v5.0 responsible for hardware scanning, diagnostics, and configuration recommendation.
-    \item[Modular Architecture] A software design technique that splits the code into separate, independent modules (`console`, `preferences`, `core`) to improve maintainability.
-    \item[ONNX Runtime] The cross-platform engine used to run the AI models. v5.0 enforces strict device ID typing.
-    \item[OOM Recovery] (Out Of Memory) An automatic mechanism that reduces tile size when VRAM is exhausted to prevent crashes.
-    \item[DirectML] (Direct Machine Learning) API used for GPU acceleration on AMD and Intel cards.
-\end{description}
-
-% =======================================================================================
-%   SECTION 9: SUPPORT & CONTRIBUTIONS
-% =======================================================================================
-\setsectioncolor{SupportColor}
-\section{Support and Community}
-\begin{itemize}[leftmargin=*]
-    \item \textbf{\faBook\ Manual:} Click the \textbf{Book Icon} in the app header to open this PDF document.
-    \item \textbf{\faBug\ Reporting Issues:} Report bugs on GitHub. Please attach the \inlinecode{error_log.txt} file located in your \textbf{Documents} folder.
-    \item \textbf{\faSync\ Updates:} Use the internal \textbf{Update Manager} (Gear Icon $\to$ Check Updates) to download the latest version directly.
-    \item \textbf{\faEnvelope\ Contact:} For non-bug related inquiries: \href{mailto:negroayub97@gmail.com}{\texttt{negroayub97@gmail.com}}.
-\end{itemize}
-\vspace{1cm}
+\begin{table}[h!]
 \centering
-\textbf{Thank you for using Warlock-Studio v5.0.}
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\rowcolor{WarlockRed} \textcolor{white}{\textbf{Error / Symptom}} & \textcolor{white}{\textbf{Solution}} \\ \hline
+\textbf{CUDA / Out of Memory} & The AI model requires more VRAM than available. \newline \textbf{Fix:} Lower the "GPU VRAM" setting (e.g., set to 2). Lower "AI Multithreading" to OFF. \\ \hline
+\textbf{FFmpeg not found} & The application cannot process video/audio. \newline \textbf{Fix:} Ensure \texttt{ffmpeg.exe} is in the \texttt{Assets/} folder. \\ \hline
+\textbf{Gray/Black Output} & Often caused by incompatible Video Codecs. \newline \textbf{Fix:} Switch output codec to \texttt{x264} (Software) or check GPU driver updates. \\ \hline
+\textbf{Process Stops Immediately} & File path issue. \newline \textbf{Fix:} Avoid special characters or emojis in filenames/folders. Move files to a simple path like \texttt{C:/Upscale/}. \\ \hline
+\textbf{DLL Load Failed} & Missing Visual C++ dependencies. \newline \textbf{Fix:} Install latest MSVC Redistributable. \\ \hline
+\end{tabularx}
+\end{table}
 
-% =======================================================================================
-%   END OF DOCUMENT
-% =======================================================================================
+\begin{warningbox}{Checkpoint Recovery}
+If the app crashes during a long video upscale, \textbf{do not delete the temporary folder}. Warlock-Studio will detect the processed frames and resume from where it left off automatically upon restarting the same job.
+\end{warningbox}
+
+\subsection{Performance Tuning Tips}
+\begin{itemize}
+    \item \textbf{Slow Speed?} Ensure "Process Priority" in Preferences is set to "High". Check if you are using CPU instead of GPU (Console will say \texttt{CPUExecutionProvider}).
+    \item \textbf{Low Quality?} Try disabling "Blending" (set to OFF). Increase "Input Resolution \%" to 100.
+    \item \textbf{Glitchy Video?} If using Interpolation (RIFE), scene changes might look weird. This is a limitation of current AI flow generation.
+\end{itemize}
+
+% ---------------------------------------------------------
+% SECTION 6: PREFERENCES
+% ---------------------------------------------------------
+\section{Preferences Menu}
+Accessible via the \faCog\ icon in the top right.
+
+\begin{itemize}
+    \item \textbf{App Theme:} Switch between Dark/Light modes.
+    \item \textbf{ONNX Provider:} Force specific backend (CUDA vs DirectML). \textit{Auto} is recommended.
+    \item \textbf{Clean Temp Files:} Removes leftover \texttt{.tmp} files and frame folders from crashed sessions.
+    \item \textbf{Extended Logging:} Enables detailed debug logs for error reporting.
+\end{itemize}
+
+\vspace{2cm}
+\begin{center}
+    \textit{Warlock-Studio is an open-source tool. \\ Thank you for using it.}
+\end{center}
+
 \end{document}

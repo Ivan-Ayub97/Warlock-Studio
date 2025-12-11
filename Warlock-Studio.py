@@ -42,10 +42,12 @@ from subprocess import run as subprocess_run
 from threading import Event, Lock, Thread
 from time import sleep
 from timeit import default_timer as timer
-from tkinter import DISABLED, StringVar
+from tkinter import DISABLED, StringVar, messagebox
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 from webbrowser import open as open_browser
 
+import customtkinter as ctk
+import cv2
 # ONNX Runtime imports
 import onnxruntime
 # GUI imports (CustomTkinter & TkinterDnD)
@@ -88,6 +90,7 @@ from numpy import transpose as numpy_transpose
 from numpy import uint8
 from numpy import zeros as numpy_zeros
 from onnxruntime import InferenceSession
+# Necesitarás PIL para cargar el icono de limpieza que pide el constructor
 from PIL import Image
 from PIL.Image import fromarray as pillow_image_fromarray
 from PIL.Image import open as pillow_image_open
@@ -102,6 +105,8 @@ from tkinterdnd2 import DND_ALL, TkinterDnD
 from console import IntegratedConsole, console
 # Local imports
 from drag_drop import DnDCTk, enable_drag_and_drop
+# Importa la clase de tu archivo (asumiendo que se llama file_queue_manager.py)
+from file_queue_manager import FileQueueManager
 from warlock_preferences import PreferencesButton  # Importación local
 
 # Redirigir inmediatamente para capturar logs de importación
@@ -123,9 +128,8 @@ def find_by_relative_path(relative_path: str) -> str:
     return os_path_join(base_path, relative_path)
 
 
-# Application Info
 app_name = "Warlock-Studio"
-version = "5.0"
+version = "5.1"
 
 # Supported File Extensions
 supported_image_extensions = [".jpg", ".jpeg",
@@ -138,16 +142,20 @@ supported_file_extensions = supported_image_extensions + supported_video_extensi
 # THEME & COLORS
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# THEME & COLORS
+# -----------------------------------------------------------------------------
+
 # Fondo: Negro casi puro, igual que el fondo del banner para máximo contraste
-background_color = "#1B1818"
+background_color = "#0A0A0A"
 # Nombre de la app: Plata metálico, inspirado en el texto "STUDIO"
-app_name_color = "#FF4848"
+app_name_color = "#FAF600"
 # Paneles: Gris oscuro neutro, permite que el rojo y dorado resalten sin competir
-widget_background_color = "#2A2727"
+widget_background_color = "#303030"
 # Texto principal: Blanco puro para legibilidad máxima
 text_color = "#FFFFFF"
 # Texto secundario: Dorado pálido/desaturado, para no cansar la vista pero mantener la identidad
-secondary_text_color = "#CAC9C9"
+secondary_text_color = "#B5B4B4"
 # Acento: El amarillo dorado brillante del sombrero y los destellos (Sparkles)
 accent_color = "#FDEF2F"
 # Hover de botones: El rojo vibrante del relleno del texto "WARLOCK"
@@ -155,13 +163,13 @@ button_hover_color = "#D41C1C"
 # Bordes: Un dorado oscuro muy sutil, imitando el borde del logo sin ser chillón
 border_color = "#E2340D"
 # Botones info/secundarios: El rojo sangre oscuro del fondo del círculo del logo
-info_button_color = "#212121"
+info_button_color = "#770000"
 # Advertencias: Naranja dorado, sacado del sombreado del sombrero
 warning_color = "#FFA000"
 # Éxito: Verde brillante, necesario para contraste funcional
 success_color = "#00E676"
 # Error: Rojo carmesí intenso, similar al borde de las letras "WARLOCK"
-error_color = "#B00020"
+error_color = "#81091F"
 # Resaltado: Amarillo luz, como el centro de los destellos (estrellas)
 highlight_color = "#FFFF8D"
 # Scrollbars: Rojo vino oscuro translúcido, para mantener la temática sin distraer
@@ -921,12 +929,12 @@ class AI_upscale:
 
         return final_image
 
-# AI INTERPOLATION for frame generation -----------------
-
 
 class AI_interpolation:
 
-    # CLASS INIT FUNCTIONS
+    # -------------------------------------------------------------------------
+    # CLASS INIT
+    # -------------------------------------------------------------------------
 
     def __init__(
             self,
@@ -936,7 +944,6 @@ class AI_interpolation:
             input_resize_factor: int,
             output_resize_factor: int,
     ):
-
         # Passed variables
         self.AI_model_name = AI_model_name
         self.frame_gen_factor = frame_gen_factor
@@ -947,6 +954,10 @@ class AI_interpolation:
         # Calculated variables
         self.AI_model_path = find_by_relative_path(
             f"AI-onnx{os_separator}{self.AI_model_name}_fp32.onnx")
+
+        # RIFE requiere múltiplos de 32 para evitar artefactos
+        self.divisor = 32
+
         self.inferenceSession = self._load_inferenceSession()
 
     def _load_inferenceSession(self) -> InferenceSession:
@@ -958,18 +969,18 @@ class AI_interpolation:
             print(f"[AI ERROR] {error_msg}")
             raise RuntimeError(error_msg)
 
-    # INTERNAL CLASS FUNCTIONS
+    # -------------------------------------------------------------------------
+    # INTERNAL UTILS
+    # -------------------------------------------------------------------------
 
     def get_image_mode(self, image: numpy_ndarray) -> str:
         if image is None:
             raise ValueError("Image is None")
         shape = image.shape
-        if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
+        if len(shape) == 2:
             return "Grayscale"
-        # RGB: 3D array with 3 channels
         elif len(shape) == 3 and shape[2] == 3:
             return "RGB"
-        # RGBA: 3D array with 4 channels
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
         else:
@@ -978,16 +989,15 @@ class AI_interpolation:
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
         height = image.shape[0]
         width = image.shape[1]
-
         return height, width
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-
         old_height, old_width = self.get_image_resolution(image)
 
         new_width = int(old_width * self.input_resize_factor)
         new_height = int(old_height * self.input_resize_factor)
 
+        # Mantenemos esto simple, el padding real se hace en la inferencia
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
@@ -999,7 +1009,6 @@ class AI_interpolation:
             return image
 
     def resize_with_output_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-
         old_height, old_width = self.get_image_resolution(image)
 
         new_width = int(old_width * self.output_resize_factor)
@@ -1015,7 +1024,42 @@ class AI_interpolation:
         else:
             return image
 
-    # AI CLASS FUNCTIONS
+    # -------------------------------------------------------------------------
+    # PADDING & CROPPING (CRITICAL FIX FOR RIFE STRIPES)
+    # -------------------------------------------------------------------------
+
+    def pad_image_to_divisor(self, image: numpy_ndarray) -> tuple[numpy_ndarray, int, int]:
+        """
+        Añade bordes negros a la imagen para que sus dimensiones sean múltiplos de self.divisor (32).
+        Retorna la imagen con padding y las dimensiones del padding añadido.
+        """
+        h, w = image.shape[:2]
+
+        # Calcular cuánto falta para llegar al siguiente múltiplo de 32
+        pad_h = (self.divisor - (h % self.divisor)) % self.divisor
+        pad_w = (self.divisor - (w % self.divisor)) % self.divisor
+
+        if pad_h == 0 and pad_w == 0:
+            return image, 0, 0
+
+        # Aplicar padding (top, bottom, left, right) -> Solo rellenamos abajo y derecha
+        # Usamos cv2.BORDER_REFLECT o BORDER_REPLICATE para reducir artefactos en bordes
+        image_padded = cv2.copyMakeBorder(
+            image, 0, pad_h, 0, pad_w, cv2.BORDER_REFLECT)
+
+        return image_padded, pad_h, pad_w
+
+    def crop_padding(self, image: numpy_ndarray, pad_h: int, pad_w: int) -> numpy_ndarray:
+        """Recorta la imagen para eliminar el padding añadido previamente."""
+        if pad_h == 0 and pad_w == 0:
+            return image
+
+        h, w = image.shape[:2]
+        return image[:h-pad_h, :w-pad_w]
+
+    # -------------------------------------------------------------------------
+    # AI CORE FUNCTIONS
+    # -------------------------------------------------------------------------
 
     def concatenate_images(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
         # Optimización: Normalizar in-place para reducir uso de memoria
@@ -1048,14 +1092,34 @@ class AI_interpolation:
             case _: return (onnx_output * 255).astype(uint8)
 
     def AI_interpolation(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
-        image = self.concatenate_images(image1, image2).astype(float32)
+        """
+        Ejecuta la interpolación asegurando dimensiones correctas.
+        """
+        # 1. Aplicar Padding a ambas imágenes (Critical Fix)
+        img1_padded, pad_h, pad_w = self.pad_image_to_divisor(image1)
+        # Asumimos que img2 tiene el mismo tamaño que img1
+        img2_padded, _, _ = self.pad_image_to_divisor(image2)
+
+        # 2. Preprocesamiento estándar
+        image = self.concatenate_images(
+            img1_padded, img2_padded).astype(float32)
         image = self.preprocess_image(image)
+
+        # 3. Inferencia
         onnx_output = self.onnxruntime_inference(image)
+
+        # 4. Postprocesamiento
         onnx_output = self.postprocess_output(onnx_output)
-        output_image = self.de_normalize_image(onnx_output, 255)
+        output_image_padded = self.de_normalize_image(onnx_output, 255)
+
+        # 5. Eliminar Padding (Critical Fix)
+        output_image = self.crop_padding(output_image_padded, pad_h, pad_w)
+
         return output_image
 
-    # EXTERNAL FUNCTION
+    # -------------------------------------------------------------------------
+    # ORCHESTRATION
+    # -------------------------------------------------------------------------
 
     def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> List[numpy_ndarray]:
         """Generate interpolated frames between two input images."""
@@ -1723,230 +1787,6 @@ class MessageBox(CTkToplevel):
         self.placeInfoMessageOkButton()
 
 
-class FileWidget(CTkScrollableFrame):
-
-    def __init__(
-            self,
-            master,
-            selected_file_list,
-            upscale_factor=1,
-            input_resize_factor=0,
-            output_resize_factor=0,
-            **kwargs
-    ) -> None:
-
-        super().__init__(master, **kwargs)
-        self.grid_columnconfigure(0, weight=1)
-
-        self.file_list = selected_file_list
-        self.upscale_factor = upscale_factor
-        self.input_resize_factor = input_resize_factor
-        self.output_resize_factor = output_resize_factor
-
-        self.index_row = 1
-        self.ui_components = []
-        self._create_widgets()
-
-    def _destroy_(self) -> None:
-        self.file_list = []
-        self.destroy()
-        place_loadFile_section()
-
-    def _create_widgets(self) -> None:
-        self.add_clean_button()
-        for file_path in self.file_list:
-            file_name_label, file_info_label = self.add_file_information(
-                file_path)
-            self.ui_components.append(file_name_label)
-            self.ui_components.append(file_info_label)
-
-    def add_file_information(self, file_path) -> tuple:
-        infos, icon = self.extract_file_info(file_path)
-
-        # File name
-        file_name_label = CTkLabel(
-            self,
-            text=os_path_basename(file_path),
-            font=bold14,
-            text_color=accent_color,  # Usar color amarillo para nombres de archivo
-            compound="left",
-            anchor="w",
-            padx=10,
-            pady=5,
-            justify="left",
-        )
-        file_name_label.grid(
-            row=self.index_row,
-            column=0,
-            pady=(0, 2),
-            padx=(3, 3),
-            sticky="w"
-        )
-
-        # File infos and icon
-        file_info_label = CTkLabel(
-            self,
-            text=infos,
-            image=icon,
-            font=bold12,
-            text_color=secondary_text_color,  # Usar color de texto secundario para info
-            compound="left",
-            anchor="w",
-            padx=10,
-            pady=5,
-            justify="left",
-        )
-        file_info_label.grid(
-            row=self.index_row + 1,
-            column=0,
-            pady=(0, 15),
-            padx=(3, 3),
-            sticky="w"
-        )
-
-        self.index_row += 2
-
-        return file_name_label, file_info_label
-
-    def add_clean_button(self) -> None:
-
-        button = CTkButton(
-            master=self,
-            command=self._destroy_,
-            text="CLEAN",
-            image=clear_icon,
-            width=90,
-            height=28,
-            font=bold11,
-            border_width=1,
-            corner_radius=1,
-            fg_color=widget_background_color,
-            text_color=text_color,
-            border_color=accent_color,
-            hover_color=button_hover_color
-        )
-
-        button.grid(row=0, column=2, pady=(7, 7), padx=(0, 7))
-
-    @cache
-    def extract_file_icon(self, file_path) -> CTkImage:
-        max_size = 60
-
-        if check_if_file_is_video(file_path):
-            video_cap = opencv_VideoCapture(file_path)
-            _, frame = video_cap.read()
-            if frame is not None:
-                source_icon = opencv_cvtColor(frame, COLOR_BGR2RGB)
-            else:
-                # Fallback para videos problemáticos
-                source_icon = numpy_zeros((60, 60, 3), dtype=uint8)
-            video_cap.release()
-        else:
-            source_icon = opencv_cvtColor(image_read(file_path), COLOR_BGR2RGB)
-
-        # Optimización: Usar memoria contigua para mejor rendimiento
-        source_icon = numpy_ascontiguousarray(source_icon)
-
-        ratio = min(
-            max_size / source_icon.shape[0], max_size / source_icon.shape[1])
-        new_width = int(source_icon.shape[1] * ratio)
-        new_height = int(source_icon.shape[0] * ratio)
-        source_icon = opencv_resize(
-            source_icon, (new_width, new_height), interpolation=INTER_AREA)
-
-        # Convertir a PIL y luego a CTkImage sin usar mode=
-        pil_img = pillow_image_fromarray(source_icon)
-        pil_img = pil_img.convert("RGB")  # conversión explícita
-        ctk_icon = CTkImage(pil_img, size=(new_width, new_height))
-
-        return ctk_icon
-
-    def extract_file_info(self, file_path) -> tuple:
-
-        if check_if_file_is_video(file_path):
-            cap = opencv_VideoCapture(file_path)
-            width = round(cap.get(CAP_PROP_FRAME_WIDTH))
-            height = round(cap.get(CAP_PROP_FRAME_HEIGHT))
-            num_frames = int(cap.get(CAP_PROP_FRAME_COUNT))
-            frame_rate = cap.get(CAP_PROP_FPS)
-            duration = num_frames/frame_rate
-            minutes = int(duration/60)
-            seconds = duration % 60
-            cap.release()
-
-            file_icon = self.extract_file_icon(file_path)
-            file_infos = f"{minutes}m:{round(seconds)}s • {num_frames}frames • {width}x{height} \n"
-
-            if self.input_resize_factor != 0 and self.output_resize_factor != 0 and self.upscale_factor != 0:
-                input_resized_height = int(
-                    height * (self.input_resize_factor/100))
-                input_resized_width = int(
-                    width * (self.input_resize_factor/100))
-
-                upscaled_height = int(
-                    input_resized_height * self.upscale_factor)
-                upscaled_width = int(input_resized_width * self.upscale_factor)
-
-                output_resized_height = int(
-                    upscaled_height * (self.output_resize_factor/100))
-                output_resized_width = int(
-                    upscaled_width * (self.output_resize_factor/100))
-
-                file_infos += (
-                    f"AI input ({self.input_resize_factor}%) ➜ {input_resized_width}x{input_resized_height} \n"
-                    f"AI output (x{self.upscale_factor}) ➜ {upscaled_width}x{upscaled_height} \n"
-                    f"Video output ({self.output_resize_factor}%) ➜ {output_resized_width}x{output_resized_height}"
-                )
-
-        else:
-            height, width = get_image_resolution(image_read(file_path))
-            file_icon = self.extract_file_icon(file_path)
-
-            file_infos = f"{width}x{height}\n"
-
-            if self.input_resize_factor != 0 and self.output_resize_factor != 0 and self.upscale_factor != 0:
-                input_resized_height = int(
-                    height * (self.input_resize_factor/100))
-                input_resized_width = int(
-                    width * (self.input_resize_factor/100))
-
-                upscaled_height = int(
-                    input_resized_height * self.upscale_factor)
-                upscaled_width = int(input_resized_width * self.upscale_factor)
-
-                output_resized_height = int(
-                    upscaled_height * (self.output_resize_factor/100))
-                output_resized_width = int(
-                    upscaled_width * (self.output_resize_factor/100))
-
-                file_infos += (
-                    f"AI input ({self.input_resize_factor}%) ➜ {input_resized_width}x{input_resized_height} \n"
-                    f"AI output (x{self.upscale_factor}) ➜ {upscaled_width}x{upscaled_height} \n"
-                    f"Image output ({self.output_resize_factor}%) ➜ {output_resized_width}x{output_resized_height}"
-                )
-
-        return file_infos, file_icon
-
-    # EXTERNAL FUNCTIONS
-
-    def clean_file_list(self) -> None:
-        self.index_row = 1
-        for ui_component in self.ui_components:
-            ui_component.grid_forget()
-
-    def get_selected_file_list(self) -> list:
-        return self.file_list
-
-    def set_upscale_factor(self, upscale_factor) -> None:
-        self.upscale_factor = upscale_factor
-
-    def set_input_resize_factor(self, input_resize_factor) -> None:
-        self.input_resize_factor = input_resize_factor
-
-    def set_output_resize_factor(self, output_resize_factor) -> None:
-        self.output_resize_factor = output_resize_factor
-
-
 def get_values_for_file_widget() -> tuple:
     # Upscale factor
     upscale_factor = get_upscale_factor()
@@ -1969,18 +1809,21 @@ def get_values_for_file_widget() -> tuple:
 
 
 def update_file_widget(a, b, c) -> None:
-    try:
-        selected_file_list = file_widget.get_selected_file_list()
-    except Exception:
+    # Si el widget no existe o no tiene archivos, no hacemos nada crítico,
+    # pero actualizamos los valores internos para cuando lleguen archivos.
+    if not file_widget:
         return
 
     upscale_factor, input_resize_factor, output_resize_factor = get_values_for_file_widget()
 
-    file_widget.clean_file_list()
+    # Pasar valores al manager
     file_widget.set_upscale_factor(upscale_factor)
     file_widget.set_input_resize_factor(input_resize_factor)
     file_widget.set_output_resize_factor(output_resize_factor)
-    file_widget._create_widgets()
+
+    # Regenerar textos de info en la lista si es necesario
+    if file_widget.queue_items:
+        file_widget.regenerate_all_info()
 
 
 def create_option_background():
@@ -3934,6 +3777,11 @@ def upscale_button_command() -> None:
     global process_upscale_orchestrator
     global stop_thread_flag
 
+    # --- AGREGAR CONFIRMACIÓN ---
+    if not messagebox.askyesno("Start Processing", "Do you want to start the AI processing?"):
+        return
+    # ----------------------------
+
     # Fix 2.2: Clear stop_thread_flag at the beginning of each execution
     stop_thread_flag.clear()
 
@@ -4112,32 +3960,39 @@ def fluidframes_video_interpolate(
     write_process_status(
         process_status_q, f"{file_number}. Extracting video frames")
 
-    # --- CAMBIO CRÍTICO: Forzar .png para extracción temporal ---
+    # Forzar .png para extracción temporal
     temp_extraction_ext = ".png"
 
     extracted_frames_paths = extract_video_frames(
         process_status_q, file_number, target_directory, AI_instance, video_path, cpu_number, temp_extraction_ext)
 
-    # Step 3. Prepare output/gen frame names (asegurar que usan png)
+    # Step 3. Prepare output/gen frame names
     total_frames_paths = prepare_output_video_frame_filenames(
         extracted_frames_paths, selected_AI_model, frame_gen_factor, temp_extraction_ext)
 
     # Step 4. Interpolated frames generation
     write_process_status(
-        process_status_q, f"{file_number}. Video frame generation")
+        process_status_q, f"{file_number}. Video frame generation initializing...")
+
+    # --- LOGICA DE PROGRESO AÑADIDA ---
     global global_processing_times_list
     global_processing_times_list = []
 
-    for frame_index in range(len(extracted_frames_paths)-1):
+    total_pairs = len(extracted_frames_paths) - 1
+
+    for frame_index in range(total_pairs):
         frame_1_path = extracted_frames_paths[frame_index]
         frame_2_path = extracted_frames_paths[frame_index+1]
+
+        # Medir tiempo de carga e inferencia
+        start_timer = timer()
+
         frame_1 = image_read(frame_1_path)
         frame_2 = image_read(frame_2_path)
 
-        start_timer = timer()
         generated_frames = AI_instance.AI_orchestration(frame_1, frame_2)
 
-        # Save generated frames (usando la misma extensión temporal .png)
+        # Save generated frames
         generated_frames_paths = prepare_generated_frames_paths(
             os_path_splitext(frame_1_path)[0], selected_AI_model, temp_extraction_ext, frame_gen_factor)
 
@@ -4145,13 +4000,30 @@ def fluidframes_video_interpolate(
             image_write(generated_frames_paths[i], gen_frame)
 
         end_timer = timer()
-        global_processing_times_list.append(end_timer - start_timer)
+
+        # --- CÁLCULO DE TIEMPO Y ACTUALIZACIÓN DE ESTADO ---
+        step_time = end_timer - start_timer
+        global_processing_times_list.append(step_time)
+
+        # Limitamos el tamaño de la lista de tiempos para mantener el promedio reciente
+        if len(global_processing_times_list) > 100:
+            global_processing_times_list.pop(0)
+
+        # Actualizar la interfaz cada 1% o cada frame si son pocos (evita saturar la GUI)
+        if total_pairs > 0 and (frame_index % max(1, int(total_pairs / 100)) == 0 or frame_index == total_pairs - 1):
+            avg_time = numpy_mean(global_processing_times_list)
+            remaining_frames = total_pairs - (frame_index + 1)
+            time_left = calculate_time_to_complete_video(
+                avg_time, remaining_frames)
+            percent_complete = ((frame_index + 1) / total_pairs) * 100
+
+            status_msg = f"{file_number}. Interpolating frames: {percent_complete:.1f}% completed ({time_left})"
+            write_process_status(process_status_q, status_msg)
 
     # Step 6. Video encoding
     write_process_status(
         process_status_q, f"{file_number}. Encoding frame-generated video")
 
-    # --- CAMBIO CRÍTICO: Calcular multiplicador de FPS para FFmpeg ---
     fps_multiplier = 1 if slowmotion else frame_gen_factor
 
     video_encoding(
@@ -4738,6 +4610,18 @@ def user_input_checks() -> bool:
 
     # Enhanced file validation
     try:
+        # Esto llama al método del nuevo FileQueueManager
+        selected_file_list = file_widget.get_selected_file_list()
+    except Exception:
+        info_message.set("Please select a file")
+        return False
+
+    if not selected_file_list or len(selected_file_list) <= 0:
+        info_message.set("Please select a file")
+        return False
+
+    # Enhanced file validation
+    try:
         selected_file_list = file_widget.get_selected_file_list()
     except Exception:
         info_message.set("Please select a file")
@@ -4853,48 +4737,37 @@ def open_files_action(files=None):
 
     info_message.set("Processing files...")
 
-    # --- CORRECCIÓN AQUÍ ---
     if files:
-        # Caso A: Viene de Drag & Drop
-        # El módulo drag_drop.py YA nos envía la lista limpia (es una tupla),
-        # así que solo la convertimos a lista y listo.
+        # Caso A: Drag & Drop
         uploaded_files_list = list(files)
     else:
-        # Caso B: Viene del Botón (files es None)
-        # Abrimos el explorador de archivos manualmente
+        # Caso B: Botón manual
         info_message.set("Selecting files")
         uploaded_files_list = list(filedialog.askopenfilenames())
-    # -----------------------
 
-    uploaded_files_counter = len(uploaded_files_list)
+    if not uploaded_files_list:
+        return
 
+    # Filtrar archivos
     supported_files_list = check_supported_selected_files(uploaded_files_list)
-    supported_files_counter = len(supported_files_list)
 
-    print("> Uploaded files: " + str(uploaded_files_counter) +
-          " => Supported files: " + str(supported_files_counter))
-
-    if supported_files_counter > 0:
-
+    if supported_files_list:
+        # 1. Configurar los factores actuales en el widget antes de añadir
         upscale_factor, input_resize_factor, output_resize_factor = get_values_for_file_widget()
+        file_widget.set_upscale_factor(upscale_factor)
+        file_widget.set_input_resize_factor(input_resize_factor)
+        file_widget.set_output_resize_factor(output_resize_factor)
 
-        global file_widget
-        file_widget = FileWidget(
-            master=window,
-            selected_file_list=supported_files_list,
-            upscale_factor=upscale_factor,
-            input_resize_factor=input_resize_factor,
-            output_resize_factor=output_resize_factor,
-            fg_color=background_color,
-            bg_color=background_color
-        )
-        file_widget.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
-        info_message.set("Ready to be being enchanted!")
+        # 2. Añadir archivos (la carga pesada ocurre en segundo plano en el nuevo módulo)
+        file_widget.add_files(supported_files_list)
+
+        # 3. Cambiar vista
+        show_file_manager()
+
+        info_message.set("Ready to be enchanted!")
+        print(f"> Added {len(supported_files_list)} files to queue.")
     else:
-        if uploaded_files_counter > 0:
-            info_message.set("Not supported files :(")
-        else:
-            info_message.set("No files selected")
+        info_message.set("No supported files selected")
 
 
 def open_output_path_action():
@@ -5035,18 +4908,41 @@ def place_dynamic_rife_interpolator():
 # END FLUIDFRAMES
 
 
+# Variables globales para manejar las vistas
+drop_zone_frame = None
+file_widget = None  # Esta será la instancia de FileQueueManager
+
+
+def show_drop_zone():
+    """Oculta la lista de archivos y muestra la zona de carga."""
+    if file_widget:
+        file_widget.place_forget()
+    if drop_zone_frame:
+        drop_zone_frame.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
+    info_message.set("No files selected")
+
+
+def show_file_manager():
+    """Oculta la zona de carga y muestra la lista de archivos."""
+    if drop_zone_frame:
+        drop_zone_frame.place_forget()
+    if file_widget:
+        file_widget.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
+
+
 def place_loadFile_section():
-    # Crear el frame de fondo para la sección de carga
-    background = CTkFrame(
+    global drop_zone_frame, file_widget
+
+    # --- 1. Crear el Frame de la Drop Zone (Inicialmente Visible) ---
+    drop_zone_frame = CTkFrame(
         master=window, fg_color=background_color, corner_radius=1)
 
-    # Texto informativo sobre formatos soportados
     text_drop = (" SUPPORTED FILES \n\n "
                  + "IMAGES • jpg, jpeg, png, bmp, tiff, tif, webp \n "
                  + "VIDEOS • mp4, avi, mkv, mov, wmv, flv, webm ")
 
     input_file_text = CTkLabel(
-        master=window,
+        master=drop_zone_frame,
         text=text_drop,
         fg_color=widget_background_color,
         bg_color=background_color,
@@ -5058,10 +4954,9 @@ def place_loadFile_section():
         corner_radius=10
     )
 
-    # Botón para seleccionar archivos manualmente
     input_file_button = CTkButton(
-        master=window,
-        command=open_files_action,
+        master=drop_zone_frame,
+        command=open_files_action,  # Llama a la función modificada abajo
         text="Select Files or Drag & Drop",
         width=150,
         height=30,
@@ -5074,19 +4969,26 @@ def place_loadFile_section():
         hover_color=button_hover_color
     )
 
-    # Colocar elementos en la interfaz
-    background.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
-    input_file_text.place(relx=0.25, rely=0.4,  anchor="center")
-    input_file_button.place(relx=0.25, rely=0.5, anchor="center")
+    # Colocar elementos dentro del frame de Drop Zone
+    input_file_text.place(relx=0.5, rely=0.4, anchor="center")
+    input_file_button.place(relx=0.5, rely=0.5, anchor="center")
 
-    # --- CORRECCIÓN DRAG & DROP ---
-    # Registramos 'background', 'input_file_button' y 'input_file_text'
-    # para maximizar el área de detección de archivos.
-    enable_drag_and_drop(
-        window,
-        [background, input_file_button, input_file_text],
-        open_files_action
+    # Mostrar Drop Zone por defecto
+    drop_zone_frame.place(relx=0.0, rely=0.0, relwidth=0.5, relheight=1.0)
+
+    # --- 2. Instanciar FileQueueManager (Inicialmente Oculto) ---
+    # Usamos show_drop_zone como callback para cuando el usuario limpie la lista
+    file_widget = FileQueueManager(
+        master=window,
+        clear_icon=clear_icon,
+        on_queue_empty_callback=show_drop_zone,
+        width=300,  # <-- Esto es un kwargs
     )
+
+    # Habilitar Drag & Drop en AMBOS componentes (Drop Zone y File Manager)
+    # Esto permite arrastrar archivos incluso si ya hay una lista visible
+    enable_drag_and_drop(window, [
+                         drop_zone_frame, input_file_button, input_file_text, file_widget], open_files_action)
 
 
 def place_app_name():
@@ -5684,11 +5586,18 @@ def place_upscale_button():
 # ==== MAIN APPLICATION SECTION ====
 
 def on_app_close() -> None:
-    # Clean up logger
-    logging.shutdown()
-    window.grab_release()
-    window.destroy()
+    # 1. Confirmación de salida
+    if not messagebox.askyesno("Exit Warlock-Studio", "Are you sure you want to close the application?"):
+        return
 
+    # 2. CAPTURAR ESTADO DE LA VENTANA (ANTES DE DESTRUIRLA)
+    # Soluciona el error: application has been destroyed
+    try:
+        is_topmost = window.attributes("-topmost")
+    except Exception:
+        is_topmost = False
+
+    # 3. Recopilar variables globales para guardar preferencias
     global selected_AI_model
     global selected_AI_multithreading
     global selected_gpu
@@ -5714,6 +5623,7 @@ def on_app_close() -> None:
     else:
         AI_multithreading_to_save = f"{selected_AI_multithreading} threads"
 
+    # 4. Construir diccionario de preferencias
     user_preference = {
         "default_AI_model":             AI_model_to_save,
         "default_AI_multithreading":    AI_multithreading_to_save,
@@ -5727,12 +5637,28 @@ def on_app_close() -> None:
         "default_input_resize_factor":  str(selected_input_resize_factor.get()),
         "default_output_resize_factor": str(selected_output_resize_factor.get()),
         "default_VRAM_limiter":         str(selected_VRAM_limiter.get()),
+        # Usamos la variable capturada al inicio
+        "keep_window_on_top":           is_topmost
     }
-    user_preference_json = json_dumps(user_preference)
-    with open(USER_PREFERENCE_PATH, "w") as preference_file:
-        preference_file.write(user_preference_json)
 
+    # 5. Guardar JSON en disco
+    try:
+        user_preference_json = json_dumps(user_preference)
+        with open(USER_PREFERENCE_PATH, "w") as preference_file:
+            preference_file.write(user_preference_json)
+    except Exception as e:
+        print(f"Error saving preferences: {e}")
+
+    # 6. Limpieza de procesos y logs
     stop_upscale_process()
+    logging.shutdown()
+
+    # 7. DESTRUIR LA VENTANA (AL FINAL)
+    try:
+        window.grab_release()
+        window.destroy()
+    except Exception:
+        pass
 
 
 class App():

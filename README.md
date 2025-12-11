@@ -13,7 +13,7 @@
 
 <br>
 
-**Warlock-Studio** is a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.  
+**Warlock-Studio** is a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
 Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**.
 
 ---
@@ -21,54 +21,45 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 ## 📥 <span style="color:#FFD700;">Download Installer</span>
 
 <div align="center">
-  <p style="color:#ccc; font-size:14px; line-height: 1.6;">
-    This installer was built using <b>PyInstaller</b> and <b>Inno Setup</b>.<br>
-    By default, it includes <b>DirectML</b> support to ensure maximum compatibility with any graphics card (NVIDIA/AMD/INTEL).
-  </p>
-  <p style="color:#ccc; font-size:14px; margin-top: 15px;">
-    Select your preferred option to download the latest version (Direct Release/SourceForge):
-  </p>
+  <p style="color:#ccc; font-size:14px; line-height: 1.6;">
+    This installer was built using <b>PyInstaller</b> and <b>Inno Setup</b>.<br>
+    By default, it includes <b>DirectML</b> support to ensure maximum compatibility with any graphics card (NVIDIA/AMD/INTEL).
+  <p style="color:#ccc; font-size:14px; margin-top: 15px;">
+    Select your preferred option to download the latest version (Direct Release/SourceForge):
+  </p>
 </div>
 
 <table align="center" style="width:100%; border-collapse:collapse; border:none;">
-  <tr>
-    </td>
-    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.0/Warlock-Studio-5.0-Full-Installer.exe" target="_blank">
-        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="300" style="display:block; margin:auto; margin-bottom:15px;" />
-      </a>
-    </td>
-    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
-      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
-        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black" alt="Warlock-Studio on SourceForge" width="200" style="display:block; margin:auto; margin-bottom:15px; border-radius:5px;" />
-      </a>
-  </tr>
+  <tr>
+    </td>
+    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1/Warlock-Studio-5.1-Full-Installer.exe" target="_blank">
+        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="300" style="display:block; margin:auto; margin-bottom:15px;" />
+      </a>
+    </td>
+    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
+      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black" alt="Warlock-Studio on SourceForge" width="200" style="display:block; margin:auto; margin-bottom:15px; border-radius:5px;" />
+      </a>
+  </tr>
 </table>
-
----
-
-## ✨ What is New in v5.0
-
-The **v5.0** release represents a foundational transformation of the application:
-
-* **🧩 Modular Architecture:** The core has been re-engineered into specialized components (`core`, `preferences`, `console`, `drag_drop`) for superior stability and fault isolation.
-* **🧠 NEO Engine:** A new diagnostic subsystem that scans CPU topology, RAM, and GPU VRAM to automatically recommend optimal tiling and thread settings.
-* **🖥️ Integrated Debug Console:** A real-time GUI terminal that intercepts `stdout` and `stderr` with syntax highlighting, allowing users to diagnose FFmpeg or ONNX issues instantly.
-* **⚡ Native CUDA & Failover:** The backend now strictly prioritizes **CUDA** (NVIDIA Optimized) > **DirectML** > **CPU**, with corrected integer typing for device IDs.
-* **💎 Lossless Pipeline:** Deprecated `.jpg` usage in favor of `.png` for intermediate frames to prevent compression artifacts (blurriness).
 
 ---
 
 ## 🖼️ Interface Previews
 
-<div align="center">
-  <img src="rsc/Capture.png" alt="Main Interface" style="border-radius: 10px; box-shadow: 0px 0px 20px rgba(0,0,0,0.5);">
-</div>
+---
 
-<br>
+## 🚀 <span style="color:#FFD43B;">Version 5.1 Highlights (Decoupling & Precision)</span>
 
-### ⚙️ Preferences
-[Preferences.webm](https://github.com/user-attachments/assets/933003de-7618-4ed4-8815-077c69bf1ebc)
+Version 5.1 introduces significant structural and algorithmic improvements, transforming the application's stability and file handling efficiency.
+
+- **Asynchronous Architecture (New `FileQueueManager`):** File I/O operations (metadata reading, thumbnail generation) are now offloaded to background threads. This eliminates UI freezes (ANR) during batch processing and ensures a non-blocking user experience.
+- **Critical AI Correction:** Implemented **Dynamic Padding** for the RIFE frame interpolation algorithm. This surgically corrects a mathematical deficiency, guaranteeing artifact-free video output regardless of the source video's resolution (eliminates black/green edge artifacts).
+- **Preferences Redesign:** The Settings panel has been completely re-engineered into a modern **Sidebar Navigation** system, improving categorization and usability.
+- **Diagnostic Suite:** Added an integrated Real-Time Log Viewer and an automatic **Debug Package Export** tool to streamline error reporting.
+- **Enhanced Stability:** Introduced **Binary Path Overrides** for FFmpeg/ExifTool, rigorous thread-safe UI updates, and safer process shutdown handling.
+
 
 ---
 
@@ -84,25 +75,25 @@ The **v5.0** release represents a foundational transformation of the application
 
 ## ✨ Key Features
 
-* **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, RealESRNet, RealESR_Animex4, and IRCNN** models for denoising, super-resolution, and detail recovery.
-* **Face Restoration (GFPGAN)** – Recover facial details from low-resolution or blurry images and video frames.
-* **Frame Interpolation (RIFE)** – Smooth motion or generate slow-motion content with **2×, 4×, or 8× interpolation**.
-* **Advanced Hardware Acceleration** – Intelligent provider selection prioritizes **CUDA**, falls back to **DirectML**, and finally **CPU** for maximum compatibility.
-* **Batch Processing** – Process multiple media files simultaneously, saving time and effort.
-* **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.
-* **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
+- **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, RealESRNet, RealESR_Animex4, and IRCNN** models for denoising, super-resolution, and detail recovery.
+- **Face Restoration (GFPGAN)** – Recover facial details from low-resolution or blurry images and video frames.
+- **Frame Interpolation (RIFE)** – Smooth motion or generate slow-motion content with **2×, 4×, or 8× interpolation**.
+- **Advanced Hardware Acceleration** – Intelligent provider selection prioritizes **CUDA**, falls back to **DirectML**, and finally **CPU** for maximum compatibility.
+- **Batch Processing** – Process multiple media files simultaneously, saving time and effort.
+- **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.
+- **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
 
 ---
 
 ## 🖥️ System Requirements
 
-| Component | Minimum Specification | Recommended Specification |
-| :--- | :--- | :--- |
-| **OS** | Windows 10 (64-bit) | Windows 11 (64-bit) |
-| **RAM** | 8 GB | 16 GB+ (Recommended for 4K Video) |
-| GPU | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT | NVIDIA RTX 4070 Ti / AMD RX 7900 XT or better |
-| **VRAM** | 4 GB | 8 GB+ (NEO Engine auto-tunes limits) |
-| **Storage** | HDD Space | NVMe SSD (Highly recommended for RIFE) |
+| Component   | Minimum Specification | Recommended Specification              |
+| :---------- | :-------------------- | :------------------------------------- | --------------------------------------------- |
+| **OS**      | Windows 10 (64-bit)   | Windows 11 (64-bit)                    |
+| **RAM**     | 8 GB                  | 16 GB+ (Recommended for 4K Video)      |
+| GPU         | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT       | NVIDIA RTX 4070 Ti / AMD RX 7900 XT or better |
+| **VRAM**    | 4 GB                  | 8 GB+ (NEO Engine auto-tunes limits)   |
+| **Storage** | HDD Space             | NVMe SSD (Highly recommended for RIFE) |
 
 ---
 
@@ -110,9 +101,9 @@ The **v5.0** release represents a foundational transformation of the application
 
 We welcome contributions from the community:
 
-1.  **Fork** the repository.
-2.  **Create a branch** for your feature or bug fix.
-3.  **Submit a Pull Request** with a detailed description and testing notes.
+1. **Fork** the repository.
+2. **Create a branch** for your feature or bug fix.
+3. **Submit a Pull Request** with a detailed description and testing notes.
 
 📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**
 
@@ -125,43 +116,26 @@ We welcome contributions from the community:
 
 ### 📊 Integrated Technologies & Licenses
 
-| Technology / Model | License | Author / Maintainer | Source |
-| :--- | :--- | :--- | :--- |
-| **Real-ESRGAN** | BSD 3-Clause | Xintao Wang | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
-| • RealESRGANx4 | BSD 3-Clause | Xintao Wang | Same as above |
-| • RealESRNetx4 | BSD 3-Clause | Xintao Wang | Same as above |
-| • RealESR_Gx4 (Custom Variant) | BSD 3-Clause | Xintao / Community | Same as above |
-| • RealESR_Animex4 (Anime Model) | BSD 3-Clause | Community | Same as above |
-| **BSRGAN** | Apache 2.0 | Kai Zhang | [GitHub](https://github.com/cszn/BSRGAN) |
-| • BSRGANx4 | Apache 2.0 | Kai Zhang | Same as above |
-| • BSRGANx2 | Apache 2.0 | Kai Zhang | Same as above |
-| **IRCNN** | BSD / Mixed | Kai Zhang | [GitHub](https://github.com/cszn/IRCNN) |
-| • IRCNN_Mx1 | BSD / Mixed | Kai Zhang | Same as above |
-| • IRCNN_Lx1 | BSD / Mixed | Kai Zhang | Same as above |
-| **GFPGAN** | Apache 2.0 | TencentARC | [GitHub](https://github.com/TencentARC/GFPGAN) |
-| **RIFE** | Apache 2.0 | hzwer | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| **QualityScaler** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/QualityScaler) |
-| **FluidFrames** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/FluidFrames) |
-| **ONNX Runtime** | MIT | Microsoft | [GitHub](https://github.com/microsoft/onnxruntime) |
-| **FFmpeg** | LGPL / GPL | FFmpeg Team | [Official Site](https://ffmpeg.org) |
-| **ExifTool** | Artistic | Phil Harvey | [Official Site](https://exiftool.org/) |
-| **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
-| **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
-| **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+| Technology / Model              | License      | Author / Maintainer        | Source                                                     |
+| :------------------------------ | :----------- | :------------------------- | :--------------------------------------------------------- |
+| **Real-ESRGAN**                 | BSD 3-Clause | Xintao Wang                | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
+| • RealESRGANx4                  | BSD 3-Clause | Xintao Wang                | Same as above                                              |
+| • RealESRNetx4                  | BSD 3-Clause | Xintao Wang                | Same as above                                              |
+| • RealESR_Gx4 (Custom Variant)  | BSD 3-Clause | Xintao / Community         | Same as above                                              |
+| • RealESR_Animex4 (Anime Model) | BSD 3-Clause | Community                  | Same as above                                              |
+| **BSRGAN**                      | Apache 2.0   | Kai Zhang                  | [GitHub](https://github.com/cszn/BSRGAN)                   |
+| • BSRGANx4                      | Apache 2.0   | Kai Zhang                  | Same as above                                              |
+| • BSRGANx2                      | Apache 2.0   | Kai Zhang                  | Same as above                                              |
+| **IRCNN**                       | BSD / Mixed  | Kai Zhang                  | [GitHub](https://github.com/cszn/IRCNN)                    |
+| • IRCNN_Mx1                     | BSD / Mixed  | Kai Zhang                  | Same as above                                              |
+| • IRCNN_Lx1                     | BSD / Mixed  | Kai Zhang                  | Same as above                                              |
+| **GFPGAN**                      | Apache 2.0   | TencentARC                 | [GitHub](https://github.com/TencentARC/GFPGAN)             |
+| **RIFE**                        | Apache 2.0   | hzwer                      | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
+| **QualityScaler**               | MIT          | Djdefrag                   | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
+| **FluidFrames**                 | MIT          | Djdefrag                   | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
+| **ONNX Runtime**                | MIT          | Microsoft                  | [GitHub](https://github.com/microsoft/onnxruntime)         |
+| **FFmpeg**                      | LGPL / GPL   | FFmpeg Team                | [Official Site](https://ffmpeg.org)                        |
+| **ExifTool**                    | Artistic     | Phil Harvey                | [Official Site](https://exiftool.org/)                     |
+| **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
+| **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
+| **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |

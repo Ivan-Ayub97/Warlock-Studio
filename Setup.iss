@@ -1,6 +1,6 @@
 #define AppName "Warlock-Studio"
-#define AppVersion "5.0"
-#define AppPublisher "Ivan-Ayub97|Ivanayub1997"
+#define AppVersion "5.1"
+#define AppPublisher "Ivan-Ayub97 on GH| Ivanayub1997 on SF"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"
 
@@ -15,6 +15,7 @@ DefaultDirName={userdocs}\{#AppName}
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
 PrivilegesRequired=none
+AppId={{7CC447B5-CDCF-494D-A432-378B744C0EE6}
 
 ; --- Configuración del Instalador ---
 OutputDir=Output
