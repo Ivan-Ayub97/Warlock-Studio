@@ -31,19 +31,22 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
   </p>
 </div>
 
-<table align="center" style="width:100%; border-collapse:collapse; border:none;">
-  <tr>
-    </td>
-    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1/Warlock-Studio-5.1-Full-Installer.exe" target="_blank">
-        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub" width="300" style="display:block; margin:auto; margin-bottom:15px;" />
-      </a>
-    </td>
-    <td align="center" style="vertical-align:top; width:50%; border:none; padding:20px;">
-      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
-        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black" alt="Warlock-Studio on SourceForge" width="200" style="display:block; margin:auto; margin-bottom:15px; border-radius:5px;" />
-      </a>
-  </tr>
+<table style="width:100%; border-collapse:collapse;">
+  <tr>
+    </td>
+    <td align="center" style="vertical-align:top; padding:10px;">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1/Warlock-Studio-5.1-Full-Installer.exe" target="_blank">
+        <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
+             width="300" style="display:block; margin:auto; margin-bottom:10px;" />
+      </a>
+    <td align="center" style="vertical-align:top; padding:px;">
+      <a href="https://sourceforge.net/projects/warlock-studio/" target="_blank">
+        <img src="https://sourceforge.net/cdn/syndication/badge_img/3880091/oss-rising-star-black"
+             alt="Warlock-Studio on SourceForge"
+             width="190" style="display:block; margin:auto; margin-bottom:1px;" />
+      </a>
+    </td>
+  </tr>
 </table>
 
 ---
@@ -147,6 +150,7 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
