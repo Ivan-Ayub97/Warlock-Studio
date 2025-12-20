@@ -80,8 +80,6 @@ Version 5.1 introduces significant structural and algorithmic improvements, tran
 
 [WsvideovsGit2.webm](https://github.com/user-attachments/assets/6695cce2-f42f-4955-8b43-56ec6d7b0bd2)
 
-![Comparison](rsc/image_comparison.png)
-
 ---
 
 ## ✨ Key Features
@@ -150,6 +148,7 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
