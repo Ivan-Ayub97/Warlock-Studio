@@ -53,7 +53,7 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ## 🖼️ Interface Previews
 
-[GUI.webm](https://github.com/user-attachments/assets/45b06dd7-47ac-46b9-aa3d-c0baf483147b)
+[Capture.webm](https://github.com/user-attachments/assets/86a679c7-ddf5-454f-9a05-db590cfced09)
 
 ![Capture](rsc/Capture2.png)
 ![Capture](rsc/Capture3.png)
@@ -136,3 +136,4 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
