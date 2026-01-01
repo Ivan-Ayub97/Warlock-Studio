@@ -24,6 +24,7 @@ from os import cpu_count as os_cpu_count
 from os import devnull as os_devnull
 from os import listdir as os_listdir
 from os import makedirs as os_makedirs
+from os import path as os_path
 from os import remove as os_remove
 from os import sep as os_separator
 from os.path import abspath as os_path_abspath
@@ -48,6 +49,7 @@ from webbrowser import open as open_browser
 
 import customtkinter as ctk
 import cv2
+import numpy as np
 # ONNX Runtime imports
 import onnxruntime
 # GUI imports (CustomTkinter & TkinterDnD)
@@ -107,7 +109,8 @@ from console import IntegratedConsole, console
 from drag_drop import DnDCTk, enable_drag_and_drop
 # Importa la clase de tu archivo (asumiendo que se llama file_queue_manager.py)
 from file_queue_manager import FileQueueManager
-from warlock_preferences import PreferencesButton  # Importación local
+from splash_screen import SplashScreen
+from warlock_preferences import ConfigManager, PreferencesButton
 
 # Redirigir inmediatamente para capturar logs de importación
 console.setup_redirection()
@@ -129,7 +132,7 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "5.1"
+version = "5.1.1"
 
 # Supported File Extensions
 supported_image_extensions = [".jpg", ".jpeg",
@@ -147,33 +150,33 @@ supported_file_extensions = supported_image_extensions + supported_video_extensi
 # -----------------------------------------------------------------------------
 
 # Fondo: Negro casi puro, igual que el fondo del banner para máximo contraste
-background_color = "#0A0A0A"
+background_color = "#000000"
 # Nombre de la app: Plata metálico, inspirado en el texto "STUDIO"
-app_name_color = "#FAF600"
+app_name_color = "#FBC02D"
 # Paneles: Gris oscuro neutro, permite que el rojo y dorado resalten sin competir
-widget_background_color = "#303030"
+widget_background_color = "#1A1A1A"
 # Texto principal: Blanco puro para legibilidad máxima
-text_color = "#FFFFFF"
+text_color = "#F5F5F5"
 # Texto secundario: Dorado pálido/desaturado, para no cansar la vista pero mantener la identidad
-secondary_text_color = "#B5B4B4"
+secondary_text_color = "#9E9E9E"
 # Acento: El amarillo dorado brillante del sombrero y los destellos (Sparkles)
-accent_color = "#FDEF2F"
+accent_color = "#FFC107"
 # Hover de botones: El rojo vibrante del relleno del texto "WARLOCK"
-button_hover_color = "#D41C1C"
+button_hover_color = "#C62828"
 # Bordes: Un dorado oscuro muy sutil, imitando el borde del logo sin ser chillón
-border_color = "#E2340D"
+border_color = "#2D2D2D"
 # Botones info/secundarios: El rojo sangre oscuro del fondo del círculo del logo
-info_button_color = "#770000"
+info_button_color = "#7F1500"
 # Advertencias: Naranja dorado, sacado del sombreado del sombrero
-warning_color = "#FFA000"
+warning_color = "#FF6F00"
 # Éxito: Verde brillante, necesario para contraste funcional
-success_color = "#00E676"
+success_color = "#00C853"
 # Error: Rojo carmesí intenso, similar al borde de las letras "WARLOCK"
-error_color = "#81091F"
+error_color = "#B71C1C"
 # Resaltado: Amarillo luz, como el centro de los destellos (estrellas)
-highlight_color = "#FFFF8D"
+highlight_color = "#FFF59D"
 # Scrollbars: Rojo vino oscuro translúcido, para mantener la temática sin distraer
-scrollbar_color = "#420505"
+scrollbar_color = "#000000"
 
 # -----------------------------------------------------------------------------
 # AI MODEL LISTS & CONFIGURATION
@@ -191,7 +194,7 @@ VRAM_model_usage = {
     'GFPGAN':          1.8,
 }
 
-MENU_LIST_SEPARATOR = ["• • • • • • • • • • • •"]
+MENU_LIST_SEPARATOR = ["•••"]
 SRVGGNetCompact_models_list = ["RealESR_Gx4", "RealESR_Animex4"]
 BSRGAN_models_list = ["BSRGANx4", "BSRGANx2", "RealESRGANx4", "RealESRNetx4"]
 IRCNN_models_list = ["IRCNN_Mx1", "IRCNN_Lx1"]
@@ -228,8 +231,25 @@ OUTPUT_PATH_CODED = "Same path as input files"
 DOCUMENT_PATH = os_path_join(os_path_expanduser('~'), 'Documents')
 USER_PREFERENCE_PATH = find_by_relative_path(
     f"{DOCUMENT_PATH}{os_separator}{app_name}_{version}_UserPreference.json")
-FFMPEG_EXE_PATH = find_by_relative_path(f"Assets{os_separator}ffmpeg.exe")
-EXIFTOOL_EXE_PATH = find_by_relative_path(f"Assets{os_separator}exiftool.exe")
+
+# --- INTEGRACIÓN DE PREFERENCIAS: RUTAS PERSONALIZADAS ---
+_app_config = ConfigManager.load_config()
+
+# Lógica FFmpeg
+_custom_ffmpeg = _app_config.get("custom_ffmpeg_path", "")
+if _custom_ffmpeg and os_path_exists(_custom_ffmpeg):
+    FFMPEG_EXE_PATH = _custom_ffmpeg
+else:
+    FFMPEG_EXE_PATH = find_by_relative_path(f"Assets{os_separator}ffmpeg.exe")
+
+# Lógica ExifTool
+_custom_exiftool = _app_config.get("custom_exiftool_path", "")
+if _custom_exiftool and os_path_exists(_custom_exiftool):
+    EXIFTOOL_EXE_PATH = _custom_exiftool
+else:
+    EXIFTOOL_EXE_PATH = find_by_relative_path(
+        f"Assets{os_separator}exiftool.exe")
+# ---------------------------------------------------------
 
 ECTRACTION_FRAMES_FOR_CPU = 30
 MULTIPLE_FRAMES_TO_SAVE = 8
@@ -330,6 +350,63 @@ little_menu_width = 98
 # -----------------------------------------------------------------------------
 
 def create_onnx_session(model_path: str, selected_gpu: str) -> InferenceSession:
+    """
+    Creates an ONNX inference session respecting User Preferences for backend execution.
+    """
+    if not os_path_exists(model_path):
+        raise FileNotFoundError(f"AI model file not found: {model_path}")
+
+    # Cargar preferencias
+    config = ConfigManager.load_config()
+    provider_pref = config.get("onnx_provider_preference", "Auto")
+
+    # Mapear selección de GUI a Device ID
+    device_id_map = {'GPU 1': 0, 'GPU 2': 1, 'GPU 3': 2, 'GPU 4': 3}
+    target_device_id = device_id_map.get(selected_gpu, 0)
+
+    # Definir opciones de proveedores
+    cuda_opts = {'device_id': target_device_id}
+    dml_opts = {'device_id': target_device_id}
+
+    # Construir lista de prioridad basada en preferencias
+    providers_to_try = []
+
+    if provider_pref == "CUDA":
+        providers_to_try.append(('CUDAExecutionProvider', cuda_opts))
+    elif provider_pref == "DirectML":
+        providers_to_try.append(('DmlExecutionProvider', dml_opts))
+    elif provider_pref == "CPU":
+        providers_to_try.append(('CPUExecutionProvider', None))
+    elif provider_pref == "OpenVINO":
+        providers_to_try.append(('OpenVINOExecutionProvider', None))
+    else:  # AUTO
+        providers_to_try.append(('CUDAExecutionProvider', cuda_opts))
+        providers_to_try.append(('DmlExecutionProvider', dml_opts))
+        providers_to_try.append(('CPUExecutionProvider', None))
+
+    # Asegurar que siempre hay fallbacks si falla la preferencia principal
+    if ('CPUExecutionProvider', None) not in providers_to_try:
+        providers_to_try.append(('CPUExecutionProvider', None))
+
+    available_providers = onnxruntime.get_available_providers()
+
+    for provider, options in providers_to_try:
+        if provider in available_providers:
+            try:
+                session_options = [options] if options else None
+                session = InferenceSession(
+                    path_or_bytes=model_path,
+                    providers=[provider],
+                    provider_options=session_options
+                )
+                print(
+                    f"[AI] Loaded model with provider: {provider} (Pref: {provider_pref})")
+                return session
+            except Exception as e:
+                print(f"[AI WARNING] Failed to load {provider}: {e}")
+                continue
+
+    raise RuntimeError("Critical: Failed to load AI model with any provider.")
     """
     Creates an ONNX inference session by selecting the best available provider.
     Fixes: Correct type for device_id (int) and handles 'Auto' properly.
@@ -932,9 +1009,7 @@ class AI_upscale:
 
 class AI_interpolation:
 
-    # -------------------------------------------------------------------------
-    # CLASS INIT
-    # -------------------------------------------------------------------------
+    # CLASS INIT FUNCTIONS
 
     def __init__(
             self,
@@ -944,6 +1019,7 @@ class AI_interpolation:
             input_resize_factor: int,
             output_resize_factor: int,
     ):
+
         # Passed variables
         self.AI_model_name = AI_model_name
         self.frame_gen_factor = frame_gen_factor
@@ -954,10 +1030,6 @@ class AI_interpolation:
         # Calculated variables
         self.AI_model_path = find_by_relative_path(
             f"AI-onnx{os_separator}{self.AI_model_name}_fp32.onnx")
-
-        # RIFE requiere múltiplos de 32 para evitar artefactos
-        self.divisor = 32
-
         self.inferenceSession = self._load_inferenceSession()
 
     def _load_inferenceSession(self) -> InferenceSession:
@@ -969,18 +1041,18 @@ class AI_interpolation:
             print(f"[AI ERROR] {error_msg}")
             raise RuntimeError(error_msg)
 
-    # -------------------------------------------------------------------------
-    # INTERNAL UTILS
-    # -------------------------------------------------------------------------
+    # INTERNAL CLASS FUNCTIONS
 
     def get_image_mode(self, image: numpy_ndarray) -> str:
         if image is None:
             raise ValueError("Image is None")
         shape = image.shape
-        if len(shape) == 2:
+        if len(shape) == 2:  # Grayscale: 2D array (rows, cols)
             return "Grayscale"
+        # RGB: 3D array with 3 channels
         elif len(shape) == 3 and shape[2] == 3:
             return "RGB"
+        # RGBA: 3D array with 4 channels
         elif len(shape) == 3 and shape[2] == 4:
             return "RGBA"
         else:
@@ -989,15 +1061,16 @@ class AI_interpolation:
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
         height = image.shape[0]
         width = image.shape[1]
+
         return height, width
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
+
         old_height, old_width = self.get_image_resolution(image)
 
         new_width = int(old_width * self.input_resize_factor)
         new_height = int(old_height * self.input_resize_factor)
 
-        # Mantenemos esto simple, el padding real se hace en la inferencia
         new_width = new_width if new_width % 2 == 0 else new_width + 1
         new_height = new_height if new_height % 2 == 0 else new_height + 1
 
@@ -1009,6 +1082,7 @@ class AI_interpolation:
             return image
 
     def resize_with_output_factor(self, image: numpy_ndarray) -> numpy_ndarray:
+
         old_height, old_width = self.get_image_resolution(image)
 
         new_width = int(old_width * self.output_resize_factor)
@@ -1024,42 +1098,7 @@ class AI_interpolation:
         else:
             return image
 
-    # -------------------------------------------------------------------------
-    # PADDING & CROPPING (CRITICAL FIX FOR RIFE STRIPES)
-    # -------------------------------------------------------------------------
-
-    def pad_image_to_divisor(self, image: numpy_ndarray) -> tuple[numpy_ndarray, int, int]:
-        """
-        Añade bordes negros a la imagen para que sus dimensiones sean múltiplos de self.divisor (32).
-        Retorna la imagen con padding y las dimensiones del padding añadido.
-        """
-        h, w = image.shape[:2]
-
-        # Calcular cuánto falta para llegar al siguiente múltiplo de 32
-        pad_h = (self.divisor - (h % self.divisor)) % self.divisor
-        pad_w = (self.divisor - (w % self.divisor)) % self.divisor
-
-        if pad_h == 0 and pad_w == 0:
-            return image, 0, 0
-
-        # Aplicar padding (top, bottom, left, right) -> Solo rellenamos abajo y derecha
-        # Usamos cv2.BORDER_REFLECT o BORDER_REPLICATE para reducir artefactos en bordes
-        image_padded = cv2.copyMakeBorder(
-            image, 0, pad_h, 0, pad_w, cv2.BORDER_REFLECT)
-
-        return image_padded, pad_h, pad_w
-
-    def crop_padding(self, image: numpy_ndarray, pad_h: int, pad_w: int) -> numpy_ndarray:
-        """Recorta la imagen para eliminar el padding añadido previamente."""
-        if pad_h == 0 and pad_w == 0:
-            return image
-
-        h, w = image.shape[:2]
-        return image[:h-pad_h, :w-pad_w]
-
-    # -------------------------------------------------------------------------
-    # AI CORE FUNCTIONS
-    # -------------------------------------------------------------------------
+    # AI CLASS FUNCTIONS
 
     def concatenate_images(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
         # Optimización: Normalizar in-place para reducir uso de memoria
@@ -1092,34 +1131,14 @@ class AI_interpolation:
             case _: return (onnx_output * 255).astype(uint8)
 
     def AI_interpolation(self, image1: numpy_ndarray, image2: numpy_ndarray) -> numpy_ndarray:
-        """
-        Ejecuta la interpolación asegurando dimensiones correctas.
-        """
-        # 1. Aplicar Padding a ambas imágenes (Critical Fix)
-        img1_padded, pad_h, pad_w = self.pad_image_to_divisor(image1)
-        # Asumimos que img2 tiene el mismo tamaño que img1
-        img2_padded, _, _ = self.pad_image_to_divisor(image2)
-
-        # 2. Preprocesamiento estándar
-        image = self.concatenate_images(
-            img1_padded, img2_padded).astype(float32)
+        image = self.concatenate_images(image1, image2).astype(float32)
         image = self.preprocess_image(image)
-
-        # 3. Inferencia
         onnx_output = self.onnxruntime_inference(image)
-
-        # 4. Postprocesamiento
         onnx_output = self.postprocess_output(onnx_output)
-        output_image_padded = self.de_normalize_image(onnx_output, 255)
-
-        # 5. Eliminar Padding (Critical Fix)
-        output_image = self.crop_padding(output_image_padded, pad_h, pad_w)
-
+        output_image = self.de_normalize_image(onnx_output, 255)
         return output_image
 
-    # -------------------------------------------------------------------------
-    # ORCHESTRATION
-    # -------------------------------------------------------------------------
+    # EXTERNAL FUNCTION
 
     def AI_orchestration(self, image1: numpy_ndarray, image2: numpy_ndarray) -> List[numpy_ndarray]:
         """Generate interpolated frames between two input images."""
@@ -5713,131 +5732,6 @@ class App():
         place_upscale_button()
 
 
-class SplashScreen(CTkToplevel):
-    def __init__(self):
-        super().__init__()
-
-        # Configure window
-        self.title("Warlock-Studio")
-        self.overrideredirect(True)
-        # Remove window decorations
-        self.attributes('-topmost', True)
-
-        # Calculate window position for center of screen
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        default_width = int(screen_width * 0.4)
-        default_height = int(screen_height * 0.3)
-        self.geometry(f"{default_width}x{default_height}")
-
-        # Set default window size
-        window_width = 460
-        window_height = 340
-
-        # Try to load banner image
-        banner_path = find_by_relative_path(f"Assets{os_separator}banner.png")
-        try:
-            self.banner_image = CTkImage(
-                pillow_image_open(banner_path),
-                size=(450, 200)  # Adjust size as needed
-            )
-            has_banner = True
-        except Exception as e:
-            print(f"[SPLASH] Could not load splash banner: {e}")
-            has_banner = False
-            window_height = 400  # Smaller height if no banner
-
-        # Center window
-        x = (screen_width - window_width) // 2
-        y = (screen_height - window_height) // 2
-        self.geometry(f"{window_width}x{window_height}+{x}+{y}")
-
-        # Configure appearance to match app
-        # Usar color de fondo definido
-        self.configure(fg_color=background_color)
-
-        # Create banner or title
-        if has_banner:
-            self.banner_label = CTkLabel(
-                self,
-                image=self.banner_image,
-                text=""
-            )
-            self.banner_label.pack(pady=(30, 15))
-        else:
-            # Fallback to text title if image not found
-            title_label = CTkLabel(
-                self,
-                text="Warlock-Studio",
-                font=CTkFont(family="Segoe UI", size=28, weight="bold"),
-                text_color=app_name_color  # Usar color del nombre de la app
-            )
-            title_label.pack(pady=(50, 20))
-
-        # Create status frame with progress messages
-        status_frame = CTkFrame(
-            self,
-            fg_color=widget_background_color,  # Usar color de widget definido
-            corner_radius=10
-        )
-        status_frame.pack(pady=10, padx=20, fill="x")
-
-        self.status_label = CTkLabel(
-            status_frame,
-            text="Loading AI-ONNX models...",
-            font=CTkFont(family="Segoe UI", size=12, weight="bold"),
-            text_color=accent_color  # Usar color amarillo para el texto de estado
-        )
-        self.status_label.pack(pady=10, padx=10)
-
-        # Create version label
-        version_label = CTkLabel(
-            self,
-            text=f"Version {version} Developed by Ivan-Ayub97",
-            font=CTkFont(family="Segoe UI", size=10),
-            text_color=secondary_text_color  # Usar color de texto secundario
-        )
-        version_label.pack(pady=(0, 10))
-
-        # Define enough messages to fill 15 seconds (~1.5s por mensaje)
-        self.messages = [
-            "Preparing environment...",
-            "Loading AI-ONNX models...",
-            "Initializing FFmpeg...",
-            "Almost ready..."
-        ]
-
-        # Start loading animation
-        self._loading_step = 0
-        self.update_loading_text()
-
-        # Splash duration: 10 seconds
-        self.after(10000, self.start_fade_out)
-
-    def update_loading_text(self):
-        """Update the loading message every 1.5 seconds"""
-        if self._loading_step < len(self.messages):
-            self.status_label.configure(text=self.messages[self._loading_step])
-            self._loading_step += 1
-            self.after(1500, self.update_loading_text)
-
-    def start_fade_out(self):
-        """Start the fade out animation"""
-        self._fade_step = 1.0
-        self.fade_out()
-
-    def fade_out(self):
-        """Smoothly fade out the splash screen"""
-        if self._fade_step > 0:
-            # Use cosine for smooth fade
-            opacity = cos((1.0 - self._fade_step) * pi/2)
-            self.attributes('-alpha', opacity)
-            self._fade_step -= 0.05
-            self.after(40, self.fade_out)
-        else:
-            self.destroy()
-
-
 def log_startup_info():
     """
     Imprime la información de inicio una vez que la consola gráfica está activa.
@@ -5953,11 +5847,35 @@ if __name__ == "__main__":
     # Imprimir la info de inicio (saldrá en la nueva consola integrada)
     log_startup_info()
 
-    # Mostrar Splash Screen
-    splash = SplashScreen()
-    # Programar mostrar la ventana principal después del splash (11 segundos)
-    window.after(11000, window.deiconify)
+    # ------------------------------------------------------------
+    # CONFIGURACIÓN DEL SPLASH SCREEN (CORREGIDO)
+    # ------------------------------------------------------------
 
+    # 1. Empaquetar colores para el módulo externo
+    splash_theme = {
+        'bg': background_color,
+        'widget_bg': widget_background_color,
+        'accent': accent_color,
+        'app_name': app_name_color,
+        'text_sec': secondary_text_color
+    }
+
+    # 2. Instanciar SplashScreen pasando los argumentos requeridos
+    # Esto evita el TypeError que estabas teniendo
+    splash = SplashScreen(
+        root_window=window,       # <--- CAMBIO AQUÍ (antes root_window=window)
+        app_title=app_name,
+        version=version,
+        asset_loader=find_by_relative_path,  # Función para buscar assets
+        theme_colors=splash_theme,          # Diccionario de colores
+        duration_ms=6000                    # Duración: 6 segundos
+    )
+
+    # 3. Programar aparición de la ventana principal
+    # Se añade un pequeño retardo extra (6500ms) sobre la duración del splash (6000ms)
+    window.after(6500, window.deiconify)
+
+    # ------------------------------------------------------------
     # Inicialización de Variables de UI
     info_message = StringVar()
     selected_output_path = StringVar()

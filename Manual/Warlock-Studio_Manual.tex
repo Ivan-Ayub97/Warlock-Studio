@@ -1,101 +1,260 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,11pt,oneside]{report}
 
 % =========================================================
-% PACKAGES & CONFIGURATION
+% 1. OPTIMIZED PACKAGES & CORE CONFIG
 % =========================================================
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[margin=1in, bottom=1.2in]{geometry}
+% Slightly wider margins for a modern tech doc feel, tall header space
+\usepackage[margin=1.1in, top=1.3in, bottom=1.3in, headheight=30pt, footskip=40pt]{geometry}
+
+% --- TYPOGRAPHY & MICRO-OPTIMIZATION ---
+\usepackage[bitstream-charter]{mathdesign} % XCharter: A robust, professional serif for tech docs
+\usepackage[scaled=0.92]{helvet} % Clean sans-serif for headers
+\usepackage{courier} % Standardized monospaced font
+\usepackage{microtype} % Essential for professional text justification and kerning
+\usepackage{parskip}   % Modern paragraph spacing (no indent)
+\linespread{1.05}      % Slightly open up line spacing for readability
+
 \usepackage{xcolor}
 \usepackage{graphicx}
-\usepackage{titlesec}
+\usepackage[export]{adjustbox} % Allows 'valign=m' for inline images in footer
+\usepackage[explicit]{titlesec} % 'explicit' enables advanced header designs
 \usepackage{fancyhdr}
-\usepackage{tcolorbox}
-\usepackage{fontawesome5} % For icons
-\usepackage{booktabs}
+\usepackage[most]{tcolorbox}    % 'most' loads advanced skins, breakable, etc.
+\usepackage{fontawesome5}
+\usepackage{booktabs}           % Professional table rules
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, shadows.blur, calc, patterns, backgrounds}
 \usepackage{float}
-\usepackage{hyperref}
+\usepackage[hidelinks, colorlinks=true, breaklinks=true]{hyperref}
 \usepackage{enumitem}
-
-\usetikzlibrary{shapes.geometric, arrows, positioning}
-\tcbuselibrary{skins, breakable}
+\usepackage{listings}
+\usepackage{menukeys}
+\usepackage{colortbl}
 
 % =========================================================
-% WARLOCK STUDIO BRANDING COLORS (From Source Code)
+% 2. BRANDING COLOR PALETTE (MODERNIZED)
 % =========================================================
-\definecolor{WarlockBg}{HTML}{0A0A0A}       % Main Background
-\definecolor{WarlockRed}{HTML}{D41C1C}      % Accent Red
-\definecolor{WarlockGold}{HTML}{FDEF2F}     % Accent Gold
-\definecolor{WarlockDark}{HTML}{303030}     % Widget Background
-\definecolor{WarlockText}{HTML}{FFFFFF}     % White Text
-\definecolor{WarlockGray}{HTML}{B5B4B4}     % Secondary Text
+% Core Brand Colors (Preserved)
+\definecolor{WarlockBg}{HTML}{050505}       % Deep Black
+\definecolor{WarlockPanel}{HTML}{1A1A1A}    % Widget Background
+\definecolor{WarlockRed}{HTML}{D32F2F}      % Slightly richer Red for print/screen
+\definecolor{WarlockGold}{HTML}{FFA000}     % Slightly warmer Gold
+\definecolor{WarlockText}{HTML}{FAFAFA}     % Off-white for dark backgrounds
+\definecolor{WarlockGray}{HTML}{757575}     % Neutral Gray
+\definecolor{WarlockSuccess}{HTML}{388E3C}  % Professional Green
+\definecolor{WarlockBlue}{HTML}{1976D2}     % Deep professional Blue
 
+% Functional UI Colors for the Document
+\definecolor{DocInk}{HTML}{212121}          % Soft black for main text (easier on eyes than pure black)
+\definecolor{DocCodeBg}{HTML}{F5F7F9}       % Very light gray-blue for code blocks
+\definecolor{DocHeaderBg}{HTML}{F0F2F5}     % Light background for header bars
 
-% Header and Footer
+% Hyperlinks Setup
+\hypersetup{
+    linkcolor=WarlockRed,
+    filecolor=WarlockGold,
+    urlcolor=WarlockBlue,
+    citecolor=WarlockGray,
+    pdftitle={Warlock-Studio v5.1.1 Master Manual},
+    pdfauthor={Ivan-Ayub97}
+}
+
+% =========================================================
+% 3. ADVANCED STYLING MACROS
+% =========================================================
+
+% --- HEADER & FOOTER ARCHITECTURE ---
 \pagestyle{fancy}
 \fancyhf{}
-\renewcommand{\headrulewidth}{0pt}
-\renewcommand{\footrulewidth}{2pt}
-\renewcommand{\footrule}{\hbox to\headwidth{\color{WarlockRed}\leaders\hrule height \footrulewidth\hfill}}
+\renewcommand{\headrulewidth}{0pt} % Remove default ugly line
+\renewcommand{\footrulewidth}{0pt}
 
-\fancyhead[R]{\textbf{\textcolor{WarlockDark}{Warlock-Studio v5.1}}}
-\fancyhead[L]{\textcolor{WarlockGray}{User Manual}}
-\fancyfoot[C]{\thepage}
-\fancyfoot[R]{\includegraphics[height=0.8cm]{logo.png}} % Logo at footer
+% Modern Header with colored accent bar
+\fancyhead[L]{%
+    \begin{tikzpicture}[overlay, remember picture]%
+        \fill[WarlockRed] (current page.north west) rectangle ($(current page.north east)+(0,-4pt)$);%
+    \end{tikzpicture}%
+    \sffamily\bfseries\footnotesize\textcolor{DocInk!70}{WARLOCK-STUDIO \textcolor{WarlockRed}{v5.1.1}}%
+}
+\fancyhead[R]{\sffamily\footnotesize\textcolor{WarlockGray}{MASTER OPERATING MANUAL}}
 
-% Section Styling
+% Clean Technical Footer
+\fancyfoot[L]{\sffamily\footnotesize\textcolor{WarlockGray}{\today}}
+\fancyfoot[C]{%
+    \begin{tikzpicture}%
+        \node[circle, fill=WarlockRed, inner sep=2pt, text=white, font=\sffamily\bfseries\footnotesize] {\thepage};%
+    \end{tikzpicture}%
+}
+% FOOTER MODIFIED HERE: Replaced Heart with miniature logo.png
+\fancyfoot[R]{\sffamily\footnotesize Developed by \textbf{Ivan-Ayub97} \ \includegraphics[height=1.3em, keepaspectratio, valign=m]{logo.png}}
+
+
+% --- CHAPTER & SECTION HEADERS (ARCHITECTURAL STYLE) ---
+
+% Chapter Header: Solid, structured, modern block
+\titleformat{\chapter}[block]
+{\sffamily}
+{}
+{0pt}
+{%
+  \begin{tikzpicture}[remember picture, overlay]
+    % Colored structural bar
+    \fill[DocHeaderBg] ($(current page.north west)+ (0,-2cm)$) rectangle ($(current page.north east)+ (0,-5.5cm)$);
+    % Red accent line
+    \draw[WarlockRed, line width=3pt] ($(current page.north west)+ (1.1in,-5.5cm)$) -- ($(current page.north east)+ (-1.1in,-5.5cm)$);
+  \end{tikzpicture}%
+  \vspace{-1.5cm}
+  \begin{flushleft}
+    \begin{tikzpicture}
+      \node[opacity=0.1, font=\sffamily\bfseries\fontsize{80}{80}\selectfont, color=WarlockGray, anchor=south west] at (-0.5,0.2) {\thechapter};
+      \node[font=\sffamily\bfseries\huge\color{DocInk}, anchor=south west, align=left, inner sep=0] at (0,0.5) {\strut #1};
+    \end{tikzpicture}
+  \end{flushleft}
+  \vspace{1cm}
+}
+\titlespacing{\chapter}{0pt}{0pt}{20pt}
+
+% Section Header: Clean and prominent
 \titleformat{\section}
-{\color{WarlockRed}\normalfont\Large\bfseries\uppercase}
-{\thesection}{1em}{}[{\titlerule[1pt]}]
+  {\sffamily\Large\bfseries\color{WarlockRed}}
+  {\thesection \ \ $\cdot$ \ \ }{0pt}{#1}
 
+% Subsection Header: Technical
 \titleformat{\subsection}
-{\color{WarlockDark}\normalfont\large\bfseries}
-{\thesubsection}{1em}{}
+  {\sffamily\large\bfseries\color{DocInk}}
+  {\thesubsection}{0.5em}{#1}
 
-% Custom Boxes for Information grouping
-\newtcolorbox{infobox}[1]{
-  colback=WarlockDark!10!white,
-  colframe=WarlockDark,
-  fonttitle=\bfseries,
-  title=#1,
-  arc=0mm,
-  boxrule=1pt,
-  leftrule=4pt
+% Subsubsection Header: Subtle
+\titleformat{\subsubsection}
+  {\sffamily\normalsize\bfseries\color{WarlockGray}}
+  {\thesubsubsection}{0.5em}{#1}
+
+% --- MODERNIZED UI BOXES (CARDS) ---
+
+% Base style for all UI cards - sleek, no heavy borders, subtle shadow
+\tcbset{
+    mkui_card/.style={
+        enhanced,
+        breakable,
+        frame hidden, % No full border
+        interior style={fill=white}, % White background by default
+        boxrule=0pt,
+        leftrule=5pt, % Thick left border only
+        arc=3mm, % Softer corners
+        shadow={0mm}{0mm}{0mm}{0pt}{black!5}, % Reset shadow
+        fuzzy shadow={0mm}{-2mm}{3mm}{0.5mm}{black!15}, % Modern soft shadow
+        fonttitle=\sffamily\bfseries,
+        fontupper=\small,
+        toptitle=4pt, bottomtitle=4pt, left=10pt, right=10pt, top=10pt, bottom=10pt,
+        before skip=1.5em, after skip=1.5em,
+        title label={#1 \quad}
+    }
 }
 
-\newtcolorbox{warningbox}[1]{
-  colback=red!5!white,
-  colframe=WarlockRed,
-  fonttitle=\bfseries,
-  title=\faExclamationTriangle\ #1,
-  arc=0mm,
-  boxrule=1pt,
-  leftrule=4pt,
-  coltitle=white
+% Concept Box (Gold/Yellow)
+\newtcolorbox{conceptbox}[1]{
+    mkui_card={\faLightbulb},
+    borderline west={5pt}{0pt}{WarlockGold},
+    coltitle=WarlockGold!30!black,
+    title={CONCEPT: #1},
+    colbacktitle=WarlockGold!10
 }
 
+% Technical Deep Dive (Gray/Dark)
+\newtcolorbox{techbox}[1]{
+    mkui_card={\faCogs},
+    borderline west={5pt}{0pt}{WarlockPanel},
+    interior style={fill=WarlockPanel!5},
+    coltitle=WarlockText,
+    title={TECHNICAL DEEP DIVE: #1},
+    colbacktitle=WarlockPanel
+}
+
+% Warning Box (Red)
+\newtcolorbox{dangerbox}[1]{
+    mkui_card={\faExclamationTriangle},
+    borderline west={5pt}{0pt}{WarlockRed},
+    coltitle=WarlockRed!30!black,
+    title={CRITICAL WARNING: #1},
+    colbacktitle=WarlockRed!10
+}
+
+% Scenario/Solution Box (Blue)
+\newtcolorbox{scenariobox}[1]{
+    mkui_card={\faStethoscope},
+    borderline west={5pt}{0pt}{WarlockBlue},
+    coltitle=WarlockBlue!30!black,
+    title={SCENARIO: #1},
+    colbacktitle=WarlockBlue!10
+}
+
+% Tip Box (Green)
 \newtcolorbox{tipbox}[1]{
-  colback=WarlockGold!10!white,
-  colframe=orange!80!black,
-  fonttitle=\bfseries,
-  title=\faLightbulb\ #1,
-  arc=0mm,
-  boxrule=1pt,
-  leftrule=4pt,
-  coltitle=black
+    mkui_card={\faInfoCircle},
+    borderline west={5pt}{0pt}{WarlockSuccess},
+    coltitle=WarlockSuccess!30!black,
+    title={PRO TIP: #1},
+    colbacktitle=WarlockSuccess!10
 }
 
-% Hyperlink Setup
-\hypersetup{
-    colorlinks=true,
-    linkcolor=WarlockRed,
-    filecolor=magenta,
-    urlcolor=blue,
-    pdftitle={Warlock-Studio Manual},
+% --- LISTINGS & CODE ---
+\lstset{
+    basicstyle=\ttfamily\footnotesize\color{DocInk},
+    backgroundcolor=\color{DocCodeBg},
+    breaklines=true,
+    frame=trbl, % full thin frame
+    frameround=ffff, % rounded corners
+    framesep=8pt,
+    framerule=0.5pt,
+    rulecolor=\color{WarlockGray!30},
+    keywordstyle=\color{WarlockBlue}\bfseries,
+    commentstyle=\color{WarlockSuccess}\itshape,
+    stringstyle=\color{WarlockGold!80!black},
+    numberstyle=\tiny\sffamily\color{WarlockGray!60},
+    numbers=left,
+    numbersep=10pt,
+    captionpos=b,
+    abovecaptionskip=10pt
 }
+
+% --- MODERN TIKZ DIAGRAM STYLES ---
+\tikzset{
+    % Base node style with gradient and soft shadow
+    base_node/.style={
+        rectangle, rounded corners=4pt, minimum width=3cm, minimum height=1.2cm,
+        text centered, font=\sffamily\small, line width=0.8pt,
+        blur shadow={shadow xshift=0pt, shadow yshift=-2pt, shadow blur radius=4pt, shadow opacity=20}
+    },
+    startstop/.style={
+        base_node, draw=WarlockRed!80!black,
+        top color=WarlockRed!10, bottom color=WarlockRed!5, text=DocInk
+    },
+    process/.style={
+        base_node, draw=WarlockGray!80!black,
+        top color=white, bottom color=DocHeaderBg, text=DocInk
+    },
+    decision/.style={
+        diamond, aspect=2, minimum width=3.5cm, minimum height=1.5cm,
+        text centered, font=\sffamily\small\bfseries, line width=0.8pt,
+        draw=WarlockBlue!80!black, top color=WarlockBlue!10, bottom color=WarlockBlue!5, text=WarlockBlue!40!black,
+        blur shadow={shadow xshift=0pt, shadow yshift=-2pt, shadow blur radius=4pt, shadow opacity=20}
+    },
+    % Modern arrow style
+    arrow/.style={
+        draw=WarlockGray!80, line width=1.2pt, -{Latex[length=3mm, width=2mm]}, rounded corners=5pt
+    },
+    line/.style={draw, -latex', thick, color=DocInk}
+}
+
+% --- LIST STYLES ---
+\setlist[itemize,1]{label={\textcolor{WarlockRed}{\faAngleRight}}, leftmargin=1.5em, itemsep=0.4em}
+\setlist[itemize,2]{label={\textcolor{WarlockGray}{\faCircle[small]}}, leftmargin=1.5em, itemsep=0.2em}
+\setlist[enumerate,1]{label={\sffamily\bfseries\arabic*.}, font=\color{WarlockRed}, leftmargin=1.5em, itemsep=0.4em}
+
 
 % =========================================================
 % DOCUMENT CONTENT
@@ -105,227 +264,487 @@
 
 % --- COVER PAGE ---
 \begin{titlepage}
-    \begin{center}
-        \vspace*{2cm}
-        \includegraphics[width=0.4\textwidth]{logo.png}\\[1cm]
+    \pagecolor{WarlockBg}
+    \color{WarlockText}
+    \begin{tikzpicture}[remember picture, overlay]
+        % Subtle Technical Background Pattern
+        \begin{scope}[opacity=0.05, WarlockGray]
+             \draw[step=2cm, very thin] (current page.south west) grid (current page.north east);
+             \foreach \x in {0,10,...,\paperwidth} \draw[line width=2pt] (\x,0) -- (\x,\paperheight);
+        \end{scope}
+        % Dynamic diagonal accents
+        \draw[WarlockRed, line width=4pt, opacity=0.8] ($(current page.north west)+(2in,0)$) -- ($(current page.south west)+(0,4in)$);
+        \draw[WarlockGold, line width=2pt, opacity=0.6] ($(current page.north west)+(2.5in,0)$) -- ($(current page.south west)+(0,3.5in)$);
+    \end{tikzpicture}
 
-        {\Huge \textbf{WARLOCK-STUDIO}}\\[0.5cm]
-        {\Large \textit{AI Upscaling \& Interpolation Suite}}\\[0.2cm]
-        {\large Version 5.1}
+    \begin{center}
+        \vspace*{4cm}
+        % Logo Area with Glow Effect - MODIFIED TO USE logo.png
+        \begin{tikzpicture}
+        % The glowing container circle
+        \node[circle, minimum size=4cm, fill=WarlockPanel, blur shadow={shadow blur radius=15pt, shadow opacity=40, shadow color=WarlockRed}] (logo) at (0,0) {};
+        % The actual image node inside the circle
+        \node at (0,0) {\includegraphics[width=3cm, height=3cm, keepaspectratio]{logo.png}};
+        \end{tikzpicture}
 
         \vspace{2cm}
 
-        \begin{tcolorbox}[colback=WarlockDark, colframe=WarlockRed, width=0.8\textwidth, arc=2mm]
-            \centering \textcolor{white}{\textbf{\Large USER OPERATING MANUAL}}
+        {\sffamily\bfseries\fontsize{36}{36}\selectfont WARLOCK-STUDIO} \\[0.5cm]
+        {\sffamily\Large\textcolor{WarlockGray}{\textit{The Comprehensive AI Media Enhancement Suite}}} \\[1.5cm]
+
+        {\sffamily\bfseries\fontsize{24}{30}\selectfont MASTER OPERATING MANUAL} \\[0.5cm]
+        \begin{tcolorbox}[colback=WarlockRed, colframe=WarlockRed, width=4cm, arc=5mm, boxrule=0pt, halign=center]
+            \sffamily\bfseries\textcolor{WarlockText}{Version 5.1.1}
+        \end{tcolorbox}
+        \vspace{2cm}
+
+        \begin{tcolorbox}[mkui_card, interior style={fill=WarlockPanel}, borderline west={4pt}{0pt}{WarlockGold}, width=0.9\textwidth]
+            \centering
+            \sffamily\textcolor{WarlockGray}{
+            Architecture \ $\cdot$ \ Workflows \ $\cdot$ \ Troubleshooting \ $\cdot$ \ Advanced Config}
         \end{tcolorbox}
 
         \vfill
 
-        \textbf{Developed by Ivan-Ayub97}\\
-        \today
+        \begin{flushright}
+            \sffamily\small
+            \textbf{Author:} Ivan-Ayub97 \\
+            \textcolor{WarlockGray}{Generated for Documentation Purposes} \\
+            \today
+        \end{flushright}
 
     \end{center}
 \end{titlepage}
+\pagecolor{white}
+\color{DocInk}
 
-\tableofcontents
+% --- TABLE OF CONTENTS ---
+{
+  \hypersetup{linkcolor=DocInk}
+  \sffamily
+  \tableofcontents
+}
 \newpage
 
-% ---------------------------------------------------------
-% SECTION 1: INTRODUCTION
-% ---------------------------------------------------------
-\section{Introduction}
-Warlock-Studio is a comprehensive GUI application designed for AI-driven image and video enhancement. It integrates state-of-the-art neural networks to perform Upscaling, Denoising, Face Restoration, and Frame Interpolation.
+% =========================================================
+% CHAPTER 1: THE CORE PHILOSOPHY
+% =========================================================
+\chapter{The Core Philosophy}
 
-Built on Python, CustomTkinter, and ONNX Runtime, Warlock-Studio optimizes hardware resources (CPU and GPU) to deliver great results.
+\section{What is Warlock-Studio?}
+Warlock-Studio is not just an "app"; it is an \textbf{AI Orchestrator}.
 
-\begin{infobox}{System Requirements}
+In the world of AI, processing a single image or video involves dozens of complex steps: managing memory buffers, tiling large images to fit in VRAM, extracting frames, running neural network inference (ONNX), and re-encoding video streams.
+
+Warlock-Studio automates this entire pipeline. It acts as a bridge between high-performance libraries (OpenCV, MoviePy, ONNX Runtime) and the user, providing a "Drag \& Drop" experience for industrial-grade tasks.
+
+\section{Capabilities at a Glance}
 \begin{itemize}
-    \item \textbf{OS:} Windows 10/11 (x64)
-    \item \textbf{RAM:} Minimum 8GB (16GB+ recommended)
-    \item \textbf{GPU:} NVIDIA (CUDA), AMD/Intel (DirectML), or CPU (Slow fallback)
-    \item \textbf{Dependencies:} FFmpeg (included in assets), Visual C++ Redistributable.
-\end{itemize}
-\end{infobox}
-
-% ---------------------------------------------------------
-% SECTION 2: INTERFACE & USAGE
-% ---------------------------------------------------------
-\section{Interface Overview & Usage}
-The interface is divided into functional blocks designed for a linear workflow: \textit{Load $\rightarrow$ Configure $\rightarrow$ Process}.
-
-\subsection{1. Input Section}
-Located on the left side (or top, depending on layout), this area handles file ingestion.
-\begin{itemize}
-    \item \textbf{Drag \& Drop:} You can drag images or videos directly onto the window.
-    \item \textbf{Manual Select:} Clicking the button opens a file dialog.
-    \item \textbf{File List:} Selected files appear in a scrollable list showing resolution, duration, and calculated output resolution based on current settings.
-\end{itemize}
-
-\subsection{2. AI Configuration}
-This is the core control panel.
-\begin{description}
-    \item[AI Model:] Selects the neural network architecture (see Chapter 3).
-    \item[AI Multithreading:] Controls how many frames are processed simultaneously.
+    \item \textbf{Upscaling:} Increasing resolution while adding detail (up to 8K+).
+    \item \textbf{Restoration:} Removing noise (Denoising) and fixing broken faces (GFPGAN).
+    \item \textbf{FluidFrames (Interpolation):} Generating new frames to make video smoother (30fps $\to$ 60fps).
+    \item \textbf{Smart Rendering:}
     \begin{itemize}
-        \item \textit{Recommendation:} Set to "2 threads" for mid-range GPUs. Use "OFF" (1 thread) for high-resolution upscaling (4K) to save VRAM.
-    \end{itemize}
-    \item[Frame Generation (RIFE):] Only active when RIFE models are selected. Interpolates frames to increase smoothness (e.g., 30fps $\rightarrow$ 60fps).
-\end{description}
-
-\subsection{3. Hardware & Performance}
-\begin{itemize}
-    \item \textbf{GPU Selection:} Choose specific GPU or "Auto".
-    \item \textbf{VRAM Limiter:} \textbf{Crucial Setting.} This defines the tile size for processing.
-    \begin{itemize}
-        \item \textit{Integrated Graphics:} Set to 2GB or lower.
-        \item \textit{Dedicated GPU (e.g., RTX 3060):} Set to match your card's VRAM (e.g., 6GB-8GB).
+        \item \textbf{Tiling Engine:} Processes images larger than your GPU memory.
+        \item \textbf{Auto-Fallback:} Automatically switches to CPU encoding if GPU encoding fails.
+        \item \textbf{Resume System:} Crashed during a 2-hour render? Warlock resumes from the exact frame.
     \end{itemize}
 \end{itemize}
 
-\begin{tipbox}{Tiling Technology}
-Warlock-Studio uses "Tiling". If an image is too large for VRAM, it splits the image into small squares, processes them, and merges them back. The \textbf{VRAM Limiter} controls the size of these squares.
-\end{tipbox}
-
-\subsection{4. Resolution Control}
-\begin{itemize}
-    \item \textbf{Input Resolution \%:} Downscales the image \textit{before} AI processing. Useful for speeding up 4K video processing (e.g., set to 50\%).
-    \item \textbf{Output Resolution \%:} Downscales the image \textit{after} AI processing.
-\end{itemize}
-
-\subsection{5. Output Settings}
-\begin{itemize}
-    \item \textbf{Image Ext:} PNG (Lossless), JPG (Fast), BMP/TIFF (Uncompressed).
-    \item \textbf{Video Ext:} MP4, MKV, AVI, MOV.
-    \item \textbf{Video Codec:}
-    \begin{itemize}
-        \item \textbf{x264/x265:} CPU Encoding (High quality, slow).
-        \item \textbf{NVENC:} NVIDIA Hardware (Fast).
-        \item \textbf{AMF:} AMD Hardware.
-        \item \textbf{QSV:} Intel Hardware.
-    \end{itemize}
-\end{itemize}
-
-% ---------------------------------------------------------
-% SECTION 3: AI MODELS EXPLAINED
-% ---------------------------------------------------------
-\newpage
-\section{AI Models Library}
-Warlock-Studio includes varied models optimized for specific scenarios. Use this table to choose the right tool.
+\section{System Requirements Matrix}
+Strict adherence to these requirements ensures stability.
 
 \begin{table}[h!]
 \centering
-\renewcommand{\arraystretch}{1.3}
-\begin{tabularx}{\textwidth}{|l|l|X|}
-\hline
-\rowcolor{WarlockDark} \textcolor{white}{\textbf{Category}} & \textcolor{white}{\textbf{Model Name}} & \textcolor{white}{\textbf{Best Use Case}} \\ \hline
-\multirow{2}{*}{\textbf{Denoising}} & IRCNN\_Mx1 & Removing grain/noise without changing resolution. Fast. \\
- & IRCNN\_Lx1 & Heavier denoising for very grainy sources. \\ \hline
-\multirow{2}{*}{\textbf{Anime / Art}} & RealESR\_Animex4 & \textbf{Best for Cartoons/Anime.} Removes compression artifacts and sharpens lines. \\
- & RealESR\_Gx4 & General purpose fast upscaling. \\ \hline
-\multirow{4}{*}{\textbf{Realistic}} & BSRGANx4 & \textbf{Best for Real World video.} Adds texture and realistic details. \\
- & BSRGANx2 & 2x version of above. Slightly faster. \\
- & RealESRGANx4 & Good balance between sharpness and texture. \\
- & RealESRNetx4 & Smoother look, less texture hallucination. \\ \hline
-\textbf{Faces} & GFPGAN & \textbf{Face Restoration.} Miraculous recovery of blurry/small faces. \\ \hline
-\textbf{Interpolation} & RIFE / Lite & Increasing Frame Rate (30$\rightarrow$60fps). Creates intermediate frames. \\ \hline
+\sffamily\small
+\renewcommand{\arraystretch}{1.6}
+\setlength{\tabcolsep}{12pt}
+% Header row styling
+\rowcolors{1}{DocHeaderBg}{white}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\rowcolor{WarlockPanel} \textbf{\textcolor{WarlockGold}{Component}} & \textbf{\textcolor{WarlockText}{Minimum}} & \textbf{\textcolor{WarlockText}{Recommended}} \\
+\midrule
+\textbf{OS} & Windows 10 (64-bit) & Windows 11 (64-bit) \\
+\textbf{CPU} & Quad-Core (i5/Ryzen 5) & 8-Core+ (i7/Ryzen 7) for fast encoding \\
+\textbf{RAM} & 8 GB & \textbf{16 GB - 32 GB} (Crucial for 4K video) \\
+\textbf{GPU} & Integrated (Vega/Intel HD) & \textbf{NVIDIA RTX 3060} (or equivalent) with 8GB+ VRAM \\
+\textbf{Storage} & HDD (Slow) & \textbf{NVMe SSD} (Required for high-speed frame extraction) \\
+\textbf{Libraries} & Visual C++ Redist. & Latest GPU Drivers \\
+\bottomrule
 \end{tabularx}
-\caption{Warlock-Studio Model Reference Guide}
+\caption{Hardware Compatibility Specification}
 \end{table}
 
-\subsection*{When NOT to use certain models:}
+% =========================================================
+% CHAPTER 2: ANATOMY OF THE INTERFACE
+% =========================================================
+\chapter{Anatomy of the Interface}
+
+This chapter breaks down every pixel of the GUI. Warlock-Studio uses a \textbf{"Top-Down"} workflow design.
+
+\section{1. The Input Manager (File Queue)}
+Located on the left/top. It has two modes:
+
+\subsection{A. The Drop Zone}
+When empty, it shows a large "Drag \& Drop" area. It accepts:
 \begin{itemize}
-    \item Do \textbf{not} use \textit{RealESR\_Animex4} on realistic photos; it will make skin look like plastic (oil painting effect).
-    \item Do \textbf{not} use \textit{GFPGAN} on non-human subjects or high-quality faces (it might alter facial features slightly).
+    \item \textbf{Images:} \texttt{.jpg, .png, .bmp, .tiff, .webp}
+    \item \textbf{Videos:} \texttt{.mp4, .mkv, .avi, .mov, .webm}
 \end{itemize}
 
-% ---------------------------------------------------------
-% SECTION 4: WORKFLOW DIAGRAMS
-% ---------------------------------------------------------
-\section{Process Workflows}
+\subsection{B. The Active Queue}
+Once files are added, it transforms into a list. Each card displays:
+\begin{itemize}
+    \item \textbf{Thumbnail:} Visual verification of the file.
+    \item \textbf{Meta-Info:} Resolution, Duration, FPS, File Size.
+    \item \textbf{Projection:} A dynamic calculation showing:
+    \[ \text{Input Res} \xrightarrow{\text{Input \%}} \text{AI Input} \xrightarrow{\text{Upscale}} \text{AI Output} \xrightarrow{\text{Output \%}} \text{Final Res} \]
+\end{itemize}
 
-\subsection{Video Upscaling Pipeline}
-Understanding the internal process helps in troubleshooting speed issues.
+\begin{tipbox}{Queue Secrets}
+Use the \faArrowUp\ button to prioritize urgent files. Use the \faTimes\ button to remove files. Warlock processes files \textbf{sequentially} (top to bottom).
+\end{tipbox}
 
-\vspace{0.5cm}
+\section{2. The Toolbar (Global Tools)}
+Floating in the top right:
+\begin{itemize}
+    \item \textbf{\faBook\ Manual:} Opens this specific PDF document.
+    \item \textbf{\faCog\ Preferences:} Opens the \texttt{warlock\_preferences} window (See Chapter 6).
+\end{itemize}
+
+\section{3. The Control Panel (The Brain)}
+This is where you program the logic for the batch.
+
+\subsection{Row 1: AI Model Selection}
+The dropdown list contains categorized models. (See Chapter 3 for details).
+
+\subsection{Row 2: Contextual Action (Blending vs. Frame Gen)}
+This menu changes dynamically based on the AI Model selected.
+
+\begin{itemize}
+    \item \textbf{Scenario A: Upscaling Model Selected}
+    \begin{itemize}
+        \item \textbf{Menu:} \textit{AI Blending}
+        \item \textbf{Function:} Mixes the original image with the AI result to recover natural texture/grain.
+        \item \textbf{Values:} OFF (0\%), Low (30\%), Medium (50\%), High (70\%).
+    \end{itemize}
+
+    \item \textbf{Scenario B: RIFE (Interpolation) Selected}
+    \begin{itemize}
+        \item \textbf{Menu:} \textit{Frame Generation}
+        \item \textbf{Function:} Determines how many new frames to create.
+        \item \textbf{Values:} x2 (Double FPS), x4 (Quadruple FPS), Slowmotion (Increase frames but slow playback).
+    \end{itemize}
+\end{itemize}
+
+\subsection{Row 3: AI Multithreading}
+\textbf{Function:} Controls how many video frames are processed in parallel.
+\begin{itemize}
+    \item \textbf{OFF (1 Thread):} Safest. Essential for 4K video or low-VRAM GPUs.
+    \item \textbf{2 Threads:} Sweet spot for 1080p video on mid-range GPUs.
+    \item \textbf{4-8 Threads:} High VRAM usage. Only for RTX 3090/4090 processing SD content.
+\end{itemize}
+
+\subsection{Row 4: Resolution Orchestration}
+\begin{itemize}
+    \item \textbf{Input Resolution \%:} Downscales \textit{before} AI.
+    \item \textbf{Output Resolution \%:} Downscales \textit{after} AI.
+\end{itemize}
+
+\subsection{Row 5: Hardware Limits (The Safety Valve)}
+\begin{itemize}
+    \item \textbf{GPU Selection:} Choose specific card or "Auto".
+    \item \textbf{VRAM Limiter (GB):} \textbf{CRITICAL.} This defines the maximum tile size.
+\end{itemize}
+
+\section{4. The Integrated Console (The Voice)}
+New in v5.1.1. It provides a live feed of the backend operations.
+\begin{itemize}
+    \item \textcolor{WarlockSuccess}{\textbf{[SUCCESS]}}: Task completed.
+    \item \textcolor{WarlockBlue}{\textbf{[INFO]}}: Progress updates (e.g., "Extracting frames 45\%").
+    \item \textcolor{WarlockRed}{\textbf{[ERROR]}}: Critical failures (e.g., "Out of Memory").
+    \item \textbf{[FFMPEG]}: Raw encoding logs from the video engine.
+\end{itemize}
+
+% =========================================================
+% CHAPTER 3: THE MODEL LIBRARY
+% =========================================================
+\chapter{The Model Library: A Field Guide}
+
+Warlock-Studio includes a curated selection of ONNX models. Using the wrong model for the task is the \#1 cause of poor results.
+
+\begin{table}[h!]
+\centering
+\sffamily\small
+\renewcommand{\arraystretch}{1.4}
+\setlength{\tabcolsep}{10pt}
+\rowcolors{1}{DocHeaderBg}{white}
+\begin{tabularx}{\textwidth}{l l X X}
+\toprule
+\rowcolor{WarlockPanel}
+\textbf{\textcolor{WarlockGold}{Model}} &
+\textbf{\textcolor{WarlockText}{Type}} &
+\textbf{\textcolor{WarlockText}{BEST Use Case}} &
+\textbf{\textcolor{WarlockText}{DO NOT Use When...}} \\
+\midrule
+
+\textbf{RealESR\_Animex4} & Upscale (x4) & \textbf{2D Animation, Cartoons, Line Art.} Removes compression artifacts perfectly. & Input is a real photograph. It will turn skin into "plastic" or "oil paint". \\
+
+\textbf{RealESR\_Gx4} & Upscale (x4) & \textbf{General Purpose.} Good balance for art and clean photos. & Input is extremely noisy or grainy. \\
+
+\textbf{BSRGANx4} & Upscale (x4) & \textbf{Real World Video.} Adds realistic texture. Handles blur and JPEG compression well. & You need a perfectly clean, noiseless image (it generates grain). \\
+
+\textbf{BSRGANx2} & Upscale (x2) & Same as above, but faster. Ideal for 1080p $\to$ 4K. & Same as above. \\
+
+\textbf{RealESRGANx4} & Upscale (x4) & \textbf{Text \& Logos.} Extremely sharp edges. & Input contains faces (might look over-sharpened). \\
+
+\textbf{IRCNN\_M|Lx1} & Denoise (x1) & \textbf{Cleaning.} Removing noise before upscaling. & You want to increase resolution (it stays at x1). \\
+
+\textbf{GFPGAN} & Restoration & \textbf{Faces.} Restores eyes/mouths in blurry photos. & Image has no faces, or faces are already high quality (it might alter identity). \\
+
+\textbf{RIFE|RIFELite} & Interpolation & \textbf{Smoothing Video.} Increasing frame rate. & You want to increase resolution/sharpness. \\
+\bottomrule
+\end{tabularx}
+\caption{Comprehensive Model Usage Matrix}
+\end{table}
+
+% =========================================================
+% CHAPTER 4: ADVANCED CONCEPTS
+% =========================================================
+\chapter{Advanced Concepts (The Engine Room)}
+
+\section{Tiling: How to Process 8K on a 2GB Card}
+
+\begin{conceptbox}{What is Tiling?}
+Neural networks require massive amounts of memory. Processing a 4K image in one go might require 12GB of VRAM.
+
+\textbf{The Solution:} Warlock-Studio chops the image into smaller squares (Tiles), processes each square individually, and stitches them back together seamlessly.
+
+The \textbf{GPU VRAM (GB)} setting controls the size of these squares.
+\begin{itemize}
+    \item \textbf{High Setting (e.g., 8GB):} Large tiles. Fewer tiles to process. Faster speed.
+    \item \textbf{Low Setting (e.g., 2GB):} Small tiles. More tiles to process. Slower, but **impossible to crash**.
+\end{itemize}
+\end{conceptbox}
+
+\section{Auto-Fallback Encoding}
+Video encoding is prone to driver failures. Warlock-Studio implements a "Self-Healing" mechanism.
+
+\begin{itemize}
+    \item \textbf{Attempt 1:} The user selects a Hardware Encoder (e.g., \texttt{h264\_nvenc}).
+    \item \textbf{Failure:} The GPU driver crashes or is busy.
+    \item \textbf{Detection:} Warlock detects the non-zero exit code from FFmpeg.
+    \item \textbf{Attempt 2 (Auto):} The system immediately switches to \texttt{libx264} (CPU Encoder).
+    \item \textbf{Result:} The video renders successfully (albeit slower), preventing a "wasted night" of rendering.
+\end{itemize}
+
+% =========================================================
+% CHAPTER 5: WORKFLOWS
+% =========================================================
+\chapter{Workflows}
+
+\section{FluidFrames (RIFE Integration)}
+RIFE (Real-Time Intermediate Flow Estimation) works differently from Upscalers.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    \node (frame1) [startstop, width=2.8cm] {Frame 1};
+    \node (frame2) [startstop, right of=frame1, xshift=5.5cm, width=2.8cm] {Frame 2};
+    \node (ai) [process, below of=frame1, xshift=3.75cm, width=4cm] {\sffamily\bfseries RIFE AI Analysis};
+    \node (newframe) [decision, below of=ai, yshift=-0.5cm] {Generate Frame 1.5};
+
+    \draw [arrow] (frame1.south) -- (ai.north);
+    \draw [arrow] (frame2.south) -- (ai.north);
+    \draw [arrow] (ai.south) -- (newframe.north);
+
+    % Modern dashed indicator
+    \draw [arrow, dashed, draw=WarlockBlue, line width=1.5pt] (newframe.east) -- ++(2,0) node[right, text width=2.5cm, align=left, font=\sffamily\small\color{WarlockBlue}] {Inserted seamlessly between 1 \& 2};
+\end{tikzpicture}
+\caption{RIFE Logic: Creating frames from thin air}
+\end{figure}
+
+\section{The Video Upscaling Pipeline}
 
 \begin{center}
-\begin{tikzpicture}[node distance=1.5cm]
-    \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=WarlockRed!30]
-    \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=WarlockGold!30]
-    \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!10]
-    \tikzstyle{arrow} = [thick,->,>=stealth]
+\begin{tikzpicture}[node distance=1.8cm, every node/.style={font=\sffamily\footnotesize}]
+    % Define a local style for this specific chart
+    \tikzset{pipe_arrow/.style={arrow, draw=WarlockGray!60, line width=2pt}}
 
-    \node (in) [startstop] {Input Video};
-    \node (extract) [process, below of=in] {Extract Frames (FFmpeg)};
-    \node (resize1) [process, below of=extract] {Input Resize \%};
-    \node (ai) [process, below of=resize1] {AI Inference (ONNX)};
-    \node (blend) [decision, below of=ai, yshift=-0.5cm] {Blending?};
-    \node (merge) [process, below of=blend, yshift=-0.5cm] {Merge Upscale + Original};
-    \node (encode) [process, below of=merge] {Encode Video (FFmpeg)};
-    \node (out) [startstop, below of=encode] {Output Video};
+    \node (start) [startstop] {User Clicks Start};
+    \node (check) [decision, below of=start, yshift=-0.2cm] {Is Video?};
 
-    \draw [arrow] (in) -- (extract);
-    \draw [arrow] (extract) -- (resize1);
-    \draw [arrow] (resize1) -- (ai);
-    \draw [arrow] (ai) -- (blend);
-    \draw [arrow] (blend) -- node[anchor=east] {Yes} (merge);
-    \draw [arrow] (blend.east) -- ++(1,0) |- node[anchor=south] {No} (encode.east);
-    \draw [arrow] (merge) -- (encode);
-    \draw [arrow] (encode) -- (out);
+    % Image Path
+    \node (img) [process, right of=check, xshift=4.5cm] {Process Image (Single Step)};
 
+    % Video Path
+    \node (extract) [process, below of=check, yshift=-0.8cm] {Extract Frames (FFmpeg)};
+
+    % Main Loop Container
+    \begin{scope}[on background layer]
+        \node[rectangle, draw=WarlockGold!50, dashed, line width=2pt, rounded corners=10pt, fill=WarlockGold!5, fit=(extract)(resize)(model)(blend)(save), label={[anchor=north west, font=\sffamily\bfseries\color{WarlockGold!80!black}, xshift=10pt, yshift=-5pt]Processing Loop}] (loopbox) {};
+    \end{scope}
+
+    \node (loop) [process, below of=extract] {Loop Through Frames};
+    \node (resize) [process, below of=loop] {Resize Input \%};
+    \node (model) [process, below of=resize, top color=WarlockRed!5, bottom color=WarlockRed!15, draw=WarlockRed!50] {\bfseries AI Inference (Tiling)};
+    \node (blend) [process, below of=model] {Blend / Post-Process};
+    \node (save) [process, below of=blend] {Save Temp Frame};
+
+    \node (checkdone) [decision, right of=save, xshift=4.5cm] {More Frames?};
+    \node (encode) [process, below of=save, yshift=-1cm] {Encode Video (FFmpeg)};
+    \node (done) [startstop, below of=encode] {Task Complete};
+
+    % Connections
+    \draw [pipe_arrow] (start) -- (check);
+    \draw [pipe_arrow] (check) -- node[above] {\textbf{No}} (img);
+    \draw [pipe_arrow] (check) -- node[right] {\textbf{Yes}} (extract);
+    \draw [pipe_arrow] (extract) -- (loop);
+    \draw [pipe_arrow] (loop) -- (resize);
+    \draw [pipe_arrow] (resize) -- (model);
+    \draw [pipe_arrow] (model) -- (blend);
+    \draw [pipe_arrow] (blend) -- (save);
+    \draw [pipe_arrow] (save) -- (checkdone);
+    % Loop back arrow
+    \draw [pipe_arrow, rounded corners=15pt] (checkdone.north) |- node[near start, right] {\textbf{Yes}} ($(loop.east)+(0.5,0)$) -- (loop.east);
+    \draw [pipe_arrow] (checkdone.south) |- node[near start, right] {\textbf{No}} (encode.east);
+    \draw [pipe_arrow] (encode) -- (done);
 \end{tikzpicture}
 \end{center}
 
-% ---------------------------------------------------------
-% SECTION 5: TROUBLESHOOTING
-% ---------------------------------------------------------
-\newpage
-\section{Troubleshooting & Error Codes}
+% =========================================================
+% CHAPTER 6: PREFERENCES (THE GEAR MENU)
+% =========================================================
+\chapter{Preferences \& Configuration}
 
-The integrated console (bottom of the app) provides real-time logs. Here are common errors and fixes.
+The \texttt{warlock\_preferences.py} module handles persistent settings.
 
-\subsection{Common Runtime Errors}
-
-\begin{table}[h!]
-\centering
-\begin{tabularx}{\textwidth}{|l|X|}
-\hline
-\rowcolor{WarlockRed} \textcolor{white}{\textbf{Error / Symptom}} & \textcolor{white}{\textbf{Solution}} \\ \hline
-\textbf{CUDA / Out of Memory} & The AI model requires more VRAM than available. \newline \textbf{Fix:} Lower the "GPU VRAM" setting (e.g., set to 2). Lower "AI Multithreading" to OFF. \\ \hline
-\textbf{FFmpeg not found} & The application cannot process video/audio. \newline \textbf{Fix:} Ensure \texttt{ffmpeg.exe} is in the \texttt{Assets/} folder. \\ \hline
-\textbf{Gray/Black Output} & Often caused by incompatible Video Codecs. \newline \textbf{Fix:} Switch output codec to \texttt{x264} (Software) or check GPU driver updates. \\ \hline
-\textbf{Process Stops Immediately} & File path issue. \newline \textbf{Fix:} Avoid special characters or emojis in filenames/folders. Move files to a simple path like \texttt{C:/Upscale/}. \\ \hline
-\textbf{DLL Load Failed} & Missing Visual C++ dependencies. \newline \textbf{Fix:} Install latest MSVC Redistributable. \\ \hline
-\end{tabularx}
-\end{table}
-
-\begin{warningbox}{Checkpoint Recovery}
-If the app crashes during a long video upscale, \textbf{do not delete the temporary folder}. Warlock-Studio will detect the processed frames and resume from where it left off automatically upon restarting the same job.
-\end{warningbox}
-
-\subsection{Performance Tuning Tips}
+\section{General Tab}
 \begin{itemize}
-    \item \textbf{Slow Speed?} Ensure "Process Priority" in Preferences is set to "High". Check if you are using CPU instead of GPU (Console will say \texttt{CPUExecutionProvider}).
-    \item \textbf{Low Quality?} Try disabling "Blending" (set to OFF). Increase "Input Resolution \%" to 100.
-    \item \textbf{Glitchy Video?} If using Interpolation (RIFE), scene changes might look weird. This is a limitation of current AI flow generation.
+    \item \textbf{App Theme:} Switch between Dark, Light, or System.
+    \item \textbf{UI Scaling:} Essential for 4K monitors (Set to 125\%).
+    \item \textbf{Window Opacity:} Aesthetic transparency.
+    \item \textbf{Auto-Close:} Shuts down the app after the queue finishes.
 \end{itemize}
 
-% ---------------------------------------------------------
-% SECTION 6: PREFERENCES
-% ---------------------------------------------------------
-\section{Preferences Menu}
-Accessible via the \faCog\ icon in the top right.
-
+\section{Performance Tab}
 \begin{itemize}
-    \item \textbf{App Theme:} Switch between Dark/Light modes.
-    \item \textbf{ONNX Provider:} Force specific backend (CUDA vs DirectML). \textit{Auto} is recommended.
-    \item \textbf{Clean Temp Files:} Removes leftover \texttt{.tmp} files and frame folders from crashed sessions.
-    \item \textbf{Extended Logging:} Enables detailed debug logs for error reporting.
+    \item \textbf{ONNX Provider:}
+    \begin{itemize}
+        \item \textit{Auto:} Recommended.
+        \item \textit{CUDA:} Forces NVIDIA acceleration.
+        \item \textit{DirectML:} Forces AMD/Intel acceleration.
+        \item \textit{CPU:} Debug mode (Slow).
+    \end{itemize}
+    \item \textbf{Process Priority:} Increases the Windows priority of the FFmpeg subprocess.
 \end{itemize}
 
-\vspace{2cm}
+\section{Integrations Tab}
+Allows manual definition of paths for \texttt{ffmpeg.exe} and \texttt{exiftool.exe} if the auto-detection in \texttt{Assets/} fails.
+
+\section{Logs \& Maintenance}
+\begin{itemize}
+    \item \textbf{Clean Temp Files:} A "Panic Button" to clear disk space. Deletes all \texttt{*.tmp}, \texttt{*.checkpoint}, and temporary frame folders.
+    \item \textbf{Export Debug Zip:} Compresses all logs and config files into a ZIP to share with the developer for bug reporting.
+\end{itemize}
+
+% =========================================================
+% CHAPTER 7: TROUBLESHOOTING GUIDE (THE MECHANIC)
+% =========================================================
+\chapter{Troubleshooting \& Solutions}
+
+This section covers 90\% of user reports.
+
+\section{Crash Scenarios}
+
+\begin{scenariobox}{Crash: "Out of Memory" / "Allocation Failed"}
+\textbf{Symptoms:} The app closes instantly or the console turns red with memory errors.
+\textbf{Cause:} The AI is trying to create a Tile larger than available VRAM.
+\textbf{Solution:}
+\begin{enumerate}
+    \item Set \textbf{AI Multithreading} to \textbf{OFF}.
+    \item Lower \textbf{GPU VRAM (GB)} setting (e.g., from 4 to 2).
+    \item Reduce \textbf{Input Resolution \%} (e.g., to 75\%).
+\end{enumerate}
+\end{scenariobox}
+
+\begin{scenariobox}{Crash: "Timeout Detection Recovery (TDR)"}
+\textbf{Symptoms:} The screen flickers, goes black for a second, and the app reports an error.
+\textbf{Cause:} Windows reset the GPU driver because a single tile took too long to process.
+\textbf{Solution:} Lower the \textbf{GPU VRAM (GB)} setting drastically (e.g., to 1 or 2). Smaller tiles process faster, preventing the timeout.
+\end{scenariobox}
+
+\begin{scenariobox}{Stuck: "Extracting Frames..."}
+\textbf{Symptoms:} The progress bar doesn't move for minutes.
+\textbf{Cause:} The input video is huge (e.g., a 2-hour movie) or stored on a slow HDD.
+\textbf{Solution:} Be patient. Check the "Temp" folder in your file explorer to see if PNG files are being created. Move source files to an SSD.
+\end{scenariobox}
+
+\section{Quality Issues}
+
+\begin{scenariobox}{Result: "Oily" or "Plastic" Faces}
+\textbf{Cause:} Using \texttt{RealESR\_Animex4} on real photos.
+\textbf{Solution:} Switch to \texttt{RealESR\_Gx4} or \texttt{BSRGANx4}.
+\end{scenariobox}
+
+\begin{scenariobox}{Result: Weird artifacts in Video Motion}
+\textbf{Cause:} RIFE Interpolation struggles with scene cuts (sudden changes in camera).
+\textbf{Solution:} This is a limitation of current AI tech. Try \texttt{RIFE\_Lite} which is sometimes less aggressive.
+\end{scenariobox}
+
+\section{The Checkpoint System}
+\begin{dangerbox}{Do NOT delete Temp Files!}
+If Warlock-Studio crashes at frame 1500 of 2000:
+\begin{enumerate}
+    \item Re-open the app.
+    \item Load the \textbf{exact same video}.
+    \item Choose the \textbf{exact same settings}.
+    \item Click Start.
+\end{enumerate}
+The system will detect the existing frames and verify the \texttt{.checkpoint} file. It will output: \texttt{[INFO] Resuming video upscaling...} and start at frame 1501.
+\end{dangerbox}
+
+% =========================================================
+% CHAPTER 8: CREDITS
+% =========================================================
+\chapter*{Credits}
+\addcontentsline{toc}{chapter}{Credits}
+
+\begin{minipage}{0.55\textwidth}
+    \sffamily
+    \section*{Development Team}
+    \textbf{Lead Developer:} Ivan-Ayub97 \\
+
+    \section*{Core Technologies Stack}
+    We stand on the shoulders of giants.
+    \begin{itemize}
+        \item \textbf{UI Framework:} \textit{CustomTkinter} (TomSchimansky)
+        \item \textbf{AI Inference Engine:} \textit{ONNX Runtime} (Microsoft)
+        \item \textbf{Computer Vision:} \textit{OpenCV}
+        \item \textbf{Video Processing Backbone:} \textit{FFmpeg}
+    \end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+    \begin{tcolorbox}[mkui_card, interior style={fill=DocHeaderBg}, borderline west={4pt}{0pt}{WarlockGray}]
+        \centering
+        \color{DocInk}
+        \sffamily
+        \faCodeBranch \ \ \textbf{Open Source Philosophy} \\
+        \vspace{0.5em}
+        \footnotesize
+        Licensed under MIT. \\
+        Collaboration drives innovation.
+    \end{tcolorbox}
+\end{minipage}
+
+\vfill
 \begin{center}
-    \textit{Warlock-Studio is an open-source tool. \\ Thank you for using it.}
+    \sffamily
+    \textcolor{WarlockGray!50}{\rule{0.7\linewidth}{1pt}} \\
+    \vspace{0.8cm}
+    \textcolor{WarlockGray}{\textit{Warlock-Studio v5.1.1 | Engineering Documentation}}
 \end{center}
 
 \end{document}

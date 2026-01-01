@@ -1,0 +1,1 @@
+Download the Assets.zip from the releases section, prioritizing the latest version, and extract the contents of the zip file to this directory.

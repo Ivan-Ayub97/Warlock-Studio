@@ -7,21 +7,18 @@ import subprocess
 import sys
 import threading
 import time
-# GUI Imports
-import tkinter as tk
 import webbrowser
 import zipfile
 from datetime import datetime
 from tkinter import filedialog, messagebox
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import customtkinter as ctk
-# Hardware Info Imports
 import psutil
 import requests
 from packaging import version as pkg_version
 
-# Optional Imports Handling
+# Integración con Hardware (Opcional)
 try:
     import wmi
 except ImportError:
@@ -31,104 +28,172 @@ try:
 except ImportError:
     GPUtil = None
 
-# =============================================================================
-# CONSTANTES Y TEMA VISUAL (WARLOCK IDENTITY)
-# =============================================================================
+# -----------------------------------------------------------------------------
+# IMPORTAR TEMA Y PUENTE DE COMPATIBILIDAD (FIX FINAL)
+# -----------------------------------------------------------------------------
+from warlock_theme import *
 
-CONFIG_FILE = "warlock_config.json"
-
-THEME = {
-    "bg_main": "#121212",        # Fondo principal muy oscuro
-    "bg_sidebar": "#1E1E1E",     # Fondo barra lateral
-    "card_bg": "#252525",        # Fondo de tarjetas
-    "card_hover": "#2F2F2F",     # Hover tarjetas
-    "text_main": "#FFFFFF",      # Texto blanco puro
-    "text_dim": "#A0A0A0",       # Texto secundario
-    "accent": "#E63946",         # Rojo Warlock Vibrante
-    "accent_hover": "#C92A35",   # Rojo oscuro hover
-    "gold": "#FDEF2F",           # Dorado (Highlights)
-    "success": "#00E676",        # Verde éxito
-    "error": "#CF6679",          # Rojo error
-    "border": "#333333",         # Bordes sutiles
-    "input_bg": "#151515"        # Fondo de inputs
+# --- THEME BRIDGE ---
+# Mapea los nombres que usa Preferences a los nombres que existen en WarlockTheme
+_aliases = {
+    "bg_sidebar": "widget_bg",
+    "bg_main": "bg",
+    "card_bg": "widget_bg",
+    "card_hover": "btn_hover",
+    "text_dim": "text_sec",
+    "input_bg": "entry_bg",
+    "gold": "accent",
+    "border": "widget_border"  # <--- AGREGADO: Esto soluciona tu error actual
 }
 
-FONTS = {
-    "header": ("Segoe UI", 24, "bold"),
-    "subheader": ("Segoe UI", 16, "bold"),
-    "label": ("Segoe UI", 12),
-    "label_bold": ("Segoe UI", 12, "bold"),
-    "small": ("Segoe UI", 10),
-    "mono": ("Consolas", 11)
-}
+# Aplicar los alias de forma segura
+for _new_key, _existing_key in _aliases.items():
+    if _new_key not in THEME:
+        # Si la clave original tampoco existe, usamos un gris oscuro por seguridad
+        THEME[_new_key] = THEME.get(_existing_key, "#333333")
+
+# Aseguramos compatibilidad inversa extra si el tema es muy antiguo
+if "info" not in THEME:
+    THEME["info"] = "#0277BD"
+if "success" not in THEME:
+    THEME["success"] = "#00C853"
+if "error" not in THEME:
+    THEME["error"] = "#B71C1C"
 
 # =============================================================================
-# GESTOR DE CONFIGURACIÓN (CENTRALIZADO)
+# UTILIDADES DE UI (TOOLTIPS)
+# =============================================================================
+
+
+class ToolTip:
+    """Muestra un mensaje flotante al pasar el mouse sobre un widget."""
+
+    def __init__(self, widget, text, delay=500):
+        self.widget = widget
+        self.text = text
+        self.delay = delay
+        self.id = None
+        self.tw = None
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.widget.bind("<ButtonPress>", self.leave)
+
+    def enter(self, event=None):
+        self.id = self.widget.after(self.delay, self.show)
+
+    def leave(self, event=None):
+        if self.id:
+            self.widget.after_cancel(self.id)
+            self.id = None
+        self.hide()
+
+    def show(self):
+        if self.tw:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x += self.widget.winfo_rootx() + 25
+        y += self.widget.winfo_rooty() + 20
+
+        self.tw = ctk.CTkToplevel(self.widget)
+        self.tw.wm_overrideredirect(True)
+        self.tw.wm_geometry(f"+{x}+{y}")
+
+        # Estilo del Tooltip
+        label = ctk.CTkLabel(
+            self.tw,
+            text=self.text,
+            justify='left',
+            bg_color="#2B2B2B",
+            fg_color="#2B2B2B",
+            text_color="#FFFFFF",
+            corner_radius=4,
+            font=("Segoe UI", 10),
+            padx=8, pady=4
+        )
+        label.pack()
+
+        # Borde sutil
+        frame = ctk.CTkFrame(self.tw, width=0, height=0,
+                             border_width=1, border_color="#555")
+        frame.pack()
+
+    def hide(self):
+        if self.tw:
+            self.tw.destroy()
+            self.tw = None
+
+# =============================================================================
+# GESTOR DE CONFIGURACIÓN (CENTRALIZADO & EXPANDIDO)
 # =============================================================================
 
 
 class ConfigManager:
-    # Configuración por defecto expandida
+    # Configuración Maestra con todas las opciones nuevas
     DEFAULT_CONFIG = {
-        # General
-        "app_theme": "Dark",
-        "ui_scaling": 1.0,
-        "window_opacity": 1.0,
+        # --- GENERAL ---
+        "app_theme": "Dark",            # Dark, Light, System
+        "ui_scaling": 1.0,              # 0.8 - 1.25
+        "window_opacity": 1.0,          # 0.5 - 1.0
         "keep_window_on_top": False,
         "check_updates_on_startup": True,
+        "start_minimized": False,       # Nuevo
+        "notifications_enabled": True,  # Nuevo
+        "play_sounds": True,            # Nuevo
 
-        # Rendimiento
+        # --- APARIENCIA AVANZADA ---
+        "corner_radius": 10,            # Nuevo: Redondez de ventanas
+        "font_size_offset": 0,          # Nuevo: Ajuste global de tamaño letra
+
+        # --- RENDIMIENTO ---
         "process_priority": "Normal",
-        "onnx_provider_preference": "Auto",  # Auto, CUDA, DirectML, CPU
+        "onnx_provider_preference": "Auto",
         "auto_close_on_finish": False,
-        "max_cpu_threads": 0,  # 0 = Auto
+        "max_cpu_threads": 0,           # 0 = Auto
+        "gpu_memory_limit": 0,          # 0 = No limit (Nuevo)
 
-        # Integraciones (Rutas manuales)
+        # --- SALIDA Y ARCHIVOS (NUEVO) ---
+        "default_output_dir": "",       # Vacío = Carpeta del proyecto
+        "filename_pattern": "Warlock_Output_{date}_{time}",  # Patrón de nombre
+        "auto_save_logs": True,
+        "backup_count": 5,
+
+        # --- RUTAS MANUALES ---
         "custom_ffmpeg_path": "",
         "custom_exiftool_path": "",
 
-        # Logs
+        # --- DEBUG ---
         "extended_logging": False
     }
 
     @staticmethod
     def get_base_path():
-        """Obtiene la ruta base de instalación (funciona en .py y .exe)."""
         if getattr(sys, 'frozen', False):
-            # Si es un ejecutable (PyInstaller), usa la carpeta del .exe
             return os.path.dirname(sys.executable)
         else:
-            # Si es script, usa la carpeta del script
             return os.path.dirname(os.path.abspath(__file__))
 
     @staticmethod
     def get_assets_path():
-        """Obtiene la ruta de assets compatible con PyInstaller --onefile"""
         base_dir = getattr(sys, '_MEIPASS', os.path.dirname(
             os.path.abspath(__file__)))
         return os.path.join(base_dir, "Assets")
 
     @staticmethod
     def get_config_path():
-        return os.path.join(ConfigManager.get_base_path(), CONFIG_FILE)
+        return os.path.join(ConfigManager.get_base_path(), "warlock_config.json")
 
     @staticmethod
     def load_config() -> Dict[str, Any]:
         path = ConfigManager.get_config_path()
         config = ConfigManager.DEFAULT_CONFIG.copy()
-
         if os.path.exists(path):
             try:
                 with open(path, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                    # Merge seguro
                     for k, v in data.items():
-                        # Permitimos nuevas claves si el usuario edita manualmente,
-                        # pero priorizamos la estructura existente
                         config[k] = v
             except Exception as e:
-                print(f"[Config] Error loading config: {e}")
-
+                print(f"[Config] Warn: {e}")
         return config
 
     @staticmethod
@@ -138,7 +203,7 @@ class ConfigManager:
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(config_data, f, indent=4)
         except Exception as e:
-            print(f"[Config] Error saving config: {e}")
+            print(f"[Config] Error saving: {e}")
 
     @staticmethod
     def reset_config():
@@ -146,7 +211,7 @@ class ConfigManager:
         return ConfigManager.DEFAULT_CONFIG.copy()
 
 # =============================================================================
-# HARDWARE SCANNER (NEO ENGINE OPTIMIZED)
+# HARDWARE SCANNER
 # =============================================================================
 
 
@@ -156,34 +221,23 @@ class HardwareScanner:
         info = {
             "os": f"{platform.system()} {platform.release()}",
             "cpu": platform.processor(),
-            "ram_total": 0,
-            "ram_used": 0,
-            "gpu": "Unknown",
-            "vram": 0
+            "ram_total": 0, "ram_used": 0,
+            "gpu": "Integrated / Unknown", "vram": 0
         }
-
         try:
-            # RAM
             mem = psutil.virtual_memory()
             info["ram_total"] = round(mem.total / (1024**3), 2)
             info["ram_used"] = round(mem.used / (1024**3), 2)
 
-            # CPU Name Cleanup
             if wmi and platform.system() == "Windows":
                 try:
                     c = wmi.WMI()
-                    cpu = c.Win32_Processor()[0]
-                    info["cpu"] = cpu.Name.strip()
+                    info["cpu"] = c.Win32_Processor()[0].Name.strip()
                 except:
                     pass
-            elif platform.system() == "Darwin":
-                info["cpu"] = subprocess.check_output(
-                    ["sysctl", "-n", "machdep.cpu.brand_string"]).strip().decode('utf-8')
 
-            # GPU (Prioridad: NVIDIA > AMD/Intel Dedicada > Integrada)
+            # Detección GPU mejorada
             gpu_found = False
-
-            # 1. GPUtil (NVIDIA)
             if GPUtil:
                 try:
                     gpus = GPUtil.getGPUs()
@@ -194,34 +248,26 @@ class HardwareScanner:
                 except:
                     pass
 
-            # 2. WMI (Fallback Windows)
             if not gpu_found and wmi and platform.system() == "Windows":
                 try:
                     c = wmi.WMI()
                     best_vram = -1
                     for g in c.Win32_VideoController():
-                        v_bytes = 0
                         try:
-                            # Algunas implementaciones WMI devuelven enteros negativos para valores altos
-                            v_bytes = int(g.AdapterRAM)
+                            v_bytes = int(g.AdapterRAM) if g.AdapterRAM else 0
                             if v_bytes < 0:
                                 v_bytes += 2**32
+                            v_gb = round(v_bytes / (1024**3), 2)
+                            if v_gb > best_vram:
+                                best_vram = v_gb
+                                info["gpu"] = g.Name
+                                info["vram"] = v_gb
                         except:
                             continue
-
-                        v_gb = round(v_bytes / (1024**3), 2)
-                        # Buscamos la GPU con más VRAM (generalmente la dedicada)
-                        if v_gb > best_vram:
-                            best_vram = v_gb
-                            info["gpu"] = g.Name
-                            info["vram"] = v_gb
                 except:
                     pass
-
         except Exception as e:
-            print(f"Hardware scan error: {e}")
-            info["os"] = f"Error scanning: {str(e)}"
-
+            info["os"] = f"Error: {e}"
         return info
 
 # =============================================================================
@@ -240,8 +286,6 @@ class UpdateManager:
             if r.status_code == 200:
                 data = r.json()
                 tag = data.get("tag_name", "v0.0").lstrip("v")
-
-                # Comparación semántica de versiones
                 if pkg_version.parse(tag) > pkg_version.parse(self.current):
                     return True, tag, data.get("html_url"), data.get("body")
             return False, self.current, None, None
@@ -249,7 +293,7 @@ class UpdateManager:
             return None, str(e), None, None
 
 # =============================================================================
-# COMPONENTES UI (WIDGETS)
+# COMPONENTES UI
 # =============================================================================
 
 
@@ -258,26 +302,36 @@ class SidebarButton(ctk.CTkButton):
         color = THEME["card_bg"] if is_selected else "transparent"
         text_col = THEME["accent"] if is_selected else THEME["text_dim"]
 
-        super().__init__(master, text=f"  {icon_char}   {text}", anchor="w",
-                         fg_color=color, hover_color=THEME["card_hover"],
-                         text_color=text_col, height=45, corner_radius=8,
-                         font=FONTS["label_bold"], command=command)
+        super().__init__(
+            master, text=f"  {icon_char}   {text}", anchor="w",
+            fg_color=color, hover_color=THEME["card_hover"],
+            text_color=text_col, height=45, corner_radius=6,
+            font=("Segoe UI", 12, "bold"), command=command,
+            border_width=0
+        )
 
 
 class SettingRow(ctk.CTkFrame):
-    def __init__(self, master, title, desc=None):
+    def __init__(self, master, title, desc=None, tooltip_text=None):
         super().__init__(master, fg_color="transparent")
-        self.pack(fill="x", pady=10)
+        self.pack(fill="x", pady=8)
 
         lbl_frame = ctk.CTkFrame(self, fg_color="transparent")
-        lbl_frame.pack(side="left", fill="both", expand=True)
+        lbl_frame.pack(side="left", fill="both", expand=True, padx=(5, 0))
 
-        ctk.CTkLabel(lbl_frame, text=title, font=FONTS["label_bold"],
-                     text_color=THEME["text_main"], anchor="w").pack(fill="x")
+        t_lbl = ctk.CTkLabel(lbl_frame, text=title, font=("Segoe UI", 12, "bold"),
+                             text_color=THEME["text_main"], anchor="w")
+        t_lbl.pack(fill="x")
+
+        if tooltip_text:
+            ToolTip(t_lbl, tooltip_text)
 
         if desc:
-            ctk.CTkLabel(lbl_frame, text=desc, font=FONTS["small"],
-                         text_color=THEME["text_dim"], anchor="w").pack(fill="x")
+            d_lbl = ctk.CTkLabel(lbl_frame, text=desc, font=("Segoe UI", 10),
+                                 text_color=THEME["text_dim"], anchor="w")
+            d_lbl.pack(fill="x")
+            if tooltip_text and not getattr(t_lbl, "tw", None):
+                ToolTip(d_lbl, tooltip_text)
 
         self.control_area = ctk.CTkFrame(self, fg_color="transparent")
         self.control_area.pack(side="right")
@@ -294,455 +348,352 @@ class PreferencesWindow(ctk.CTkToplevel):
     def __init__(self, master, version, owner, repo):
         super().__init__(master)
 
-        # Configuración Ventana
-        self.title("Preferences")
-        self.geometry("750x500")
+        # Config Inicial
+        self.title("Warlock Preferences")
+        self.geometry("850x600")
         self.minsize(850, 600)
         self.configure(fg_color=THEME["bg_main"])
 
-        # Intentar centrar la ventana respecto al padre
-        try:
-            self.after(10, self.lift)
-            self.after(10, self.focus_force)
-        except:
-            pass
-
-        # Datos
+        # Cargar datos
         self.config = ConfigManager.load_config()
         self.version = version
         self.owner = owner
         self.repo = repo
-        self.cached_hw_info = None  # Cache para no escanear constantemente
+        self.cached_hw_info = None
 
-        # Layout Principal (Grid 2 columnas: Sidebar | Content)
+        # Grid Principal
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
         self.setup_sidebar()
         self.setup_content_area()
-
-        # Cargar pestaña inicial
         self.show_page("general")
 
-        # Icono (Intentar cargar)
-        try:
-            assets = ConfigManager.get_assets_path()
-            icon_path = os.path.join(assets, "logo.ico")
-            if os.path.exists(icon_path):
-                self.iconbitmap(icon_path)
-        except:
-            pass
+        # Intentar poner al frente
+        self.after(200, lambda: self.attributes('-topmost', True))
+        self.lift()
+        self.focus_force()
 
     def setup_sidebar(self):
         self.sidebar = ctk.CTkFrame(
-            self, width=240, corner_radius=0, fg_color=THEME["bg_sidebar"])
+            self, width=250, corner_radius=0, fg_color=THEME["bg_sidebar"])
         self.sidebar.grid(row=0, column=0, sticky="nsew")
         self.sidebar.grid_propagate(False)
 
-        # Logo / Título
-        title_frame = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        title_frame.pack(pady=30, padx=20, fill="x")
-
-        ctk.CTkLabel(title_frame, text="Warlock-Studio", font=("Impact", 28),
+        # Header Sidebar
+        head = ctk.CTkFrame(self.sidebar, fg_color="transparent")
+        head.pack(pady=30, padx=20, fill="x")
+        ctk.CTkLabel(head, text="PREFERENCES", font=("Impact", 24),
                      text_color=THEME["accent"]).pack(anchor="w")
-        ctk.CTkLabel(title_frame, text="CONFIG", font=("Arial", 10, "bold"),
-                     text_color=THEME["text_dim"]).pack(anchor="w", pady=(0, 10))
+        ctk.CTkLabel(head, text="Warlock Studio Control Center", font=(
+            "Segoe UI", 10), text_color=THEME["text_dim"]).pack(anchor="w")
 
-        # Separador
-        ctk.CTkFrame(self.sidebar, height=2, fg_color=THEME["border"]).pack(
-            fill="x", padx=20, pady=(0, 20))
-
-        # Botones de Navegación
+        # Botones Navegación
         self.nav_btns = {}
         pages = [
-            ("general", "General", "⚙"),
-            ("performance", "Performance & AI", "🚀"),
-            ("integrations", "Paths & Tools", "🔗"),
-            ("logs", "Logs & Maintenance", "🛠"),
+            ("general", "General & UI", "⚙"),
+            ("output", "Output & Files", "📂"),
+            ("performance", "Performance / AI", "🚀"),
+            ("integrations", "Tools & Paths", "🔗"),
+            ("logs", "Maintenance", "🛠"),
             ("about", "About & Update", "ℹ")
         ]
 
         for pid, text, icon in pages:
             btn = SidebarButton(self.sidebar, text, icon,
                                 lambda p=pid: self.show_page(p))
-            btn.pack(fill="x", padx=15, pady=5)
+            btn.pack(fill="x", padx=15, pady=4)
             self.nav_btns[pid] = btn
-
-        # Footer Sidebar
-        footer = ctk.CTkFrame(self.sidebar, fg_color="transparent")
-        footer.pack(side="bottom", pady=20, fill="x")
-        ctk.CTkLabel(footer, text=f"v{self.version}", font=FONTS["small"],
-                     text_color=THEME["text_dim"]).pack()
 
     def setup_content_area(self):
         self.content = ctk.CTkScrollableFrame(
             self, fg_color="transparent", corner_radius=0)
-        self.content.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
+        self.content.grid(row=0, column=1, sticky="nsew", padx=25, pady=25)
+
+        # Scrollbar styling hack
+        try:
+            self.content._scrollbar.configure(
+                width=12, fg_color=THEME["bg_main"])
+        except:
+            pass
 
     def show_page(self, page_id):
-        # Actualizar estado botones sidebar
+        # Actualizar estilo botones
         for pid, btn in self.nav_btns.items():
-            is_active = (pid == page_id)
-            btn.configure(fg_color=THEME["card_bg"] if is_active else "transparent",
-                          text_color=THEME["accent"] if is_active else THEME["text_dim"])
+            btn.configure(fg_color=THEME["card_bg"] if pid == page_id else "transparent",
+                          text_color=THEME["accent"] if pid == page_id else THEME["text_dim"])
 
-        # Limpiar contenido
+        # Limpiar frame
         for widget in self.content.winfo_children():
             widget.destroy()
 
-        # Construir página
-        if page_id == "general":
-            self.build_general()
-        elif page_id == "performance":
-            self.build_performance()
-        elif page_id == "integrations":
-            self.build_integrations()
-        elif page_id == "logs":
-            self.build_logs()
-        elif page_id == "about":
-            self.build_about()
-
-    # =========================================================================
-    # CONSTRUCTORES DE PÁGINAS
-    # =========================================================================
+        # Renderizar
+        method = getattr(self, f"build_{page_id}", None)
+        if method:
+            # Animación simple de entrada (fade in simulado por orden de pack)
+            title = page_id.replace("_", " ").title()
+            if page_id == "output":
+                title = "Output Management"
+            self.header(title)
+            method()
 
     def header(self, text):
-        ctk.CTkLabel(self.content, text=text, font=FONTS["header"],
-                     text_color=THEME["text_main"]).pack(anchor="w", pady=(0, 20))
+        ctk.CTkLabel(self.content, text=text, font=("Segoe UI", 26, "bold"),
+                     text_color=THEME["text_main"]).pack(anchor="w", pady=(0, 25))
+        ctk.CTkFrame(self.content, height=2, fg_color=THEME["border"]).pack(
+            fill="x", pady=(0, 20))
+
+    # =========================================================================
+    # BUILDERS (PÁGINAS)
+    # =========================================================================
 
     def build_general(self):
-        self.header("General Settings")
-
-        # UI Appearance
-        grp = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
-        grp.pack(fill="x", pady=10, padx=5)
+        # --- SECCIÓN VISUAL ---
+        self.sub_header("Visual Appearance")
+        grp_vis = self.create_group()
 
         # Theme
-        r1 = SettingRow(grp, "App Theme",
-                        "Select the visual style of the application")
-        om = ctk.CTkOptionMenu(grp, values=["Dark", "Light", "System"],
-                               command=lambda v: self.save(
-                                   "app_theme", v, lambda: ctk.set_appearance_mode(v)),
-                               fg_color=THEME["input_bg"], button_color=THEME["accent"], width=150)
-        om.set(self.config.get("app_theme", "Dark"))
-        r1.add_widget(om)
+        r_theme = SettingRow(grp_vis, "Application Theme",
+                             "Light or Dark mode preference")
+        om_theme = ctk.CTkOptionMenu(grp_vis, values=["Dark", "Light", "System"],
+                                     command=lambda v: self.save(
+                                         "app_theme", v, lambda: ctk.set_appearance_mode(v)),
+                                     fg_color=THEME["input_bg"], button_color=THEME["accent"], width=140)
+        om_theme.set(self.config.get("app_theme", "Dark"))
+        r_theme.add_widget(om_theme)
 
-        # UI Scaling
-        r_scale = SettingRow(
-            grp, "UI Scaling", "Adjust the size of the interface elements")
-        om_scale = ctk.CTkOptionMenu(grp, values=["80%", "90%", "100%", "110%", "125%"],
-                                     command=self.set_ui_scaling,
-                                     fg_color=THEME["input_bg"], button_color=THEME["accent"], width=150)
-        current_scale = f"{int(self.config.get('ui_scaling', 1.0) * 100)}%"
-        om_scale.set(current_scale)
-        r_scale.add_widget(om_scale)
+        # Corner Radius
+        r_rad = SettingRow(grp_vis, "Window Corner Radius",
+                           "Roundness of interface elements (Restart required)")
+        sl_rad = ctk.CTkSlider(grp_vis, from_=0, to=20, number_of_steps=20,
+                               command=lambda v: self.save_debounced(
+                                   "corner_radius", int(v)),
+                               progress_color=THEME["accent"], button_color=THEME["gold"])
+        sl_rad.set(self.config.get("corner_radius", 10))
+        r_rad.add_widget(sl_rad)
 
-        # Opacity
-        r2 = SettingRow(grp, "Window Opacity",
-                        "Adjust transparency (0.5 - 1.0)")
+        # Opacidad
+        r_op = SettingRow(grp_vis, "Window Opacity",
+                          "Transparency level of the main window")
+        sl_op = ctk.CTkSlider(grp_vis, from_=0.5, to=1.0, number_of_steps=50,
+                              command=lambda v: self.update_opacity(v),
+                              progress_color=THEME["accent"], button_color=THEME["gold"])
+        sl_op.set(self.config.get("window_opacity", 1.0))
+        sl_op.bind("<ButtonRelease-1>",
+                   lambda e: ConfigManager.save_config(self.config))
+        r_op.add_widget(sl_op)
 
-        def update_opacity(val):
-            # Convertir a float porque el slider devuelve float pero a veces muchos decimales
-            v = float(val)
-            self.master.attributes("-alpha", v)  # Aplica al padre
-            self.attributes("-alpha", v)  # Aplica a esta ventana también
-            self.config["window_opacity"] = v
+        # Scaling
+        r_sca = SettingRow(grp_vis, "UI Scaling",
+                           "Increase size for 4K monitors")
+        om_sca = ctk.CTkOptionMenu(grp_vis, values=["80%", "90%", "100%", "110%", "125%", "150%"],
+                                   command=self.set_ui_scaling,
+                                   fg_color=THEME["input_bg"], button_color=THEME["accent"], width=140)
+        om_sca.set(f"{int(self.config.get('ui_scaling', 1.0)*100)}%")
+        r_sca.add_widget(om_sca)
 
-        sl = ctk.CTkSlider(grp, from_=0.5, to=1.0, number_of_steps=50,
-                           command=update_opacity,
-                           progress_color=THEME["accent"], button_color=THEME["gold"])
-        sl.set(self.config.get("window_opacity", 1.0))
-        # Bind release para guardar configuración y no saturar disco
-        sl.bind("<ButtonRelease-1>",
-                lambda event: ConfigManager.save_config(self.config))
-        r2.add_widget(sl)
+        # --- SECCIÓN COMPORTAMIENTO ---
+        self.sub_header("Behavior & System", pady=20)
+        grp_beh = self.create_group()
 
-        # Toggles
-        # Usamos winfo_toplevel() para asegurar que obtenemos la ventana raíz
-        root_win = self.master.winfo_toplevel()
+        self.add_switch(grp_beh, "Always on Top", "keep_window_on_top",
+                        cmd=lambda v: self.master.winfo_toplevel().attributes("-topmost", v))
+        self.add_switch(grp_beh, "Notifications Enabled",
+                        "notifications_enabled", "Show toast messages on finish")
+        self.add_switch(grp_beh, "Play Sounds", "play_sounds",
+                        "Audio feedback for actions")
+        self.add_switch(grp_beh, "Check Updates on Startup",
+                        "check_updates_on_startup")
 
-        r3 = SettingRow(grp, "Always on Top",
-                        "Keep the main window above others")
-        sw1 = ctk.CTkSwitch(grp, text="", command=lambda: self.save_bool("keep_window_on_top", sw1, lambda: root_win.attributes("-topmost", sw1.get())),
-                            progress_color=THEME["accent"], button_color="white")
-        if self.config.get("keep_window_on_top", False):
-            sw1.select()
-        r3.add_widget(sw1)
+    def build_output(self):
+        # --- GESTIÓN DE ARCHIVOS ---
+        self.sub_header("File Management")
+        grp = self.create_group()
 
-        r4 = SettingRow(grp, "Check Updates on Startup",
-                        "Automatically check Github for new versions")
-        sw2 = ctk.CTkSwitch(grp, text="", command=lambda: self.save_bool("check_updates_on_startup", sw2),
-                            progress_color=THEME["accent"])
-        if self.config.get("check_updates_on_startup", True):
-            sw2.select()
-        r4.add_widget(sw2)
+        # Default Directory
+        ctk.CTkLabel(grp, text="Default Output Directory", font=(
+            "Segoe UI", 12, "bold")).pack(anchor="w", padx=10, pady=(10, 0))
 
-        r5 = SettingRow(grp, "Auto-Close on Finish",
-                        "Close app automatically when processing ends")
-        sw3 = ctk.CTkSwitch(grp, text="", command=lambda: self.save_bool("auto_close_on_finish", sw3),
-                            progress_color=THEME["accent"])
-        if self.config.get("auto_close_on_finish", False):
-            sw3.select()
-        r5.add_widget(sw3)
+        dir_row = ctk.CTkFrame(grp, fg_color="transparent")
+        dir_row.pack(fill="x", padx=10, pady=5)
 
-    def set_ui_scaling(self, value):
-        scale_map = {"80%": 0.8, "90%": 0.9,
-                     "100%": 1.0, "110%": 1.1, "125%": 1.2}
-        new_scale = scale_map.get(value, 1.0)
-        ctk.set_widget_scaling(new_scale)
-        self.save("ui_scaling", new_scale)
+        self.ent_dir = ctk.CTkEntry(
+            dir_row, fg_color=THEME["input_bg"], border_color=THEME["border"])
+        self.ent_dir.pack(side="left", fill="x", expand=True, padx=(0, 10))
+        self.ent_dir.insert(0, self.config.get("default_output_dir", ""))
+        self.ent_dir.configure(state="readonly")
+
+        ctk.CTkButton(dir_row, text="Browse...", width=100, fg_color=THEME["accent"], text_color="#000",
+                      command=self.browse_output_dir).pack(side="right")
+
+        ctk.CTkButton(dir_row, text="Reset", width=60, fg_color=THEME["bg_main"],
+                      command=lambda: self.save_dir("")).pack(side="right", padx=5)
+
+        # Filename Pattern
+        r_pat = SettingRow(grp, "Filename Pattern",
+                           "Use {date}, {time}, {original} as placeholders")
+        ent_pat = ctk.CTkEntry(
+            grp, fg_color=THEME["input_bg"], border_color=THEME["border"], width=250)
+        ent_pat.insert(0, self.config.get(
+            "filename_pattern", "Warlock_{date}_{time}"))
+        ent_pat.bind("<FocusOut>", lambda e: self.save(
+            "filename_pattern", ent_pat.get()))
+        r_pat.add_widget(ent_pat)
+
+        # Options
+        self.add_switch(grp, "Auto-Save Processing Logs",
+                        "auto_save_logs", "Save a .txt log with each export")
 
     def build_performance(self):
-        self.header("Performance & AI")
-
-        # Hardware Info Card
+        # --- HARDWARE INFO ---
         self.hw_frame = ctk.CTkFrame(
             self.content, fg_color=THEME["card_bg"], border_color=THEME["accent"], border_width=1)
         self.hw_frame.pack(fill="x", pady=(0, 20))
 
-        # Loading Label
-        self.lbl_hw_loading = ctk.CTkLabel(
-            self.hw_frame, text="Scanning Hardware...", text_color=THEME["text_dim"])
-        self.lbl_hw_loading.pack(pady=20)
-
-        # Iniciar scan en hilo para no congelar
         if self.cached_hw_info:
             self._display_hw_info(self.cached_hw_info)
         else:
+            ctk.CTkLabel(self.hw_frame, text="Scanning System Hardware...",
+                         text_color=THEME["accent"]).pack(pady=20)
             threading.Thread(target=self._run_hw_scan, daemon=True).start()
 
-        # Settings
-        grp = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
-        grp.pack(fill="x")
+        # --- AI SETTINGS ---
+        self.sub_header("Artificial Intelligence Engine")
+        grp = self.create_group()
 
-        # ONNX Provider
-        r1 = SettingRow(grp, "ONNX Provider",
-                        "Force specific AI execution backend (Restart Required)")
-        om1 = ctk.CTkOptionMenu(grp, values=["Auto", "CUDA", "DirectML", "CPU"],
-                                command=lambda v: self.save(
-                                    "onnx_provider_preference", v),
-                                fg_color=THEME["input_bg"], button_color=THEME["accent"])
-        om1.set(self.config.get("onnx_provider_preference", "Auto"))
-        r1.add_widget(om1)
+        # Provider
+        r_prov = SettingRow(grp, "Inference Backend", "Hardware acceleration provider (Requires Restart)",
+                            tooltip_text="CUDA: NVIDIA GPUs (Fastest)\nDirectML: AMD/Intel/NVIDIA (Compatible)\nCPU: Slowest, universal compatibility.")
+        om_prov = ctk.CTkOptionMenu(grp, values=["Auto", "CUDA", "DirectML", "CPU", "OpenVINO"],
+                                    command=lambda v: self.save(
+                                        "onnx_provider_preference", v),
+                                    fg_color=THEME["input_bg"], button_color=THEME["accent"])
+        om_prov.set(self.config.get("onnx_provider_preference", "Auto"))
+        r_prov.add_widget(om_prov)
 
-        # Process Priority
-        r2 = SettingRow(grp, "Process Priority",
-                        "System priority for FFmpeg and AI threads")
-        om2 = ctk.CTkOptionMenu(grp, values=["Normal", "Above Normal", "High"],
-                                command=lambda v: self.save(
-                                    "process_priority", v),
-                                fg_color=THEME["input_bg"], button_color=THEME["accent"])
-        om2.set(self.config.get("process_priority", "Normal"))
-        r2.add_widget(om2)
+        # Priority
+        r_prio = SettingRow(grp, "Process Priority",
+                            "OS CPU scheduling priority")
+        om_prio = ctk.CTkOptionMenu(grp, values=["Normal", "Above Normal", "High", "Realtime"],
+                                    command=lambda v: self.save(
+                                        "process_priority", v),
+                                    fg_color=THEME["input_bg"], button_color=THEME["accent"])
+        om_prio.set(self.config.get("process_priority", "Normal"))
+        r_prio.add_widget(om_prio)
 
-    def _run_hw_scan(self):
-        self.cached_hw_info = HardwareScanner.get_system_info()
-        # Actualizar UI en main thread
-        self.after(0, lambda: self._display_hw_info(self.cached_hw_info))
-
-    def _display_hw_info(self, hw):
-
-        # Seguridad: evitar error cuando el frame ya no existe
-        if not hasattr(self, "hw_frame"):
-            return
-
-        if not str(self.hw_frame) or not self.hw_frame.winfo_exists():
-            return
-
-        for w in self.hw_frame.winfo_children():
-            w.destroy()
-
-        lbl_grid = ctk.CTkFrame(self.hw_frame, fg_color="transparent")
-        lbl_grid.pack(padx=20, pady=15, fill="x")
-
-        items = [
-            ("OS:", hw['os']),
-            ("CPU Model:", hw['cpu']),
-            ("RAM Usage:", f"{hw['ram_used']} GB / {hw['ram_total']} GB"),
-            ("GPU Model:", hw['gpu']),
-            ("VRAM:", f"{hw['vram']} GB")
-        ]
-
-        for i, (k, v) in enumerate(items):
-            ctk.CTkLabel(lbl_grid, text=k, font=FONTS["label_bold"], text_color=THEME["text_dim"]).grid(
-                row=i//2, column=(i % 2)*2, sticky="w", padx=(0, 10), pady=2)
-            ctk.CTkLabel(lbl_grid, text=v, font=FONTS["label"], text_color=THEME["text_main"]).grid(
-                row=i//2, column=(i % 2)*2+1, sticky="w", padx=(0, 40), pady=2)
+        self.add_switch(grp, "Auto-Close After Task", "auto_close_on_finish")
 
     def build_integrations(self):
-        self.header("Paths & Tools")
+        ctk.CTkLabel(self.content, text="External Tools Configuration", font=(
+            "Segoe UI", 12), text_color=THEME["text_dim"]).pack(anchor="w")
 
-        desc = ctk.CTkLabel(self.content, text="Manually configure paths for external tools if auto-detection fails. Leave empty to use built-in/default paths.",
-                            text_color=THEME["text_dim"], font=FONTS["small"], wraplength=500, justify="left")
-        desc.pack(anchor="w", pady=(0, 20))
-
-        grp = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
-        grp.pack(fill="x")
-
-        # FFmpeg
+        grp = self.create_group()
         self.create_path_selector(
-            grp, "FFmpeg Executable", "custom_ffmpeg_path", "ffmpeg.exe")
-
-        # ExifTool
+            grp, "FFmpeg Binary", "custom_ffmpeg_path", "ffmpeg.exe")
         self.create_path_selector(
-            grp, "ExifTool Executable", "custom_exiftool_path", "exiftool.exe")
-
-    def create_path_selector(self, parent, title, config_key, file_filter):
-        f = ctk.CTkFrame(parent, fg_color="transparent")
-        f.pack(fill="x", padx=10, pady=10)
-
-        ctk.CTkLabel(f, text=title, font=FONTS["label_bold"]).pack(anchor="w")
-
-        row = ctk.CTkFrame(f, fg_color="transparent")
-        row.pack(fill="x", pady=(5, 0))
-
-        entry = ctk.CTkEntry(
-            row, fg_color=THEME["input_bg"], border_color=THEME["border"])
-        entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
-
-        current_val = self.config.get(config_key, "")
-        entry.insert(0, current_val)
-
-        # Validación visual simple
-        if current_val and not os.path.exists(current_val):
-            entry.configure(text_color=THEME["error"])
-
-        def pick():
-            path = filedialog.askopenfilename(
-                filetypes=[("Executables", "*.exe"), ("All Files", "*.*")])
-            if path:
-                entry.delete(0, "end")
-                entry.insert(0, path)
-                entry.configure(text_color=THEME["text_main"])
-                self.save(config_key, path)
-
-        def clear():
-            entry.delete(0, "end")
-            self.save(config_key, "")
-            entry.configure(text_color=THEME["text_main"])
-
-        btn_pick = ctk.CTkButton(
-            row, text="Browse", width=80, fg_color=THEME["border"], command=pick)
-        btn_pick.pack(side="left", padx=5)
-
-        btn_clear = ctk.CTkButton(
-            row, text="✖", width=30, fg_color=THEME["bg_main"], hover_color=THEME["accent"], command=clear)
-        btn_clear.pack(side="left", padx=(5, 0))
+            grp, "ExifTool Binary", "custom_exiftool_path", "exiftool.exe")
 
     def build_logs(self):
-        self.header("Logs & Maintenance")
+        # --- MAINTENANCE ---
+        grp = self.create_group()
 
-        grp = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
-        grp.pack(fill="x", pady=10)
+        # Tools
+        btn_row = ctk.CTkFrame(grp, fg_color="transparent")
+        btn_row.pack(fill="x", padx=10, pady=10)
 
-        # Actions Row
-        act_row = ctk.CTkFrame(grp, fg_color="transparent")
-        act_row.pack(fill="x", padx=10, pady=10)
+        self.create_tool_btn(btn_row, "Open Logs Folder",
+                             self.open_logs_dir, THEME["border"])
+        self.create_tool_btn(btn_row, "Clean Temp Files",
+                             self.clean_temp_files, THEME["info"])
+        self.create_tool_btn(btn_row, "Export Debug Zip",
+                             self.export_debug_info, THEME["accent"], text_col="#000")
 
-        ctk.CTkButton(act_row, text="Open Logs Folder", fg_color=THEME["border"],
-                      command=self.open_logs_dir).pack(side="left", padx=5)
+        # Reset Danger Zone
+        ctk.CTkFrame(grp, height=1, fg_color="#444").pack(
+            fill="x", pady=15, padx=10)
 
-        ctk.CTkButton(act_row, text="Clean Temp Files", fg_color=THEME["accent"],
-                      command=self.clean_temp_files).pack(side="left", padx=5)
-
-        ctk.CTkButton(act_row, text="Export Debug Zip", fg_color="#444",
-                      command=self.export_debug_info).pack(side="left", padx=5)
-
-        ctk.CTkButton(act_row, text="Reset Config", fg_color="transparent", border_color="#FF0000", border_width=1, text_color="#FF0000",
-                      command=self.reset_all).pack(side="right", padx=5)
+        dz_row = ctk.CTkFrame(grp, fg_color="transparent")
+        dz_row.pack(fill="x", padx=10, pady=(0, 10))
+        ctk.CTkLabel(dz_row, text="Danger Zone:", text_color=THEME["error"], font=(
+            "Segoe UI", 12, "bold")).pack(side="left")
+        ctk.CTkButton(dz_row, text="Factory Reset", fg_color="transparent", border_color=THEME["error"],
+                      border_width=1, text_color=THEME["error"], hover_color=THEME["error"],
+                      command=self.reset_all).pack(side="right")
 
         # Log Viewer
-        ctk.CTkLabel(grp, text="Latest Log Preview:",
-                     font=FONTS["label_bold"]).pack(anchor="w", padx=10, pady=(10, 0))
-
+        ctk.CTkLabel(self.content, text="Latest Log Preview", font=(
+            "Segoe UI", 14, "bold"), pady=10).pack(anchor="w")
         log_box = ctk.CTkTextbox(
-            grp, height=300, fg_color=THEME["input_bg"], font=FONTS["mono"])
-        log_box.pack(fill="x", padx=10, pady=10)
-
-        # Load Log Content
-        base = ConfigManager.get_base_path()
-        log_folder_pattern = os.path.join(base, "*_Logs")
-        log_folders = glob.glob(log_folder_pattern)
-
-        if log_folders:
-            log_folder = log_folders[0]
-            log_path_pattern = os.path.join(log_folder, "*.log")
-            files = glob.glob(log_path_pattern)
-
-            if files:
-                latest = max(files, key=os.path.getmtime)
-                try:
-                    with open(latest, "r", encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        log_box.insert("0.0", content)
-                        log_box.see("end")  # Auto scroll al final
-                except Exception as e:
-                    log_box.insert("0.0", f"Error reading log file: {e}")
-            else:
-                log_box.insert(
-                    "0.0", "Log folder found, but no .log files present.")
-        else:
-            log_box.insert("0.0", "No logs folder found.")
+            self.content, height=250, fg_color="#111", text_color="#DDD", font=("Consolas", 10))
+        log_box.pack(fill="x")
+        self.load_log_preview(log_box)
 
     def build_about(self):
-        self.header("About")
-
         card = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
         card.pack(fill="x", pady=10)
 
-        ctk.CTkLabel(card, text="Warlock-Studio", font=("Impact", 48),
-                     text_color=THEME["accent"]).pack(pady=(30, 5))
-        ctk.CTkLabel(
-            card, text=f"Version {self.version}", font=FONTS["label_bold"]).pack()
-        ctk.CTkLabel(card, text="Developed by Ivan-Ayub97",
-                     font=FONTS["small"], text_color=THEME["text_dim"]).pack(pady=(0, 20))
+        # Hero
+        ctk.CTkLabel(card, text="WARLOCK STUDIO", font=(
+            "Impact", 42), text_color=THEME["accent"]).pack(pady=(30, 0))
+        ctk.CTkLabel(card, text="Professional Media Suite", font=(
+            "Segoe UI", 12, "bold"), text_color=THEME["text_main"]).pack()
+        ctk.CTkLabel(card, text=f"v{self.version} | Build 2024", font=(
+            "Consolas", 10), text_color=THEME["text_dim"]).pack(pady=5)
 
-        # Buttons
-        btn_row = ctk.CTkFrame(card, fg_color="transparent")
-        btn_row.pack(pady=20)
+        ctk.CTkButton(card, text="Visit GitHub", fg_color="#24292e", hover_color="#000", width=120,
+                      command=lambda: webbrowser.open(f"https://github.com/{self.owner}/{self.repo}")).pack(pady=20)
 
-        ctk.CTkButton(btn_row, text="GitHub Repository", fg_color="#333", width=140,
-                      command=lambda: webbrowser.open(f"https://github.com/{self.owner}/{self.repo}")).pack(side="left", padx=10)
-
-        # License View
-        lbl_lic = ctk.CTkLabel(card, text="LICENSE AGREEMENT",
-                               font=FONTS["label_bold"], text_color=THEME["text_dim"])
-        lbl_lic.pack(pady=(10, 5))
-
-        # Intento robusto de cargar licencia
-        l_txt = "License file not found."
-        try:
-            # Opción 1: Assets/license.txt
-            assets_path = ConfigManager.get_assets_path()
-            lic_path = os.path.join(assets_path, "license.txt")
-            if not os.path.exists(lic_path):
-                # Opción 2: Raíz/license.txt
-                lic_path = os.path.join(
-                    ConfigManager.get_base_path(), "license.txt")
-
-            if os.path.exists(lic_path):
-                with open(lic_path, "r", encoding="utf-8") as f:
-                    l_txt = f.read()
-        except:
-            pass
-
-        ld = ctk.CTkTextbox(card, height=150, fg_color="#111111",
-                            text_color=THEME["text_dim"], font=("Consolas", 10))
-        ld.pack(fill="x", pady=10, padx=20)
-        ld.insert("0.0", l_txt)
-        ld.configure(state="disabled")
-
-        # Update Checker
-        upd_frame = ctk.CTkFrame(self.content, fg_color="transparent")
-        upd_frame.pack(fill="x", pady=20)
-
-        self.btn_upd = ctk.CTkButton(upd_frame, text="Check for Updates", height=50, font=FONTS["subheader"],
-                                     fg_color=THEME["border"], hover_color=THEME["success"], command=self.check_updates)
-        self.btn_upd.pack(fill="x")
+        # Update
+        self.btn_upd = ctk.CTkButton(self.content, text="Check for Updates", height=45, fg_color=THEME["border"],
+                                     hover_color=THEME["success"], command=self.check_updates)
+        self.btn_upd.pack(fill="x", pady=10)
 
     # =========================================================================
-    # LOGICA DE ACCIONES
+    # HELPERS & LOGIC
     # =========================================================================
+
+    def sub_header(self, text, pady=5):
+        ctk.CTkLabel(self.content, text=text, font=("Segoe UI", 14, "bold"),
+                     text_color=THEME["accent"]).pack(anchor="w", pady=(pady, 5))
+
+    def create_group(self):
+        f = ctk.CTkFrame(self.content, fg_color=THEME["card_bg"])
+        f.pack(fill="x", pady=(0, 20))
+        return f
+
+    def add_switch(self, parent, text, key, desc=None, cmd=None):
+        r = SettingRow(parent, text, desc)
+        sw = ctk.CTkSwitch(
+            parent, text="", progress_color=THEME["accent"], onvalue=True, offvalue=False)
+
+        def callback():
+            val = sw.get()
+            self.config[key] = bool(val)
+            ConfigManager.save_config(self.config)
+            if cmd:
+                cmd(val)
+
+        sw.configure(command=callback)
+        if self.config.get(key, False):
+            sw.select()
+        r.add_widget(sw)
+
+    def create_tool_btn(self, parent, text, cmd, color, text_col="#FFF"):
+        ctk.CTkButton(parent, text=text, command=cmd, fg_color=color,
+                      text_color=text_col, width=120).pack(side="left", padx=5)
+
+    def update_opacity(self, val):
+        v = float(val)
+        self.master.winfo_toplevel().attributes("-alpha", v)
+        self.attributes("-alpha", v)
+        self.config["window_opacity"] = v
+
+    def set_ui_scaling(self, value):
+        scale_map = {"80%": 0.8, "90%": 0.9, "100%": 1.0,
+                     "110%": 1.1, "125%": 1.2, "150%": 1.5}
+        new = scale_map.get(value, 1.0)
+        ctk.set_widget_scaling(new)
+        self.save("ui_scaling", new)
 
     def save(self, key, value, callback=None):
         self.config[key] = value
@@ -750,75 +701,120 @@ class PreferencesWindow(ctk.CTkToplevel):
         if callback:
             callback()
 
-    def save_bool(self, key, switch_widget, callback=None):
-        val = bool(switch_widget.get())
-        self.save(key, val, callback)
+    def save_debounced(self, key, value):
+        self.config[key] = value
 
+    def save_dir(self, path):
+        self.config["default_output_dir"] = path
+        ConfigManager.save_config(self.config)
+        self.ent_dir.configure(state="normal")
+        self.ent_dir.delete(0, "end")
+        self.ent_dir.insert(0, path)
+        self.ent_dir.configure(state="readonly")
+
+    def browse_output_dir(self):
+        p = filedialog.askdirectory()
+        if p:
+            self.save_dir(p)
+
+    def create_path_selector(self, parent, title, config_key, file_filter):
+        f = ctk.CTkFrame(parent, fg_color="transparent")
+        f.pack(fill="x", padx=10, pady=10)
+        ctk.CTkLabel(f, text=title, font=(
+            "Segoe UI", 12, "bold")).pack(anchor="w")
+
+        row = ctk.CTkFrame(f, fg_color="transparent")
+        row.pack(fill="x", pady=(5, 0))
+
+        ent = ctk.CTkEntry(
+            row, fg_color=THEME["input_bg"], border_color=THEME["border"])
+        ent.pack(side="left", fill="x", expand=True, padx=(0, 5))
+        ent.insert(0, self.config.get(config_key, ""))
+
+        def pick():
+            p = filedialog.askopenfilename(
+                filetypes=[("Executables", "*.exe"), ("All", "*.*")])
+            if p:
+                ent.delete(0, "end")
+                ent.insert(0, p)
+                self.save(config_key, p)
+
+        ctk.CTkButton(row, text="Browse", width=70,
+                      fg_color=THEME["border"], command=pick).pack(side="left")
+
+    # --- SYSTEM INFO & LOGS ---
+    def _run_hw_scan(self):
+        self.cached_hw_info = HardwareScanner.get_system_info()
+        self.after(0, lambda: self._display_hw_info(self.cached_hw_info))
+
+    def _display_hw_info(self, hw):
+        if not hasattr(self, "hw_frame") or not self.hw_frame.winfo_exists():
+            return
+        for w in self.hw_frame.winfo_children():
+            w.destroy()
+
+        grid = ctk.CTkFrame(self.hw_frame, fg_color="transparent")
+        grid.pack(padx=15, pady=10, fill="x")
+
+        data = [("OS", hw['os']), ("CPU", hw['cpu']), ("RAM",
+                                                       f"{hw['ram_used']} / {hw['ram_total']} GB"), ("GPU", hw['gpu']), ("VRAM", f"{hw['vram']} GB")]
+
+        for i, (k, v) in enumerate(data):
+            ctk.CTkLabel(grid, text=k+":", font=("Segoe UI", 11, "bold"),
+                         text_color=THEME["text_dim"]).grid(row=i//2, column=(i % 2)*2, sticky="w", padx=(0, 5))
+            ctk.CTkLabel(grid, text=v, font=("Segoe UI", 11), text_color=THEME["text_main"]).grid(
+                row=i//2, column=(i % 2)*2+1, sticky="w", padx=(0, 25))
+
+    def load_log_preview(self, textbox):
+        base = ConfigManager.get_base_path()
+        logs = glob.glob(os.path.join(base, "*_Logs", "*.log"))
+        if logs:
+            latest = max(logs, key=os.path.getmtime)
+            try:
+                with open(latest, "r", encoding="utf-8", errors="ignore") as f:
+                    textbox.insert("0.0", f.read())
+            except:
+                textbox.insert("0.0", "Error reading log.")
+        else:
+            textbox.insert("0.0", "No logs found.")
+
+    # --- ACTIONS ---
     def open_logs_dir(self):
         base = ConfigManager.get_base_path()
-        log_dirs = glob.glob(os.path.join(base, "*_Logs"))
-        target = log_dirs[0] if log_dirs else base
-
-        try:
-            if platform.system() == "Windows":
-                os.startfile(target)
-            else:
-                webbrowser.open(target)
-        except Exception as e:
-            messagebox.showerror("Error", f"Could not open folder: {e}")
+        d = glob.glob(os.path.join(base, "*_Logs"))
+        if d:
+            os.startfile(d[0]) if platform.system(
+            ) == "Windows" else webbrowser.open(d[0])
+        else:
+            messagebox.showinfo("Info", "No log folder yet.")
 
     def clean_temp_files(self):
-        if not messagebox.askyesno("Confirm Cleanup", "Are you sure you want to delete all temporary and intermediate files? This action cannot be undone."):
-            return
-
-        base = ConfigManager.get_base_path()
-        patterns = ["*.tmp", "*.checkpoint", "*.part", "temp_*",
-                    "*_frames.txt", "Pipeline_temp.json", "warlock_config.json.bak"]
-        count = 0
-
-        for p in patterns:
-            for f in glob.glob(os.path.join(base, p)):
-                try:
-                    os.remove(f)
-                    count += 1
-                except:
-                    pass
-
-        messagebox.showinfo("Cleanup", f"Deleted {count} temporary files.")
+        if messagebox.askyesno("Clean", "Delete temporary files?"):
+            c = 0
+            for p in ["*.tmp", "*.part", "temp_*"]:
+                for f in glob.glob(os.path.join(ConfigManager.get_base_path(), p)):
+                    try:
+                        os.remove(f)
+                        c += 1
+                    except:
+                        pass
+            messagebox.showinfo("Done", f"Removed {c} files.")
 
     def export_debug_info(self):
-        """Genera un ZIP con logs y config para facilitar reporte de bugs."""
-        save_path = filedialog.asksaveasfilename(defaultextension=".zip",
-                                                 initialfile=f"Warlock_Debug_{datetime.now().strftime('%Y%m%d')}.zip")
-        if not save_path:
-            return
-
-        try:
-            base = ConfigManager.get_base_path()
-            with zipfile.ZipFile(save_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-                # Agregar Config
-                cfg_path = os.path.join(base, CONFIG_FILE)
-                if os.path.exists(cfg_path):
-                    zf.write(cfg_path, CONFIG_FILE)
-
-                # Agregar Logs recientes
-                log_dirs = glob.glob(os.path.join(base, "*_Logs"))
-                if log_dirs:
-                    for f in glob.glob(os.path.join(log_dirs[0], "*.log")):
-                        zf.write(f, os.path.join("Logs", os.path.basename(f)))
-
-            messagebox.showinfo("Export Successful",
-                                f"Debug info saved to:\n{save_path}")
-        except Exception as e:
-            messagebox.showerror("Export Failed", str(e))
+        path = filedialog.asksaveasfilename(
+            defaultextension=".zip", initialfile=f"Debug_{datetime.now().strftime('%Y%m%d')}.zip")
+        if path:
+            with zipfile.ZipFile(path, 'w') as z:
+                cfg = ConfigManager.get_config_path()
+                if os.path.exists(cfg):
+                    z.write(cfg, "config.json")
+            messagebox.showinfo("Export", "Debug info saved.")
 
     def reset_all(self):
-        if messagebox.askyesno("Reset", "Are you sure you want to reset ALL preferences to default? The application will restart."):
+        if messagebox.askyesno("RESET", "Reset ALL settings to default? App will close."):
             ConfigManager.reset_config()
-            messagebox.showinfo(
-                "Reset", "Configuration reset. The application will now close.")
             self.master.destroy()
-            sys.exit(0)
+            sys.exit()
 
     def check_updates(self):
         self.btn_upd.configure(text="Checking...", state="disabled")
@@ -826,76 +822,64 @@ class PreferencesWindow(ctk.CTkToplevel):
 
     def _update_thread(self):
         um = UpdateManager(self.owner, self.repo, self.version)
-        is_new, tag, url, body = um.check()
+        is_new, tag, url, _ = um.check()
 
-        def ui_cb():
+        def cb():
             self.btn_upd.configure(state="normal")
-            if is_new is True:
+            if is_new:
                 self.btn_upd.configure(
-                    text=f"Update Available: {tag}", fg_color=THEME["success"], hover_color="#00C853")
-                if messagebox.askyesno("Update Found", f"Version {tag} is available.\n\nOpen download page?"):
+                    text=f"Update Available: {tag}", fg_color=THEME["success"])
+                if messagebox.askyesno("Update", "Open download page?"):
                     webbrowser.open(url)
-            elif is_new is False:
-                self.btn_upd.configure(
-                    text="You are up to date", fg_color=THEME["border"], hover_color=THEME["card_hover"])
             else:
                 self.btn_upd.configure(
-                    text=f"Error checking updates: {tag}", fg_color=THEME["accent"], hover_color=THEME["accent_hover"])
-
-        self.after(0, ui_cb)
+                    text="Up to date", fg_color=THEME["border"])
+        self.after(0, cb)
 
 # =============================================================================
-# BOTÓN DE ACCESO (INTEGRACIÓN)
+# BOTÓN DE INTEGRACIÓN (MAIN UI)
 # =============================================================================
 
 
 class PreferencesButton(ctk.CTkButton):
     def __init__(self, master, current_version, repo_owner="Ivan-Ayub97", repo_name="Warlock-Studio", **kwargs):
-        super().__init__(master, text="⚙", width=40, height=28,
+        super().__init__(master, text="⚙", width=40, height=30,
                          fg_color=THEME["bg_sidebar"], border_color=THEME["border"], border_width=1,
                          hover_color=THEME["accent"], text_color=THEME["text_main"],
                          command=self.open_window, **kwargs)
         self.ver = current_version
-        self.repo_data = (repo_owner, repo_name)
-
-        # Aplicar configuraciones iniciales
-        # Usamos after para asegurar que el widget esté cargado en la jerarquía
-        self.after(100, self._apply_startup)
+        self.repo = (repo_owner, repo_name)
+        self.after(500, self._apply_startup)
 
     def open_window(self):
-        # Evitar múltiples ventanas
         for w in self.winfo_toplevel().winfo_children():
             if isinstance(w, PreferencesWindow):
                 w.lift()
                 w.focus_force()
                 return
-        # Pasamos el toplevel actual como master
-        PreferencesWindow(self.winfo_toplevel(), self.ver, *self.repo_data)
+        PreferencesWindow(self.winfo_toplevel(), self.ver, *self.repo)
 
     def _apply_startup(self):
-        """Aplica la configuración al iniciar la app de forma segura."""
         c = ConfigManager.load_config()
-
-        # Obtener la ventana raíz real (no el frame donde está este botón)
         root = self.winfo_toplevel()
 
-        # Tema
+        # Tema y Escala
         try:
             ctk.set_appearance_mode(c.get("app_theme", "Dark"))
         except:
             pass
-
-        # Escala
         try:
             ctk.set_widget_scaling(c.get("ui_scaling", 1.0))
         except:
             pass
 
-        # Opacidad
-        alpha = c.get("window_opacity", 1.0)
-        if 0.1 <= alpha <= 1.0:
-            root.attributes("-alpha", alpha)
+        # Atributos de Ventana
+        # CORRECCIÓN: Aplicamos el valor directamente (sea True o False)
+        # Esto fuerza a la ventana a bajar si la opción está desactivada,
+        # limpiando el estado heredado del Splash Screen.
+        should_be_topmost = c.get("keep_window_on_top", False)
+        root.attributes("-topmost", should_be_topmost)
 
-        # Siempre Visible
-        top = c.get("keep_window_on_top", False)
-        root.attributes("-topmost", top)
+        # Opacidad
+        if 0.5 <= c.get("window_opacity", 1.0) <= 1.0:
+            root.attributes("-alpha", c["window_opacity"])

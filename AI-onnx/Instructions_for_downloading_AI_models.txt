@@ -1,1 +1,2 @@
 Download the AI-onnx.zip file from the releases section, prioritizing the latest available version.
+and extract the contents of the zip file to this directory.

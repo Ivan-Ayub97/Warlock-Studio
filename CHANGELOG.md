@@ -1,4 +1,52 @@
-_Warlock-Studio | Changelog History_
+Warlock-Studio | Changelog History
+
+# Version 5.1.1
+
+**Release date:** December 26, 2025
+**Kernel Version:** 5.1.1 (Codename: Obsidian-Warlock)
+**Architecture:** Component-Based / Modular Component System
+
+### Core Architectural Refactoring & Modularization
+
+The application codebase has undergone a foundational restructuring, migrating from a monolithic single-script paradigm to a segregated, component-oriented architecture. This transition enforces strict **Separation of Concerns (SoC)**, significantly reducing the cyclomatic complexity of the main execution thread and establishing a scalable foundation for future feature integration.
+
+#### Decoupled Theme Engine (`warlock_theme.py`)
+
+- **Centralized Style Governance (Single Source of Truth):** The application’s visual styling logic has been abstracted from the runtime logic. Previously hardcoded hexadecimal color values—scattered redundantly across `Warlock-Studio5.1.py` and `warlock_preferences.py`—have been consolidated into a dedicated **`warlock_theme.py`** module. This creates a unified style dictionary that is imported dynamically by all subsystems.
+- **Atomic Variable Propagation:** The refactoring implements a direct import strategy (`from warlock_theme import *`), ensuring that any modification to the core palette propagates atomically across the Main Window, Preferences Dialog, and Splash Screen interfaces without the risk of visual regression or variable mismatch between window contexts.
+
+#### Autonomous Initialization Subsystem (`splash_screen.py`)
+
+- **Logic Extraction & Encapsulation:** The `SplashScreen` class, formerly an inner class tightly coupled to the main application scope, has been externalized into a standalone **`splash_screen.py`** module. This promotes code reusability and cleaner namespace management within the primary entry point.
+- **Dependency Injection Pattern:** The new subsystem implements a dependency injection pattern, accepting `asset_loader` callables and theme dictionaries as constructor arguments. This decouples the asset resolution logic from the UI rendering thread, enhancing modularity and testing capabilities.
+
+### Boot Sequence Optimization & Performance
+
+The application initialization timeline has been re-engineered to optimize perceived performance, reduce thread blocking during startup, and provide richer visual feedback during the model pre-loading phase.
+
+#### Latency Reduction & Timeline Compression
+
+- **Parametric Duration Control:** Replaced the legacy hardcoded blocking delay (`window.after(11000)`) with a flexible, parametric duration logic. The initialization sequence has been compressed to a total of **6,500ms**, representing a **~40.9% reduction** in boot latency compared to version 5.1 (11,000ms), while maintaining sufficient buffer time for `onnxruntime` provider checks.
+- **Event-Driven Handover:** The transition from the splash context to the main application window is now managed via a completion callback (`on_complete`), ensuring a frame-perfect handover between the `CTkToplevel` splash instance and the main `DnDCTk` root window.
+
+#### Advanced Particle Rendering Engine
+
+- **Canvas-Based Vector Animation:** The static bitmap banner system has been superseded by a dynamic particle engine rendered via `ctk.CTkCanvas`. The engine manages the vector trajectory, velocity (`dx`, `dy`), and boundary collision detection for **35 concurrent particles**, providing immediate visual feedback that confirms the application process is active and responsive.
+
+### Visual Identity (UI/UX)
+
+#### Chromatic Recalibration
+
+- **Black Point Adjustment (OLED Optimization):** The primary background styling constant has been shifted from Dark Grey (`#0A0A0A`) to **Absolute Black** (`#000000`). This adjustment maximizes contrast ratios on OLED and high-end IPS displays, providing a seamless "borderless" aesthetic.
+- **Accent Shift & Hierarchy:** The high-saturation Neon Yellow (`#FDEF2F`) accents have been deprecated in favor of **Metallic Gold** (`#FBC02D`) and **Deep Amber** (`#FFC107`). This shift establishes a more sophisticated visual hierarchy and improves text legibility against the darkened substrates.
+- **Secondary Element Refinement:**
+  - **Panel/Widget Backgrounds:** Darkened from `#303030` to `#1A1A1A` (Charcoal) to reduce visual noise.
+  - **Hover States:** Replaced the bright `#D41C1C` with a deeper **Ruby Red** (`#C62828`) for subtler interactive feedback.
+
+#### Interface Consistency & Layout Fixes
+
+- **Background Dissonance Resolution:** Rectified a visual bug where the _Preferences_ window rendered a lighter background (`#121212`) than the _Main Window_ (`#0A0A0A`). Both interfaces now inherit the strict `BACKGROUND_COLOR` constant from the theme engine, ensuring absolute visual continuity.
+- **Widget Layout Optimization:** The `MENU_LIST_SEPARATOR` constant has been optimized from an extended character string (`• • • ...`) to a compact glyph set (`•••`). This correction resolves width-calculation anomalies in `CTkOptionMenu` widgets, preventing unnecessary horizontal expansion and padding issues in model selection dropdowns.
 
 # Version 5.1
 

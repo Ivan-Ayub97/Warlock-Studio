@@ -1,64 +1,144 @@
+; =========================================================
+; WARLOCK-STUDIO – INSTALLER SCRIPT (STABLE)
+; =========================================================
+
+; ---------------------------------------------------------
+; FIRMA DIGITAL
+; ---------------------------------------------------------
+#define SignToolPath "C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
+#define CertPath "-------------------------------"
+#define CertPass "******"
+
+; ---------------------------------------------------------
+; DEFINICIONES
+; ---------------------------------------------------------
 #define AppName "Warlock-Studio"
-#define AppVersion "5.1"
-#define AppPublisher "Ivan-Ayub97 on GH| Ivanayub1997 on SF"
+#define AppVersion "5.1.1"
+#define AppPublisher "Ivan-Ayub97"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"
+#define SourcePath "..\Warlock-Studio-main"
 
+; =========================================================
+; SETUP
+; =========================================================
 [Setup]
-; --- Configuración Básica ---
+
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppPublisher={#AppPublisher}
+AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}
 AppUpdatesURL={#AppURL}
+
+AppId={{***************************************}
+
+; ---- INSTALACIÓN EN DOCUMENTOS ----
 DefaultDirName={userdocs}\{#AppName}
 DefaultGroupName={#AppName}
 AllowNoIcons=yes
-PrivilegesRequired=none
-AppId={{7CC447B5-CDCF-494D-A432-378B744C0EE6}
+PrivilegesRequired=lowest
 
-; --- Configuración del Instalador ---
+; ---- ASISTENTE ----
+WizardStyle=modern
+DisableWelcomePage=no
+DisableDirPage=no
+DisableProgramGroupPage=no
+
+; ---- SALIDA ----
 OutputDir=Output
-; CHANGED: Filename reflects it's a full/offline installer
 OutputBaseFilename=Warlock-Studio-{#AppVersion}-Full-Installer
-SetupIconFile=..\Warlock-Studio\logo.ico
 Compression=lzma2/max
 SolidCompression=yes
-WizardStyle=modern
+SetupLogging=yes
 
-; --- Imágenes del Asistente ---
-WizardImageFile=..\Warlock-Studio\Assets\wizard-image.bmp
-WizardSmallImageFile=..\Warlock-Studio\Assets\wizard-small.bmp
+; ---- ESTÉTICA ----
+SetupIconFile={#SourcePath}\logo.ico
 UninstallDisplayIcon={app}\{#AppExeName}
+WizardImageFile={#SourcePath}\Assets\wizard-image.bmp
+WizardSmallImageFile={#SourcePath}\Assets\wizard-small.bmp
 
+; ---- FIRMA ----
+SignTool=MySignTool
+
+; =========================================================
+; LANGUAGES (SEGURO)
+; =========================================================
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "..\Warlock-Studio\License.txt"
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "{#SourcePath}\Assets\License.txt"
+; Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "{#SourcePath}\Assets\License.txt"
 
+; =========================================================
+; TASKS (OPCIONES DEL USUARIO)
+; =========================================================
 [Tasks]
-; The download task has been removed as all files are now included.
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Additional options:"; Flags: unchecked
+Name: "autorun"; Description: "Run Warlock-Studio when Windows starts"; GroupDescription: "Startup:"; Flags: unchecked
+Name: "userdata"; Description: "Create user data folder in Documents"; GroupDescription: "Data:"; Flags: checkedonce
 
+; =========================================================
+; FILES
+; =========================================================
 [Files]
-; --- Archivos Básicos de la Aplicación ---
-Source: "..\Warlock-Studio\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Warlock-Studio\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
 
-; --- CHANGED: Package the entire '_internal' folder and its contents ---
-Source: "..\Warlock-Studio\_internal\*"; DestDir: "{app}\_internal"; Flags: recursesubdirs createallsubdirs
+Source: "{#SourcePath}\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourcePath}\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
 
+Source: "{#SourcePath}\_internal\*"; DestDir: "{app}\_internal"; \
+Flags: ignoreversion recursesubdirs createallsubdirs
+
+Source: "{#SourcePath}\Assets\*"; DestDir: "{app}\Assets"; \
+Flags: ignoreversion recursesubdirs createallsubdirs
+
+; =========================================================
+; ICONS
+; =========================================================
 [Icons]
-Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"
-Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; IconFilename: "{app}\logo.ico"; WorkingDir: "{app}"; Tasks: desktopicon
 
-; --- REMOVED: The entire [Code] section for downloading is no longer needed. ---
+Name: "{group}\{#AppName}"; Filename: "{app}\{#AppExeName}"
+Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
 
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExeName}"; \
+Tasks: desktopicon
+
+; =========================================================
+; REGISTRY
+; =========================================================
+[Registry]
+
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; \
+ValueType: string; ValueName: "{#AppName}"; \
+ValueData: """{app}\{#AppExeName}"""; Tasks: autorun
+
+; =========================================================
+; RUN
+; =========================================================
 [Run]
-Filename: "{app}\{#AppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(AppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+Filename: "{app}\{#AppExeName}"; \
+Description: "Launch {#AppName}"; \
+Flags: nowait postinstall skipifsilent
+
+; =========================================================
+; UNINSTALL
+; =========================================================
 [UninstallDelete]
-; This section is still needed to clean up the installed folder on uninstall.
 Type: filesandordirs; Name: "{app}\_internal"
 Type: filesandordirs; Name: "{app}\Assets"
+Type: filesandordirs; Name: "{userdocs}\{#AppName}\UserData"
 
-; --- REMOVED: [Messages] section related to downloading is no longer needed. ---
+; =========================================================
+; CODE
+; =========================================================
+[Code]
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if (CurStep = ssInstall) and WizardIsTaskSelected('userdata') then
+  begin
+    ForceDirectories(ExpandConstant('{userdocs}\{#AppName}\UserData'));
+  end;
+end;
+
+[SignTools]
+Name: "MySignTool"; Command: """{#SignToolPath}"" sign /f ""{#CertPath}"" /p ""{#CertPass}"" /fd sha256 /tr http://timestamp.digicert.com /td sha256 $f"

@@ -7,7 +7,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-0A3B1E?style=for-the-badge&logo=open-source-initiative&logoColor=FFD43B&labelColor=1B1818)
 
 [![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&logo=git&color=6A1B9A&logoColor=FFD43B&labelColor=1B1818)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
-![Version 5.1](https://img.shields.io/badge/Version-5.1-660066?style=for-the-badge&logo=tag&logoColor=FFD43B&labelColor=1B1818)
+![Version 5.1.1](https://img.shields.io/badge/Version-5.1.1-660066?style=for-the-badge&logo=tag&logoColor=FFD43B&labelColor=1B1818)
 
 [![Downloads Total](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&logo=github&color=2E2E2E&labelColor=1B1818&logoColor=FFD43B)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 [![SF Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&logo=sourceforge&color=C45500&logoColor=FFD43B&labelColor=1B1818)](https://sourceforge.net/projects/warlock-studio/)
@@ -55,22 +55,10 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 [GUI.webm](https://github.com/user-attachments/assets/45b06dd7-47ac-46b9-aa3d-c0baf483147b)
 
-![Capture](rsc/Capture1.png)
-
 ![Capture](rsc/Capture2.png)
-
----
-
-## 🚀 <span style="color:#FFD43B;">Version 5.1 Highlights (Decoupling & Precision)</span>
-
-Version 5.1 introduces significant structural and algorithmic improvements, transforming the application's stability and file handling efficiency.
-
-- **Asynchronous Architecture (New `FileQueueManager`):** File I/O operations (metadata reading, thumbnail generation) are now offloaded to background threads. This eliminates UI freezes (ANR) during batch processing and ensures a non-blocking user experience.
-- **Critical AI Correction:** Implemented **Dynamic Padding** for the RIFE frame interpolation algorithm. This surgically corrects a mathematical deficiency, guaranteeing artifact-free video output regardless of the source video's resolution (eliminates black/green edge artifacts).
-- **Preferences Redesign:** The Settings panel has been completely re-engineered into a modern **Sidebar Navigation** system, improving categorization and usability.
-- **Diagnostic Suite:** Added an integrated Real-Time Log Viewer and an automatic **Debug Package Export** tool to streamline error reporting.
-- **Enhanced Stability:** Introduced **Binary Path Overrides** for FFmpeg/ExifTool, rigorous thread-safe UI updates, and safer process shutdown handling.
-
+![Capture](rsc/Capture3.png)
+![Capture](rsc/Capture4.png)
+![Capture](rsc/Capture5.png)
 
 ---
 
@@ -96,12 +84,12 @@ Version 5.1 introduces significant structural and algorithmic improvements, tran
 
 ## 🖥️ System Requirements
 
-| Component   | Minimum Specification | Recommended Specification              |                                               
-| :---------- | :-------------------- | :------------------------------------- | 
-| **OS**      | Windows 10 (64-bit)   | Windows 11 (64-bit)                    |                                               
-| **RAM**     | 8 GB                  | 16 GB+ (Recommended for 4K Video)      |                  
-| GPU         | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT       | 
-| **VRAM**    | 4 GB                  | 8 GB+ (NEO Engine auto-tunes limits)   |                           
+| Component   | Minimum Specification | Recommended Specification              |
+| :---------- | :-------------------- | :------------------------------------- |
+| **OS**      | Windows 10 (64-bit)   | Windows 11 (64-bit)                    |
+| **RAM**     | 8 GB                  | 16 GB+ (Recommended for 4K Video)      |
+| GPU         | DirectX 12 Compatible | NVIDIA RTX 2060 / AMD RX 6700 XT       |
+| **VRAM**    | 4 GB                  | 8 GB+ (NEO Engine auto-tunes limits)   |
 | **Storage** | HDD Space             | NVMe SSD (Highly recommended for RIFE) |
 
 ---
@@ -148,9 +136,3 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
-
-
-
-
-
-
