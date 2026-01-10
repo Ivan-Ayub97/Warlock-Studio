@@ -35,7 +35,7 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
   <tr>
     </td>
     <td align="center" style="vertical-align:top; padding:10px;">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1.1/Warlock-Studio-5.1.1-Full-Installer.exe">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1.1/Warlock-Studio-5.1.1x64.exe">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
              width="300" style="display:block; margin:auto; margin-bottom:10px;" />
       </a>
@@ -138,6 +138,7 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
