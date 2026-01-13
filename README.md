@@ -98,11 +98,7 @@ Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScale
 
 ## 🤝 Contributions
 
-We welcome contributions from the community:
-
-1. **Fork** the repository.
-2. **Create a branch** for your feature or bug fix.
-3. **Submit a Pull Request** with a detailed description and testing notes.
+We welcome contributions from the community.
 
 📧 Contact: **[negroayub97@gmail.com](mailto:negroayub97@gmail.com)**
 
@@ -138,6 +134,7 @@ We welcome contributions from the community:
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
