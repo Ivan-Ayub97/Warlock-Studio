@@ -14,8 +14,8 @@
 
 <br>
 
-**Warlock-Studio** is a unified, high-performance platform for **upscaling, restoration, denoising, and frame interpolation**.
-Inspired by [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**.
+**Warlock Studio** is a unified platform for **upscaling, restoring, denoising, and interpolating frames in videos and images.**
+It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools such as **QualityScaler** and **FluidFrames**.
 
 ---
 
@@ -134,6 +134,7 @@ We welcome contributions from the community.
 | **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
 | **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
 | **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+
 
 
 
