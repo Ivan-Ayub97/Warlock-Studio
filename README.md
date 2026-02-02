@@ -109,31 +109,40 @@ We welcome contributions from the community.
 © 2025 **Iván Eduardo Chavez Ayub**
 <br>Licensed under **MIT**. Additional terms and attributions are provided in **NOTICE.md**.
 
-### 📊 Integrated Technologies & Licenses
+📊 Integrated Technologies & Licenses
 
-| Technology / Model              | License      | Author / Maintainer        | Source                                                     |
-| :------------------------------ | :----------- | :------------------------- | :--------------------------------------------------------- |
-| **Real-ESRGAN**                 | BSD 3-Clause | Xintao Wang                | [GitHub](https://github.com/xinntao/Real-ESRGAN)           |
-| • RealESRGANx4                  | BSD 3-Clause | Xintao Wang                | Same as above                                              |
-| • RealESRNetx4                  | BSD 3-Clause | Xintao Wang                | Same as above                                              |
-| • RealESR_Gx4 (Custom Variant)  | BSD 3-Clause | Xintao / Community         | Same as above                                              |
-| • RealESR_Animex4 (Anime Model) | BSD 3-Clause | Community                  | Same as above                                              |
-| **BSRGAN**                      | Apache 2.0   | Kai Zhang                  | [GitHub](https://github.com/cszn/BSRGAN)                   |
-| • BSRGANx4                      | Apache 2.0   | Kai Zhang                  | Same as above                                              |
-| • BSRGANx2                      | Apache 2.0   | Kai Zhang                  | Same as above                                              |
-| **IRCNN**                       | BSD / Mixed  | Kai Zhang                  | [GitHub](https://github.com/cszn/IRCNN)                    |
-| • IRCNN_Mx1                     | BSD / Mixed  | Kai Zhang                  | Same as above                                              |
-| • IRCNN_Lx1                     | BSD / Mixed  | Kai Zhang                  | Same as above                                              |
-| **GFPGAN**                      | Apache 2.0   | TencentARC                 | [GitHub](https://github.com/TencentARC/GFPGAN)             |
-| **RIFE**                        | Apache 2.0   | hzwer                      | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
-| **QualityScaler**               | MIT          | Djdefrag                   | [GitHub](https://github.com/Djdefrag/QualityScaler)        |
-| **FluidFrames**                 | MIT          | Djdefrag                   | [GitHub](https://github.com/Djdefrag/FluidFrames)          |
-| **ONNX Runtime**                | MIT          | Microsoft                  | [GitHub](https://github.com/microsoft/onnxruntime)         |
-| **FFmpeg**                      | LGPL / GPL   | FFmpeg Team                | [Official Site](https://ffmpeg.org)                        |
-| **ExifTool**                    | Artistic     | Phil Harvey                | [Official Site](https://exiftool.org/)                     |
-| **Python**                      | PSF License  | Python Software Foundation | [Official Site](https://www.python.org)                    |
-| **PyInstaller**                 | GPLv2+       | PyInstaller Team           | [GitHub](https://github.com/pyinstaller/pyinstaller)       |
-| **Inno Setup**                  | Custom       | Jordan Russell             | [Official Site](http://www.jrsoftware.org/isinfo.php)      |
+| Technology / Model | License | Author / Maintainer | Source |
+| :--- | :--- | :--- | :--- |
+| **Real-ESRGAN** | BSD 3-Clause | Xintao Wang | [GitHub](https://github.com/xinntao/Real-ESRGAN) |
+| • RealESRGANx4 | BSD 3-Clause | Xintao Wang | Same as above |
+| • RealESRNetx4 | BSD 3-Clause | Xintao Wang | Same as above |
+| • RealESR_Gx4 | BSD 3-Clause | Xintao / Community | Same as above |
+| • RealESR_Animex4 | BSD 3-Clause | Community | Same as above |
+| **BSRGAN** | Apache 2.0 | Kai Zhang | [GitHub](https://github.com/cszn/BSRGAN) |
+| • BSRGANx4 | Apache 2.0 | Kai Zhang | Same as above |
+| • BSRGANx2 | Apache 2.0 | Kai Zhang | Same as above |
+| **IRCNN** | BSD / Mixed | Kai Zhang | [GitHub](https://github.com/cszn/IRCNN) |
+| • IRCNN_Mx1 | BSD / Mixed | Kai Zhang | Same as above |
+| • IRCNN_Lx1 | BSD / Mixed | Kai Zhang | Same as above |
+| **GFPGAN** | Apache 2.0 | TencentARC | [GitHub](https://github.com/TencentARC/GFPGAN) |
+| **RIFE** | MIT | Hzwer / Megvii | [GitHub](https://github.com/megvii-research/ECCV2022-RIFE) |
+| **QualityScaler** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/QualityScaler) |
+| **FluidFrames** | MIT | Djdefrag | [GitHub](https://github.com/Djdefrag/FluidFrames) |
+| **CustomTkinter** | MIT | Tom Schimansky | [GitHub](https://github.com/TomSchimansky/CustomTkinter) |
+| **TkinterDnD2** | MIT | pmgagne | [GitHub](https://github.com/pmgagne/tkinterdnd2) |
+| **OpenCV (cv2)** | Apache 2.0 | OpenCV Team | [Official Site](https://opencv.org/) |
+| **NumPy** | BSD 3-Clause | NumPy Developers | [Official Site](https://numpy.org/) |
+| **Pillow (PIL)** | HPND | Python-Pillow Team | [GitHub](https://github.com/python-pillow/Pillow) |
+| **MoviePy** | MIT | Zulko | [GitHub](https://github.com/Zulko/moviepy) |
+| **ONNX Runtime** | MIT | Microsoft | [GitHub](https://github.com/microsoft/onnxruntime) |
+| **FFmpeg** | LGPL / GPL | FFmpeg Team | [Official Site](https://ffmpeg.org) |
+| **ExifTool** | Artistic | Phil Harvey | [Official Site](https://exiftool.org/) |
+| **Psutil** | BSD 3-Clause | Giampaolo Rodola | [GitHub](https://github.com/giampaolo/psutil) |
+| **Natsort** | MIT | Seth M. Morton | [GitHub](https://github.com/SethMMorton/natsort) |
+| **Requests** | Apache 2.0 | Kenneth Reitz | [GitHub](https://github.com/psf/requests) |
+| **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
+| **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
+| **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
 
 
 
