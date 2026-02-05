@@ -94,7 +94,7 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 | **RAM** | 8 GB | 16 GB+ (Required for 4K & High-FPS Video) |
 | **GPU** | DirectX 12 Compatible (DML) / NVIDIA GTX 10-Series | NVIDIA RTX 3060+ / AMD RX 6000+ |
 | **VRAM** | 4 GB | 8 GB - 12 GB+ (For Stable Diffusion/Video Interpolation) |
-| **Storage** | 2 GB available space | NVMe SSD (Critical for RIFE & Temp Video Processing) |
+| **Storage** | 2 GB available space | SSD (Critical for RIFE & Temp Video Processing) |
 | **Architecture** | x64 | x64 (Native DirectML Support) |
 
 </div>
@@ -154,6 +154,7 @@ We welcome contributions from the community.
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
 
 
