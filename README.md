@@ -53,7 +53,7 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 
 ## 🖼️ Interface Capture
 
-[Capture.webm](https://github.com/user-attachments/assets/86a679c7-ddf5-454f-9a05-db590cfced09)
+[Capture.webm](https://github.com/user-attachments/assets/3038b58f-f671-4de4-8e14-169329859632)
 
 ![UICapture](rsc/Capture2.png)
 ![UICapture](rsc/Capture3.png)
@@ -164,3 +164,4 @@ We welcome contributions from the community.
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
