@@ -122,7 +122,7 @@ class SplashScreen(ctk.CTkToplevel):
             self,
             width=300,
             height=8,
-            corner_radius=4,
+            corner_radius=8,
             progress_color=self.theme['accent'],
             fg_color=self.theme['widget_bg'],
             border_width=0

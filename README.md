@@ -7,7 +7,7 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-0A3B1E?style=for-the-badge&logo=open-source-initiative&logoColor=FFD43B&labelColor=1B1818)
 
 [![Last Commit](https://img.shields.io/github/last-commit/Ivan-Ayub97/Warlock-Studio?style=for-the-badge&logo=git&color=6A1B9A&logoColor=FFD43B&labelColor=1B1818)](https://github.com/Ivan-Ayub97/Warlock-Studio/commits/main)
-![Version 5.1.1](https://img.shields.io/badge/Version-5.1.1-660066?style=for-the-badge&logo=tag&logoColor=FFD43B&labelColor=1B1818)
+![Version 6](https://img.shields.io/badge/Version-6.0-660066?style=for-the-badge&logo=tag&logoColor=FFD43B&labelColor=1B1818)
 
 [![Downloads Total](https://img.shields.io/github/downloads/Ivan-Ayub97/Warlock-Studio/total?style=for-the-badge&logo=github&color=2E2E2E&labelColor=1B1818&logoColor=FFD43B)](https://github.com/Ivan-Ayub97/Warlock-Studio/releases)
 [![SF Downloads](https://img.shields.io/sourceforge/dt/warlock-studio?style=for-the-badge&logo=sourceforge&color=C45500&logoColor=FFD43B&labelColor=1B1818)](https://sourceforge.net/projects/warlock-studio/)
@@ -35,7 +35,7 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
   <tr>
     </td>
     <td align="center" style="vertical-align:top; padding:10px;">
-      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v5.1.1/Warlock-Studio-5.1.1x64.exe">
+      <a href="https://github.com/Ivan-Ayub97/Warlock-Studio/releases/download/v6.0/Warlock-Studio-6.0x64.exe">
         <img src="rsc/GitHub_Logo_WS.png" alt="Download from GitHub"
              width="300" style="display:block; margin:auto; margin-bottom:10px;" />
       </a>
@@ -57,8 +57,6 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 
 ![UICapture](rsc/Capture2.png)
 ![UICapture](rsc/Capture3.png)
-![UICapture](rsc/Capture4.png)
-![UICapture](rsc/Capture5.png)
 
 ---
 
@@ -77,10 +75,22 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 - **AI Upscaling & Restoration** – Utilize **Real-ESRGAN, BSRGAN, RealESRNet, RealESR_Animex4, and IRCNN** models for denoising, super-resolution, and detail recovery.
 - **Face Restoration (GFPGAN)** – Recover facial details from low-resolution or blurry images and video frames.
 - **Frame Interpolation (RIFE)** – Smooth motion or generate slow-motion content with **2×, 4×, or 8× interpolation**.
+- **Process Chaining** – Build sequential workflows by chaining steps. Mix **upscaling**, **face restoration**, and **interpolation**; each step’s output becomes the next step’s input automatically. Includes model auto-discovery, per-step GPU/codec settings, and smart validation (e.g., RIFE requires video).
 - **Advanced Hardware Acceleration** – Intelligent provider selection prioritizes **CUDA**, falls back to **DirectML**, and finally **CPU** for maximum compatibility.
 - **Batch Processing** – Process multiple media files simultaneously, saving time and effort.
 - **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.
 - **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
+
+---
+
+## 🆕 New in v6.0 — Process Chaining
+
+- Create multi-step pipelines; order steps to run sequentially per file.
+- RIFE interpolation integrates as a chain step for video sources (graceful skip on images).
+- Per-step model selection via a combobox fed by auto-discovered ONNX models in `AI-onnx/`.
+- Automatic output routing: intermediate steps use temp folders; the final step writes to your chosen output path.
+- Smart extension/codec correction by media type to prevent invalid outputs.
+- Memory-safe execution with per-step VRAM tile sizing and cleanup between steps.
 
 ---
 
@@ -154,14 +164,3 @@ We welcome contributions from the community.
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
-
-
-
-
-
-
-
-
-
-
-

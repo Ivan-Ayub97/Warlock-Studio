@@ -4,7 +4,7 @@ block_cipher = None
 
 a = Analysis(
     # 1. Aquí agregamos los dos archivos nuevos a la lista de scripts
-    ['Warlock-Studio.py', 'drag_drop.py', 'console.py', 'warlock_preferences.py', 'file_queue_manager.py', 'splash_screen.py', 'warlock_theme.py'],
+    ['Warlock-Studio.py', 'drag_drop.py', 'console.py', 'warlock_preferences.py','processing_chain.py', 'file_queue_manager.py', 'splash_screen.py', 'warlock_theme.py'],
     pathex=[],
     binaries=[],
     datas=[

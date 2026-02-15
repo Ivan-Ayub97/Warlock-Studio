@@ -59,7 +59,7 @@
     filecolor=WarlockGold,
     urlcolor=WarlockBlue,
     citecolor=WarlockGray,
-    pdftitle={Warlock-Studio v5.1.1 Master Manual},
+    pdftitle={Warlock-Studio v6.0 Master Manual},
     pdfauthor={Ivan-Ayub97}
 }
 
@@ -294,7 +294,7 @@
 
         {\sffamily\bfseries\fontsize{24}{30}\selectfont MASTER OPERATING MANUAL} \\[0.5cm]
         \begin{tcolorbox}[colback=WarlockRed, colframe=WarlockRed, width=4cm, arc=5mm, boxrule=0pt, halign=center]
-            \sffamily\bfseries\textcolor{WarlockText}{Version 5.1.1}
+            \sffamily\bfseries\textcolor{WarlockText}{Version 6.0}
         \end{tcolorbox}
         \vspace{2cm}
 
@@ -465,6 +465,37 @@ New in v5.1.1. It provides a live feed of the backend operations.
     \item \textcolor{WarlockBlue}{\textbf{[INFO]}}: Progress updates (e.g., "Extracting frames 45\%").
     \item \textcolor{WarlockRed}{\textbf{[ERROR]}}: Critical failures (e.g., "Out of Memory").
     \item \textbf{[FFMPEG]}: Raw encoding logs from the video engine.
+\end{itemize}
+
+\section{5. The Processing Chain Editor}
+This module lets you build multi-step workflows. Each step runs sequentially; the output of a step becomes the input to the next step automatically.
+
+\subsection{Adding Steps}
+\begin{itemize}
+    \item Click \textbf{Add Step}. Choose \textbf{Model Name} from the combobox. Values are auto-discovered from \texttt{AI-onnx/}.
+    \item Configure \textbf{GPU}, \textbf{Input/Output Resize}, \textbf{Blending}, \textbf{VRAM Limit}, \textbf{Extension}, and \textbf{Video Codec}.
+    \item Reorder with \textbf{Up/Down}. Disable a step with \textbf{Bypass} to skip it temporarily.
+\end{itemize}
+
+\subsection{Interpolation Steps (RIFE)}
+\begin{itemize}
+    \item Use \textbf{Frame Generation} to select \textit{x2, x4, x8} or \textit{Slowmotion} variants.
+    \item Interpolation requires \textbf{video input}. If the current file is an image, the step is skipped and logged.
+    \item Intermediate containers default to \texttt{.mp4} unless the last step targets a different format.
+\end{itemize}
+
+\subsection{Output Routing}
+\begin{itemize}
+    \item Intermediate results go to a temporary folder per step. The final step writes to the chosen output directory.
+    \item Extensions and codecs are corrected automatically based on media type to prevent invalid outputs.
+    \item Optional: keep extracted frames on the final step for inspection.
+\end{itemize}
+
+\subsection{Reliability \& Performance}
+\begin{itemize}
+    \item VRAM-aware tiling is applied per step to avoid memory errors on large inputs.
+    \item Memory is cleaned between steps to maintain stability over long chains.
+    \item Face restoration uses stable float32 precision with proper alpha handling.
 \end{itemize}
 
 % =========================================================
@@ -744,7 +775,7 @@ The system will detect the existing frames and verify the \texttt{.checkpoint} f
     \sffamily
     \textcolor{WarlockGray!50}{\rule{0.7\linewidth}{1pt}} \\
     \vspace{0.8cm}
-    \textcolor{WarlockGray}{\textit{Warlock-Studio v5.1.1 | Engineering Documentation}}
+    \textcolor{WarlockGray}{\textit{Warlock-Studio v6.0 | Engineering Documentation}}
 \end{center}
 
 \end{document}

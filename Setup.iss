@@ -13,7 +13,7 @@
 ; DEFINICIONES
 ; ---------------------------------------------------------
 #define AppName "Warlock-Studio"
-#define AppVersion "5.1.1"
+#define AppVersion "6.0"
 #define AppPublisher "Ivan-Ayub97"
 #define AppURL "https://github.com/Ivan-Ayub97/Warlock-Studio"
 #define AppExeName "Warlock-Studio.exe"
@@ -31,7 +31,7 @@ AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}
 AppUpdatesURL={#AppURL}
 
-AppId={{***************************************}
+AppId={{D1168ED1-6227-441F-8B88-EE6DBD45F336}
 
 ; ---- INSTALACIÓN EN DOCUMENTOS ----
 DefaultDirName={userdocs}\{#AppName}
@@ -53,10 +53,10 @@ SolidCompression=yes
 SetupLogging=yes
 
 ; ---- ESTÉTICA ----
-SetupIconFile={#SourcePath}\logo.ico
+SetupIconFile= C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\logo.ico
 UninstallDisplayIcon={app}\{#AppExeName}
-WizardImageFile={#SourcePath}\Assets\wizard-image.bmp
-WizardSmallImageFile={#SourcePath}\Assets\wizard-small.bmp
+WizardImageFile= C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\Assets\wizard-image.bmp
+WizardSmallImageFile=C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\Assets\wizard-small.bmp
 
 ; ---- FIRMA ----
 SignTool=MySignTool
@@ -65,8 +65,7 @@ SignTool=MySignTool
 ; LANGUAGES (SEGURO)
 ; =========================================================
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "{#SourcePath}\Assets\License.txt"
-; Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"; LicenseFile: "{#SourcePath}\Assets\License.txt"
+Name: "english"; MessagesFile: "compiler:Default.isl"; LicenseFile: "C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\Assets\License.txt"
 
 ; =========================================================
 ; TASKS (OPCIONES DEL USUARIO)
@@ -81,13 +80,13 @@ Name: "userdata"; Description: "Create user data folder in Documents"; GroupDesc
 ; =========================================================
 [Files]
 
-Source: "{#SourcePath}\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourcePath}\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\logo.ico"; DestDir: "{app}"; Flags: ignoreversion
 
-Source: "{#SourcePath}\_internal\*"; DestDir: "{app}\_internal"; \
+Source: "C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\_internal\*"; DestDir: "{app}\_internal"; \
 Flags: ignoreversion recursesubdirs createallsubdirs
 
-Source: "{#SourcePath}\Assets\*"; DestDir: "{app}\Assets"; \
+Source: "C:\Users\negro\Desktop\Warlock-Studio-main\Warlock-Studio\Assets\*"; DestDir: "{app}\Assets"; \
 Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; =========================================================

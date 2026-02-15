@@ -27,7 +27,7 @@ class WarlockColors:
 
     # --- IDENTIDAD & ACENTOS ---
     # "Oro Metálico". Elegante, legible y define la marca Warlock.
-    APP_TITLE = "#FBC02D"
+    APP_TITLE = "#FFD700"
 
     # "Ámbar Intenso". Color principal de interacción (Checkboxes, Switches, Sliders).
     ACCENT = "#FFC107"
@@ -50,7 +50,7 @@ class WarlockColors:
 
     # --- INTERACCIÓN (BOTONES) ---
     # "Rojo Sangre/Rubí". Para Hover en botones principales o acciones destructivas.
-    BUTTON_HOVER = "#C62828"
+    BUTTON_HOVER = "#D32F2F"
 
     # "Vino Tinto". Para botones secundarios, info o estados inactivos pero visibles.
     BUTTON_SECONDARY = "#7F1500"

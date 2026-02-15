@@ -1,5 +1,67 @@
 Warlock-Studio | Changelog History
 
+# Version 6.0
+
+**Release date:** February 13, 2026
+**Kernel Version:** 6.0.0 (Codename: Chainweaver)
+**Architecture:** Orchestrated Processing Chain System
+
+### Processing Chain Orchestrator (Step-Based Pipelines)
+
+Introduces a first-class pipeline system where each file is processed through an ordered list of steps. Every step consumes the previous step’s output automatically, enabling complex multi-stage workflows without manual intervention.
+
+- **Sequential Step Execution:** Images/videos flow through a chain, with explicit output-to-input handover between steps.
+- **Scoped Output Routing:** Intermediate artifacts are written to dedicated temporary folders; only the final step targets the user-selected output directory.
+- **Per-Step Configuration:** Each step can define model, GPU, resize factors, blending, output extension and video codec independently.
+- **In-App Status Trace:** Clear progress messages per step (load, process, interpolate, encode), aiding auditing and troubleshooting.
+
+### Interpolation Integration (RIFE as a Chain Step)
+
+RIFE (and RIFE Lite) interpolation is now usable directly as a step within chains, harmonizing with upscaling and restoration operations.
+
+- **Video-Only Validation:** If an interpolation step receives an image, the step is gracefully skipped and logged.
+- **Generation Factors:** Supports x2, x4, x8 and Slowmotion variants, with automatic container selection for intermediate outputs.
+- **Codec Awareness:** Respects per-step codec selection; falls back to sane defaults when omitted.
+
+### Model Discovery & Step Editor Enhancements
+
+The step editor exposes a combobox sourced from auto-discovered ONNX models within the `AI-onnx/` directory.
+
+- **Auto-Discovery:** Normalizes common naming schemes (e.g., GFPGAN variants collapse to “GFPGAN”).
+- **Resilient UI:** If a saved model name is not present, it is injected as a selectable value to preserve existing chains.
+- **Consistent UX:** Aligns with the overall Preferences/Theme system, retaining established layout and style.
+
+### Output Type Safety & Smart Corrections
+
+Prevents invalid output combinations through proactive checks and automatic corrections.
+
+- **Extension Guardrails:** Enforces valid image extensions on image steps and valid containers on video steps; incorrect selections are corrected (e.g., `.mp4` for video, `.png` for image).
+- **Graceful Skips:** Incompatible steps do not break chains; they emit a clear status message and continue.
+
+### Reliability & Memory Hygiene
+
+Improves robustness under constrained hardware conditions and long-running chains.
+
+- **Adaptive Tiles per Step:** VRAM limits are applied per-model using a multiplier table to derive safe tile resolutions.
+- **Inter-Step Cleanup:** Instances are freed between steps and memory buffers are compacted to avoid fragmentation.
+- **Stable Precision Paths:** Face restoration enforces float32 processing with safe alpha-channel recomposition.
+
+### UI/UX Modernization & Visual Identity
+
+Refines the application’s look and feel to a modern, polished aesthetic while preserving the Warlock palette (black, red, yellow, white, gray).
+
+- **Version Surfacing:** The application now displays version 6.0 consistently across splash, header, and preferences (About).
+- **Rounded Corners:** Frames, buttons, entries, option menus, and the splash progress bar adopt rounded corners. The corner radius is configurable under Preferences and applied across the UI.
+- **Vibrant Accents:** Warlock Gold and primary accents are tuned for higher vibrancy (#FFD700 title, #FFC107 accent); button hover uses a richer red for clearer affordance without sacrificing readability.
+- **Consistency:** The main window, drop zone, and controls use the same corner radius and accent logic, ensuring a unified visual language throughout.
+
+### Documentation & Guidance
+
+- **README Updated:** Adds “New in v6.0 — Process Chaining” and updates the version badge to 6.0, detailing chain creation, model auto-discovery, and smart output handling.
+- **Manual Updated:** The engineering manual (LaTeX) reflects v6.0 in metadata and includes a new section, “The Processing Chain Editor,” explaining step creation, interpolation constraints, output routing, and reliability tips.
+
+---
+
 # Version 5.1.1
 
 **Release date:** December 26, 2025

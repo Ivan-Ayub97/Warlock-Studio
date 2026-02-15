@@ -7,6 +7,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import time
 import traceback
 import warnings
 from contextlib import contextmanager
@@ -109,6 +110,7 @@ from console import IntegratedConsole, console
 from drag_drop import DnDCTk, enable_drag_and_drop
 # Importa la clase de tu archivo (asumiendo que se llama file_queue_manager.py)
 from file_queue_manager import FileQueueManager
+from processing_chain import ChainManager, ProcessingStep
 from splash_screen import SplashScreen
 from warlock_preferences import ConfigManager, PreferencesButton
 
@@ -117,6 +119,10 @@ console.setup_redirection()
 
 # Suppress specific warnings to keep console clean
 warnings.filterwarnings("ignore", category=UserWarning)
+
+# Variable global para mantener la instancia (o la lista)
+chain_window = None
+current_chain_steps = []  # Aquí se guardarán los pasos si el usuario usa la cadena
 
 # Handle PyInstaller or Normal Execution Path
 
@@ -132,7 +138,7 @@ def find_by_relative_path(relative_path: str) -> str:
 
 
 app_name = "Warlock-Studio"
-version = "5.1.1"
+version = "6.0"
 
 # Supported File Extensions
 supported_image_extensions = [".jpg", ".jpeg",
@@ -151,18 +157,18 @@ supported_file_extensions = supported_image_extensions + supported_video_extensi
 
 # Fondo: Negro casi puro, igual que el fondo del banner para máximo contraste
 background_color = "#000000"
-# Nombre de la app: Plata metálico, inspirado en el texto "STUDIO"
-app_name_color = "#FBC02D"
+# Nombre de la app: Amarillo intenso para alto contraste
+app_name_color = "#FFD700"
 # Paneles: Gris oscuro neutro, permite que el rojo y dorado resalten sin competir
 widget_background_color = "#1A1A1A"
 # Texto principal: Blanco puro para legibilidad máxima
 text_color = "#F5F5F5"
 # Texto secundario: Dorado pálido/desaturado, para no cansar la vista pero mantener la identidad
 secondary_text_color = "#9E9E9E"
-# Acento: El amarillo dorado brillante del sombrero y los destellos (Sparkles)
+# Acento: Amarillo/ámbar vibrante (alto contraste)
 accent_color = "#FFC107"
 # Hover de botones: El rojo vibrante del relleno del texto "WARLOCK"
-button_hover_color = "#C62828"
+button_hover_color = "#D32F2F"
 # Bordes: Un dorado oscuro muy sutil, imitando el borde del logo sin ser chillón
 border_color = "#2D2D2D"
 # Botones info/secundarios: El rojo sangre oscuro del fondo del círculo del logo
@@ -234,6 +240,7 @@ USER_PREFERENCE_PATH = find_by_relative_path(
 
 # --- INTEGRACIÓN DE PREFERENCIAS: RUTAS PERSONALIZADAS ---
 _app_config = ConfigManager.load_config()
+CORNER_RADIUS = _app_config.get("corner_radius", 10)
 
 # Lógica FFmpeg
 _custom_ffmpeg = _app_config.get("custom_ffmpeg_path", "")
@@ -470,17 +477,15 @@ def create_onnx_session(model_path: str, selected_gpu: str) -> InferenceSession:
 
 
 class AI_upscale:
-
     # -------------------------------------------------------------------------
     # CLASS INIT
     # -------------------------------------------------------------------------
-
     def __init__(
             self,
             AI_model_name: str,
             directml_gpu: str,
-            input_resize_factor: int,
-            output_resize_factor: int,
+            input_resize_factor: float,
+            output_resize_factor: float,
             max_resolution: int
     ):
         # Parámetros recibidos
@@ -490,13 +495,39 @@ class AI_upscale:
         self.output_resize_factor = output_resize_factor
         self.max_resolution = max_resolution
 
-        # Variables calculadas
-        self.AI_model_path = find_by_relative_path(
+        # --- OPTIMIZACIÓN: Padding y Batch Size ---
+        # Padding: Píxeles extra alrededor del tile para evitar cortes visibles (seamless).
+        # 32 es un buen equilibrio para la mayoría de modelos SRGAN/ESRGAN.
+        self.tile_padding = 32
+
+        # Batch Size: Cantidad de tiles procesados simultáneamente.
+        # Aumentar esto acelera el proceso pero consume más VRAM.
+        # 4 es un valor conservador y rápido para la mayoría de GPUs modernas.
+        self.batch_size = 4
+
+        # --- CORRECCIÓN DE RUTAS (FP16 / FP32) ---
+        # Definimos las posibles rutas del modelo
+        path_fp16 = find_by_relative_path(
             f"AI-onnx{os_separator}{self.AI_model_name}_fp16.onnx")
+        path_fp32 = find_by_relative_path(
+            f"AI-onnx{os_separator}{self.AI_model_name}_fp32.onnx")
+        path_clean = find_by_relative_path(
+            f"AI-onnx{os_separator}{self.AI_model_name}.onnx")
+
+        # Verificamos cuál existe y asignamos
+        if os_path_exists(path_fp16):
+            self.AI_model_path = path_fp16
+        elif os_path_exists(path_fp32):
+            self.AI_model_path = path_fp32
+        elif os_path_exists(path_clean):
+            self.AI_model_path = path_clean
+        else:
+            # Si no encuentra ninguno, dejamos el por defecto (fp16)
+            self.AI_model_path = path_fp16
+
         self.upscale_factor = self._get_upscale_factor()
 
-        # La sesión se carga bajo demanda o al iniciar, según la lógica del orquestador.
-        # Inicializamos en None para permitir una carga diferida si fuera necesario.
+        # La sesión se carga bajo demanda
         self.inferenceSession = None
 
     def _get_upscale_factor(self) -> int:
@@ -507,14 +538,12 @@ class AI_upscale:
             return 2
         elif "x4" in self.AI_model_name:
             return 4
-        # Valor por defecto seguro
         return 1
 
     def _load_inferenceSession(self) -> None:
-        """Carga la sesión de inferencia utilizando la función centralizada robusta."""
+        """Carga la sesión de inferencia utilizando la función centralizada."""
         if self.inferenceSession is not None:
             return
-
         try:
             self.inferenceSession = create_onnx_session(
                 self.AI_model_path, self.directml_gpu)
@@ -526,13 +555,9 @@ class AI_upscale:
     # -------------------------------------------------------------------------
     # IMAGE UTILS
     # -------------------------------------------------------------------------
-
     def get_image_mode(self, image: numpy_ndarray) -> str:
-        """Determina el modo de la imagen (Grayscale, RGB, RGBA)."""
         if image is None:
             raise ValueError("Image is None")
-
-        # Validación de dimensiones
         if image.ndim == 2:
             return "Grayscale"
         elif image.ndim == 3:
@@ -543,466 +568,340 @@ class AI_upscale:
                 return "RGBA"
             elif channels == 1:
                 return "Grayscale"
-
         raise ValueError(f"Unsupported image shape: {image.shape}")
 
     def get_image_resolution(self, image: numpy_ndarray) -> tuple:
-        """Retorna (alto, ancho)."""
-        height = image.shape[0]
-        width = image.shape[1]
-        return height, width
+        return image.shape[0], image.shape[1]  # Height, Width
 
     def calculate_target_resolution(self, image: numpy_ndarray) -> tuple:
-        """Calcula la resolución esperada después del escalado por el modelo."""
-        height, width = self.get_image_resolution(image)
-        target_height = height * self.upscale_factor
-        target_width = width * self.upscale_factor
-        return target_height, target_width
+        h, w = self.get_image_resolution(image)
+        return h * self.upscale_factor, w * self.upscale_factor
 
     def _ensure_even_dimensions(self, dim: int) -> int:
-        """Asegura que una dimensión sea par (necesario para algunos modelos/codecs)."""
         return dim if dim % 2 == 0 else dim + 1
 
     def resize_with_input_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-        """Redimensiona la imagen de entrada según el porcentaje configurado."""
-        old_height, old_width = self.get_image_resolution(image)
+        old_h, old_w = self.get_image_resolution(image)
+        new_w = int(old_w * self.input_resize_factor)
+        new_h = int(old_h * self.input_resize_factor)
 
-        new_width = int(old_width * self.input_resize_factor)
-        new_height = int(old_height * self.input_resize_factor)
+        new_w = max(2, self._ensure_even_dimensions(new_w))
+        new_h = max(2, self._ensure_even_dimensions(new_h))
 
-        # Asegurar dimensiones mínimas y pares
-        new_width = max(2, self._ensure_even_dimensions(new_width))
-        new_height = max(2, self._ensure_even_dimensions(new_height))
-
-        if self.input_resize_factor == 1.0 and (new_width == old_width and new_height == old_height):
+        if self.input_resize_factor == 1.0 and (new_w == old_w and new_h == old_h):
             return image
 
-        interpolation = INTER_CUBIC if self.input_resize_factor > 1 else INTER_AREA
-        return opencv_resize(image, (new_width, new_height), interpolation=interpolation)
+        # Optimización: Lanczos es mejor para reducir (downscale), Cubic para ampliar
+        interpolation = INTER_CUBIC if self.input_resize_factor > 1 else cv2.INTER_LANCZOS4
+        return opencv_resize(image, (new_w, new_h), interpolation=interpolation)
 
     def resize_with_output_factor(self, image: numpy_ndarray) -> numpy_ndarray:
-        """Redimensiona la imagen de salida final según el porcentaje configurado."""
-        old_height, old_width = self.get_image_resolution(image)
+        old_h, old_w = self.get_image_resolution(image)
+        new_w = int(old_w * self.output_resize_factor)
+        new_h = int(old_h * self.output_resize_factor)
 
-        new_width = int(old_width * self.output_resize_factor)
-        new_height = int(old_height * self.output_resize_factor)
+        new_w = max(2, self._ensure_even_dimensions(new_w))
+        new_h = max(2, self._ensure_even_dimensions(new_h))
 
-        # Asegurar dimensiones mínimas y pares
-        new_width = max(2, self._ensure_even_dimensions(new_width))
-        new_height = max(2, self._ensure_even_dimensions(new_height))
-
-        if self.output_resize_factor == 1.0 and (new_width == old_width and new_height == old_height):
+        if self.output_resize_factor == 1.0 and (new_w == old_w and new_h == old_h):
             return image
 
-        interpolation = INTER_CUBIC if self.output_resize_factor > 1 else INTER_AREA
-        return opencv_resize(image, (new_width, new_height), interpolation=interpolation)
-
-    # -------------------------------------------------------------------------
-    # VIDEO UTILS
-    # -------------------------------------------------------------------------
+        interpolation = INTER_CUBIC if self.output_resize_factor > 1 else cv2.INTER_LANCZOS4
+        return opencv_resize(image, (new_w, new_h), interpolation=interpolation)
 
     def calculate_multiframes_supported_by_gpu(self, video_frame_path: str) -> int:
-        """Calcula cuántos frames simultáneos caben en la VRAM basándose en max_resolution."""
         try:
-            # Leer solo para obtener dimensiones, no decodificar todo si es muy grande
-            # Sin embargo, necesitamos aplicar el resize factor para ser precisos
             frame = image_read(video_frame_path)
-            resized_frame = self.resize_with_input_factor(frame)
+            # Usar una estimación rápida si la imagen es gigante
+            if frame is None:
+                return 1
 
-            height, width = self.get_image_resolution(resized_frame)
-            image_pixels = height * width
+            # Simular el resize de entrada
+            h, w = frame.shape[:2]
+            input_h = int(h * self.input_resize_factor)
+            input_w = int(w * self.input_resize_factor)
 
-            # max_resolution se usa como lado de un cuadrado para estimar área soportada
-            max_supported_pixels = self.max_resolution * self.max_resolution
+            image_pixels = input_h * input_w
+            max_pixels = self.max_resolution * self.max_resolution
 
-            # Evitar división por cero
             if image_pixels == 0:
                 return 1
 
-            frames_simultaneously = max_supported_pixels // image_pixels
-
-            # Limitar a un mínimo de 1 y un máximo seguro (ej. 8 o 16)
-            frames_simultaneously = max(1, min(frames_simultaneously, 16))
-
-            print(
-                f"[AI] Frames supported simultaneously by GPU estimate: {frames_simultaneously}")
-            return int(frames_simultaneously)
-
-        except Exception as e:
-            print(
-                f"[AI WARNING] Could not calculate multiframes support: {e}. Defaulting to 1.")
+            # Cálculo conservador
+            frames = max_pixels // image_pixels
+            return max(1, min(frames, 16))
+        except:
             return 1
 
     # -------------------------------------------------------------------------
-    # TILING (MOSAICO) FUNCTIONS
+    # CORE PROCESSING (Optimized Batch & Tiling)
     # -------------------------------------------------------------------------
-
-    def image_need_tilling(self, image: numpy_ndarray) -> bool:
-        height, width = self.get_image_resolution(image)
-        image_pixels = height * width
-        max_supported_pixels = self.max_resolution * self.max_resolution
-        return image_pixels > max_supported_pixels
-
-    def add_alpha_channel(self, image: numpy_ndarray) -> numpy_ndarray:
-        """Añade un canal alpha opaco (255) a una imagen RGB."""
-        if image.ndim == 3 and image.shape[2] == 3:
-            alpha = numpy_full(
-                (image.shape[0], image.shape[1], 1), 255, dtype=uint8)
-            return numpy_concatenate((image, alpha), axis=2)
-        return image
-
-    def calculate_tiles_number(self, image: numpy_ndarray) -> tuple:
-        height, width = self.get_image_resolution(image)
-
-        # Cálculo seguro de tiles redondeando hacia arriba
-        tiles_x = (width + self.max_resolution - 1) // self.max_resolution
-        tiles_y = (height + self.max_resolution - 1) // self.max_resolution
-
-        return tiles_x, tiles_y
-
-    def split_image_into_tiles(self, image: numpy_ndarray) -> list[tuple]:
-        """
-        Divide la imagen guardando sus coordenadas originales.
-        Retorna: Lista de tuplas (tile_image, x, y)
-        """
-        img_height, img_width = self.get_image_resolution(image)
-
-        tiles = []
-        # Calculamos los pasos asegurando que cubrimos toda la imagen
-        for y in range(0, img_height, self.max_resolution):
-            for x in range(0, img_width, self.max_resolution):
-                # Definir recorte asegurando no salirnos de la imagen
-                h_crop = min(self.max_resolution, img_height - y)
-                w_crop = min(self.max_resolution, img_width - x)
-
-                tile = image[y:y+h_crop, x:x+w_crop]
-
-                # Guardamos: (Imagen recortada, coordenada X original, coordenada Y original)
-                # Usamos copy() para asegurar que sea contiguo en memoria
-                tiles.append((tile.copy(), x, y))
-
-        return tiles
-
-    def combine_tiles_into_image(
-        self,
-        target_height: int,
-        target_width: int,
-        tiles_data: list[tuple],
-        output_channels: int
-    ) -> numpy_ndarray:
-        """
-        Recompone la imagen usando las coordenadas exactas escaladas.
-        """
-        # Crear lienzo vacío
-        if output_channels == 1:
-            tiled_image = numpy_zeros(
-                (target_height, target_width), dtype=uint8)
-        else:
-            tiled_image = numpy_zeros(
-                (target_height, target_width, output_channels), dtype=uint8)
-
-        for tile, orig_x, orig_y in tiles_data:
-            # Calcular la nueva posición basada en el factor de escala
-            # Nota: Upscale factor puede ser float, así que convertimos a int
-            new_y = int(orig_y * self.upscale_factor)
-            new_x = int(orig_x * self.upscale_factor)
-
-            h, w = tile.shape[:2]
-
-            # Insertar tile en la posición calculada
-            # Verificamos límites por seguridad (aunque no debería pasar con matemáticas correctas)
-            end_y = min(new_y + h, target_height)
-            end_x = min(new_x + w, target_width)
-
-            # Ajustar recorte del tile si se sale del lienzo (clipping)
-            tile_h_crop = end_y - new_y
-            tile_w_crop = end_x - new_x
-
-            if output_channels > 1:
-                tiled_image[new_y:end_y, new_x:end_x,
-                            :] = tile[:tile_h_crop, :tile_w_crop, :]
-            else:
-                tiled_image[new_y:end_y,
-                            new_x:end_x] = tile[:tile_h_crop, :tile_w_crop]
-
-        return tiled_image
-
-    # -------------------------------------------------------------------------
-    # AI PROCESSING (PRE/INFERENCE/POST)
-    # -------------------------------------------------------------------------
-
     def normalize_image(self, image: numpy_ndarray) -> tuple:
-        """Normaliza la imagen a rango 0-1 float32 de forma precisa."""
-        # Detección robusta de tipo
+        # Optimización: Vectorización directa
         if image.dtype == uint8:
-            max_val = 255.0
-        elif image.dtype == numpy.uint16:
-            max_val = 65535.0
-        elif image.dtype == float32 or image.dtype == float16:
-            # Si ya es float, asumimos que podría estar en rango 0-1 o 0-255
-            # Verificación heurística simple
-            if numpy_max(image) > 1.0:
-                max_val = 255.0
-            else:
-                max_val = 1.0
+            return (image.astype(float32) / 255.0), 255.0
+        elif numpy_max(image) > 1.0:
+            return (image.astype(float32) / 255.0), 255.0
         else:
-            # Fallback seguro
-            max_val = 255.0
+            return image.astype(float32), 1.0
 
-        if max_val == 1.0:
-            return image.astype(float32), 1
+    def de_normalize_image(self, image: numpy_ndarray, range_val: float) -> numpy_ndarray:
+        image = image * range_val
+        return numpy_clip(image, 0, 255).astype(uint8)
 
-        normalized = image.astype(float32) / max_val
-        return normalized, int(max_val)
+    def preprocess_image_batch(self, images_list: list) -> numpy_ndarray:
+        """Convierte una lista de imágenes HWC a un batch NCHW."""
+        # Stack convierte lista de arrays (H,W,C) en (N, H, W, C)
+        batch = numpy_stack(images_list, axis=0)
+        # Transponer a (N, C, H, W)
+        batch = numpy_transpose(batch, (0, 3, 1, 2))
+        return numpy_ascontiguousarray(batch)
 
-    def preprocess_image(self, image: numpy_ndarray) -> numpy_ndarray:
-        """HWC (Height, Width, Channels) -> NCHW (Batch, Channels, Height, Width)."""
-        image = numpy_ascontiguousarray(image)
-        image = numpy_transpose(image, (2, 0, 1))  # HWC -> CHW
-        image = numpy_expand_dims(image, axis=0)   # CHW -> NCHW
-        return image
-
-    def onnxruntime_inference(self, image: numpy_ndarray) -> numpy_ndarray:
-        """Ejecuta la inferencia ONNX."""
+    def onnx_inference_batch(self, batch_input: numpy_ndarray) -> numpy_ndarray:
         if self.inferenceSession is None:
             self._load_inferenceSession()
 
         input_name = self.inferenceSession.get_inputs()[0].name
-        onnx_input = {input_name: image}
+        # Ejecutar inferencia
+        try:
+            results = self.inferenceSession.run(
+                None, {input_name: batch_input})[0]
+        except Exception as e:
+            # Fallback a CPU si falla GPU por memoria en lote grande
+            logging.warning(
+                f"Batch inference failed: {e}. Retrying individually might be needed.")
+            raise e
 
-        # Ejecutar (run devuelve una lista, tomamos el primer output)
-        onnx_output = self.inferenceSession.run(None, onnx_input)[0]
-        return onnx_output
+        return results
 
-    def postprocess_output(self, onnx_output: numpy_ndarray) -> numpy_ndarray:
-        """NCHW -> HWC y Clip 0-1."""
-        onnx_output = numpy_squeeze(onnx_output, axis=0)  # Remove batch dim
-        onnx_output = numpy_clip(onnx_output, 0, 1)       # Ensure valid range
-        onnx_output = numpy_transpose(onnx_output, (1, 2, 0))  # CHW -> HWC
-        return onnx_output
+    def _process_tile_batch(self, batch_images: list, range_val: float) -> list:
+        """Helper para procesar un lote de tiles RGB."""
+        if not batch_images:
+            return []
 
-    def de_normalize_image(self, onnx_output: numpy_ndarray, max_range: int) -> numpy_ndarray:
-        """Float 0-1 -> Uint8/16 0-MaxRange con redondeo bancario seguro."""
-        # Clip para evitar overflow por artefactos de IA
-        onnx_output = numpy_clip(onnx_output, 0.0, 1.0)
+        # 1. Normalizar (asumiendo que ya vienen en float32 0-1 o procesar aqui)
+        # Para velocidad, asumiremos que batch_images ya son recortes del 'image_norm' (float32)
 
-        if max_range == 65535:
-            return (onnx_output * 65535.0).round().astype(numpy.uint16)
-        else:
-            # Default a 255 (uint8)
-            return (onnx_output * 255.0).round().astype(uint8)
+        # 2. Preprocesar (HWC -> NCHW)
+        batch_nchw = self.preprocess_image_batch(batch_images)
+
+        # 3. Inferencia
+        output_nchw = self.onnx_inference_batch(batch_nchw)
+
+        # 4. Post-proceso (NCHW -> HWC)
+        # Transponer de vuelta a (N, H, W, C)
+        output_nhwc = numpy_transpose(output_nchw, (0, 2, 3, 1))
+
+        # 5. Denormalizar y convertir a lista
+        processed_batch = []
+        for i in range(output_nhwc.shape[0]):
+            img_out = self.de_normalize_image(output_nhwc[i], range_val)
+            processed_batch.append(img_out)
+
+        return processed_batch
 
     # -------------------------------------------------------------------------
-    # CORE UPSCALE LOGIC
+    # MAIN UPSCALE LOGIC
     # -------------------------------------------------------------------------
-
     def AI_upscale(self, image: numpy_ndarray) -> numpy_ndarray:
         try:
             if image is None or image.size == 0:
                 raise ValueError("Input image is empty")
 
+            # Manejo de memoria y formato
             image = numpy_ascontiguousarray(image)
-            height, width = image.shape[:2]
+            mode = self.get_image_mode(image)
 
-            # --- MANEJO ROBUSTO DE CANALES (Fix 7) ---
+            # --- SEPARACIÓN DE CANAL ALPHA ---
+            has_alpha = False
+            channel_alpha = None
+            rgb_image = image
 
-            # Caso 1: Escala de grises (2D) -> Convertir a 3D RGB
-            if image.ndim == 2:
-                image = opencv_cvtColor(image, COLOR_GRAY2RGB)
-                is_grayscale_output = True
-                has_alpha = False
-
-            # Caso 2: RGBA (4 Canales) -> Separar Alpha
-            elif image.ndim == 3 and image.shape[2] == 4:
-                channels_rgb = image[:, :, :3]
-                channel_alpha = image[:, :, 3]
-                image = channels_rgb  # Procesaremos solo RGB con la IA
+            if mode == "RGBA":
                 has_alpha = True
-                is_grayscale_output = False
+                channel_alpha = image[:, :, 3]
+                rgb_image = image[:, :, :3]  # Extraer RGB
+            elif mode == "Grayscale":
+                # Convertir a RGB para el modelo
+                rgb_image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
 
-            # Caso 3: RGB Estándar
+            # --- PREPARACIÓN RGB ---
+            # Normalizar imagen completa
+            image_norm, range_val = self.normalize_image(rgb_image)
+
+            h, w = image_norm.shape[:2]
+
+            # Comprobar Tiling
+            # Usamos max_resolution - padding * 2 para asegurar que el contenido útil cabe
+            if (h * w) > (self.max_resolution ** 2):
+                upscaled_rgb = self._upscale_with_tiling_optimized(
+                    image_norm, range_val)
             else:
-                has_alpha = False
-                is_grayscale_output = False
+                # Proceso directo (Single Image)
+                upscaled_rgb = self._process_tile_batch(
+                    [image_norm], range_val)[0]
 
-            # --- INFERENCIA ---
-            # Normalizar RGB
-            image_norm, range_val = self.normalize_image(image)
-            processed_input = self.preprocess_image(image_norm)
-
-            # Ejecutar ONNX
-            onnx_output = self.onnxruntime_inference(processed_input)
-            post_output = self.postprocess_output(onnx_output)
-
-            # Desnormalizar
-            upscaled_rgb = self.de_normalize_image(post_output, range_val)
-
-            # --- RECONSTRUCCIÓN ---
-
-            # Si teníamos Alpha, lo escalamos por separado y lo unimos
+            # --- RECONSTRUCCIÓN ALPHA Y SALIDA ---
             if has_alpha:
+                # Escalar Alpha con Bicubic/Lanczos (muy rápido y buena calidad para máscaras)
                 target_h, target_w = upscaled_rgb.shape[:2]
-                # Usamos Lanczos o Cubic para el canal alpha (suavidad)
-                # Importante: cv2.resize usa (width, height)
-                upscaled_alpha = opencv_resize(
-                    channel_alpha, (target_w,
-                                    target_h), interpolation=INTER_CUBIC
-                )
-                # Expandir dims si es necesario para concatenar
+                upscaled_alpha = cv2.resize(
+                    channel_alpha, (target_w, target_h), interpolation=cv2.INTER_LANCZOS4)
+
+                # Unir
                 if upscaled_alpha.ndim == 2:
                     upscaled_alpha = numpy_expand_dims(upscaled_alpha, axis=2)
 
-                return numpy_concatenate((upscaled_rgb, upscaled_alpha), axis=2)
+                final_image = numpy_concatenate(
+                    (upscaled_rgb, upscaled_alpha), axis=2)
 
-            # Si era grayscale original, devolver grayscale
-            if is_grayscale_output:
-                return opencv_cvtColor(upscaled_rgb, COLOR_RGB2GRAY)
-
-            return upscaled_rgb
-
-        except Exception as e:
-            logging.error(f"AI Upscale Core Error: {str(e)}")
-            raise RuntimeError(f"Upscaling failed: {str(e)}")
-        try:
-            if image is None or image.size == 0:
-                raise ValueError("Input image is empty")
-
-            # Asegurar memoria contigua
-            image = numpy_ascontiguousarray(image)
-            image_mode = self.get_image_mode(image)
-
-            # Normalización inicial
-            image_norm, range_val = self.normalize_image(image)
-
-            if image_mode == "RGB":
-                processed_input = self.preprocess_image(image_norm)
-                onnx_output = self.onnxruntime_inference(processed_input)
-                post_output = self.postprocess_output(onnx_output)
-                return self.de_normalize_image(post_output, range_val)
-
-            elif image_mode == "Grayscale":
-                # Convertir a RGB para la IA, luego volver a gris
-                image_rgb = opencv_cvtColor(image, COLOR_GRAY2RGB)
-                image_rgb_norm, _ = self.normalize_image(image_rgb)
-
-                processed_input = self.preprocess_image(image_rgb_norm)
-                onnx_output = self.onnxruntime_inference(processed_input)
-                post_output = self.postprocess_output(onnx_output)
-
-                output_rgb = self.de_normalize_image(post_output, range_val)
-                return opencv_cvtColor(output_rgb, COLOR_RGB2GRAY)
-
-            elif image_mode == "RGBA":
-                # Estrategia Optimizada:
-                # 1. Separar RGB y Alpha
-                # 2. Escalar RGB con IA
-                # 3. Escalar Alpha con Bicubic (más rápido y evita artefactos de IA en máscaras)
-
-                # Separar canales (manteniendo uint8 original para alpha)
-                alpha_channel = image[:, :, 3]
-                rgb_channel = image[:, :, :3]
-
-                # Procesar RGB
-                # Llamada recursiva manejada como RGB simple para aprovechar la lógica existente
-                # Nota: Para evitar recursión infinita si hay bugs, usamos la lógica inline aquí
-                rgb_norm, r_val = self.normalize_image(rgb_channel)
-                rgb_input = self.preprocess_image(rgb_norm)
-                rgb_output_onnx = self.onnxruntime_inference(rgb_input)
-                rgb_output_post = self.postprocess_output(rgb_output_onnx)
-                upscaled_rgb = self.de_normalize_image(rgb_output_post, r_val)
-
-                # Procesar Alpha
-                # Calcular dimensiones objetivo basadas en la salida RGB
-                target_h, target_w = upscaled_rgb.shape[:2]
-
-                # Usar CUBIC para bordes suaves o AREA si fuera downscale (raro aquí)
-                interpolation = INTER_CUBIC if self.upscale_factor > 1 else INTER_AREA
-                upscaled_alpha = opencv_resize(
-                    alpha_channel, (target_w, target_h), interpolation=interpolation)
-
-                # Asegurar dimensión extra para concatenar
-                if upscaled_alpha.ndim == 2:
-                    upscaled_alpha = numpy_expand_dims(upscaled_alpha, axis=2)
-
-                # Recombinar
-                return numpy_concatenate((upscaled_rgb, upscaled_alpha), axis=2)
-
+            elif mode == "Grayscale":
+                final_image = cv2.cvtColor(upscaled_rgb, cv2.COLOR_RGB2GRAY)
             else:
-                raise ValueError(f"Unsupported image mode: {image_mode}")
-
-        except Exception as e:
-            logging.error(f"AI Upscale Core Error: {str(e)}")
-            raise RuntimeError(f"Upscaling failed: {str(e)}")
-
-    def AI_upscale_with_tilling(self, image: numpy_ndarray) -> numpy_ndarray:
-        try:
-            target_h, target_w = self.calculate_target_resolution(image)
-
-            # 1. Obtener tiles con coordenadas
-            tiles_data = self.split_image_into_tiles(image)
-            processed_tiles = []
-
-            print(
-                f"[AI] Tiling enabled: processing {len(tiles_data)} tiles...")
-
-            # 2. Procesar cada tile
-            for tile_img, x, y in tiles_data:
-                upscaled_tile = self.AI_upscale(tile_img)
-                processed_tiles.append((upscaled_tile, x, y))
-
-                # Liberar memoria inmediata
-                del tile_img
-
-            del tiles_data
-            gc.collect()
-
-            # 3. Detectar canales de salida
-            sample = processed_tiles[0][0]
-            channels = sample.shape[2] if sample.ndim == 3 else 1
-
-            # 4. Recombinar con precisión
-            final_image = self.combine_tiles_into_image(
-                target_h, target_w, processed_tiles, channels
-            )
+                final_image = upscaled_rgb
 
             return final_image
 
         except Exception as e:
-            logging.error(f"Tiling Error: {str(e)}")
-            raise RuntimeError(f"Tiled upscaling failed: {str(e)}")
+            logging.error(f"AI Upscale Error: {str(e)}")
+            raise RuntimeError(f"Upscaling failed: {str(e)}")
+
+    def _upscale_with_tiling_optimized(self, image_norm: numpy_ndarray, range_val: float) -> numpy_ndarray:
+        """
+        Sistema de Tiling Avanzado con Overlap (Superposición) y Batch Processing.
+        Elimina las costuras visibles (seams) y acelera con lotes.
+        """
+        h, w = image_norm.shape[:2]
+        tile_size = self.max_resolution
+        padding = self.tile_padding
+        scale = self.upscale_factor
+
+        # Coordenadas de los tiles (sin padding todavía)
+        # Se generan pasos de (tile_size - 2*padding) para asegurar cobertura limpia
+        step = tile_size - (2 * padding)
+        if step <= 0:
+            step = tile_size // 2  # Fallback si el padding es enorme
+
+        y_points = list(range(0, h, step))
+        x_points = list(range(0, w, step))
+
+        # Calcular tamaño final
+        target_h, target_w = h * scale, w * scale
+
+        # Lienzo final pre-alocado (Más rápido que append)
+        final_image = numpy_zeros((target_h, target_w, 3), dtype=uint8)
+
+        batch_tiles = []
+        # (y_start_out, y_end_out, x_start_out, x_end_out, crop_y1, crop_y2, crop_x1, crop_x2)
+        batch_coords = []
+
+        print(
+            f"[AI] Advanced Tiling: Processing grid {len(y_points)}x{len(x_points)} with Batch Size {self.batch_size}")
+
+        for y in y_points:
+            for x in x_points:
+                # 1. Definir coordenadas del tile de entrada con padding
+                # Intentamos tomar padding extra, pero clampamos a los bordes de la imagen
+                y_start_in = max(0, y - padding)
+                y_end_in = min(h, y + step + padding)
+                x_start_in = max(0, x - padding)
+                x_end_in = min(w, x + step + padding)
+
+                # Extraer tile
+                tile = image_norm[y_start_in:y_end_in, x_start_in:x_end_in]
+
+                # Guardar tile para batch
+                batch_tiles.append(tile)
+
+                # 2. Calcular dónde va este tile en la imagen de SALIDA
+                # La zona "valid" es la que no es padding (excepto en los bordes de la imagen original)
+
+                # Offsets relativos dentro del tile extraído (para recortar el padding después del upscale)
+                res_y_start = (y - y_start_in) * scale
+                res_x_start = (x - x_start_in) * scale
+
+                # Dimensiones de la zona válida a pegar en el canvas final
+                # El ancho/alto "útil" es min(step, lo que quede de imagen) * scale
+                valid_h = min(step, h - y) * scale
+                valid_w = min(step, w - x) * scale
+
+                res_y_end = res_y_start + valid_h
+                res_x_end = res_x_start + valid_w
+
+                # Coordenadas absolutas en el canvas final
+                abs_y = y * scale
+                abs_x = x * scale
+
+                # Guardamos las coordenadas de recorte y pegado
+                batch_coords.append({
+                    "crop": (int(res_y_start), int(res_y_end), int(res_x_start), int(res_x_end)),
+                    "place": (int(abs_y), int(abs_y + valid_h), int(abs_x), int(abs_x + valid_w))
+                })
+
+                # --- PROCESAR BATCH SI ESTÁ LLENO ---
+                if len(batch_tiles) >= self.batch_size:
+                    self._process_and_stitch_batch(
+                        batch_tiles, batch_coords, final_image, range_val)
+                    batch_tiles = []
+                    batch_coords = []
+                    gc.collect()  # Mantener RAM a raya
+
+        # Procesar remanentes
+        if batch_tiles:
+            self._process_and_stitch_batch(
+                batch_tiles, batch_coords, final_image, range_val)
+            gc.collect()
+
+        return final_image
+
+    def _process_and_stitch_batch(self, tiles, coords, final_image, range_val):
+        """Procesa un batch y pega los resultados en el canvas global."""
+        # Nota: Los tiles pueden tener tamaños distintos en los bordes.
+        # Si los tamaños son distintos, no se puede hacer batching directo en un tensor único NCHW.
+        # Verificamos si todos tienen mismo tamaño. Si no, procesamos 1 a 1 (fallback del batch).
+
+        shapes = [t.shape for t in tiles]
+        if len(set(shapes)) > 1:
+            # Tamaños mixtos (pasa en bordes), procesar uno a uno
+            upscaled_tiles = []
+            for t in tiles:
+                upscaled_tiles.extend(self._process_tile_batch([t], range_val))
+        else:
+            # Todos iguales, batch real
+            upscaled_tiles = self._process_tile_batch(tiles, range_val)
+
+        # Pegado (Stitching)
+        for img_out, coord in zip(upscaled_tiles, coords):
+            cy1, cy2, cx1, cx2 = coord["crop"]
+            py1, py2, px1, px2 = coord["place"]
+
+            # Recortar zona válida (quitando padding escalado)
+            valid_content = img_out[cy1:cy2, cx1:cx2]
+
+            # Pegar en imagen final
+            # Asegurar dimensiones exactas (por redondeos)
+            fh, fw = final_image[py1:py2, px1:px2].shape[:2]
+            if valid_content.shape[0] != fh or valid_content.shape[1] != fw:
+                valid_content = valid_content[:fh, :fw]
+
+            final_image[py1:py2, px1:px2] = valid_content
 
     # -------------------------------------------------------------------------
     # ORCHESTRATION (PUBLIC API)
     # -------------------------------------------------------------------------
-
     def AI_orchestration(self, image: numpy_ndarray) -> numpy_ndarray:
         """Punto de entrada principal para procesar una imagen."""
         if self.inferenceSession is None:
             self._load_inferenceSession()
 
-        # 1. Redimensionar entrada (si aplica input % < 100)
-        try:
-            resized_input = self.resize_with_input_factor(image)
-        except Exception as e:
-            logging.warning(
-                f"Input resizing failed: {e}. Using original image.")
-            resized_input = image
+        # 1. Redimensionar Entrada (Input Resize)
+        image = self.resize_with_input_factor(image)
 
-        # 2. Decidir si usar Tiling o Directo
-        # Si el modelo no escala (x1), el tiling se basa en tamaño puro.
-        # Si escala, hay que tener cuidado con la expansión de memoria.
-        if self.image_need_tilling(resized_input):
-            upscaled_image = self.AI_upscale_with_tilling(resized_input)
-        else:
-            upscaled_image = self.AI_upscale(resized_input)
+        # 2. Upscaling (Core AI)
+        upscaled_image = self.AI_upscale(image)
 
-        # 3. Redimensionar salida (si aplica output % != 100)
-        try:
-            final_image = self.resize_with_output_factor(upscaled_image)
-        except Exception as e:
-            logging.warning(
-                f"Output resizing failed: {e}. Using upscaled image directly.")
-            final_image = upscaled_image
+        # 3. Redimensionar Salida (Output Resize)
+        final_image = self.resize_with_output_factor(upscaled_image)
 
         return final_image
 
@@ -1787,7 +1686,8 @@ class MessageBox(CTkToplevel):
             fg_color=widget_background_color,
             text_color=secondary_text_color,
             border_color=accent_color,
-            hover_color=button_hover_color
+        hover_color=button_hover_color,
+        corner_radius=CORNER_RADIUS
         )
 
         self._ctkwidgets_index += 1
@@ -1851,14 +1751,14 @@ def create_option_background():
         bg_color=background_color,
         fg_color=widget_background_color,
         height=46,
-        corner_radius=10
+        corner_radius=CORNER_RADIUS
     )
 
 
 def create_info_button(command: Callable, text: str, width: int = 200) -> CTkFrame:
 
     frame = CTkFrame(
-        master=window, fg_color=widget_background_color, height=25)
+        master=window, fg_color=widget_background_color, height=25, corner_radius=CORNER_RADIUS)
 
     button = CTkButton(
         master=frame,
@@ -1872,7 +1772,7 @@ def create_info_button(command: Callable, text: str, width: int = 200) -> CTkFra
         text_color=text_color,
         width=23,
         height=15,
-        corner_radius=1
+        corner_radius=CORNER_RADIUS
     )
     button.grid(row=0, column=0, padx=(0, 7), pady=2, sticky="w")
 
@@ -1920,7 +1820,7 @@ def create_option_menu(
         width=total_width,
         height=total_height,
         border_width=0,
-        corner_radius=1,
+        corner_radius=CORNER_RADIUS,
     )
 
     option_menu = CTkOptionMenu(
@@ -1929,7 +1829,7 @@ def create_option_menu(
         values=values,
         width=width,
         height=height,
-        corner_radius=0,
+        corner_radius=max(CORNER_RADIUS - 2, 0),
         dropdown_font=bold12,
         font=bold11,
         anchor="center",
@@ -1954,7 +1854,7 @@ def create_text_box(textvariable: StringVar, width: int) -> CTkEntry:
     return CTkEntry(
         master=window,
         textvariable=textvariable,
-        corner_radius=1,
+        corner_radius=CORNER_RADIUS,
         width=width,
         height=28,
         font=bold11,
@@ -1971,7 +1871,7 @@ def create_text_box_output_path(textvariable: StringVar) -> CTkEntry:
     return CTkEntry(
         master=window,
         textvariable=textvariable,
-        corner_radius=1,
+        corner_radius=CORNER_RADIUS,
         width=250,
         height=28,
         font=bold11,
@@ -2006,7 +1906,7 @@ def create_active_button(
         height=height,
         font=bold11,
         border_width=1,
-        corner_radius=1,
+        corner_radius=CORNER_RADIUS,
         fg_color=widget_background_color,
         text_color=text_color,
         border_color=border_color,
@@ -2691,8 +2591,10 @@ def copy_file_metadata(original_file_path: str, upscaled_file_path: str) -> None
             upscaled_file_path
         ]
 
+        # CORRECCIÓN: Agregar errors='replace' y encoding='utf-8' (o dejar encoding default pero con replace)
         result = subprocess_run(exiftool_cmd, check=True,
-                                shell=False, capture_output=True, text=True)
+                                shell=False, capture_output=True, text=True,
+                                encoding='utf-8', errors='replace')  # <--- CAMBIO AQUÍ
         print(f"[ExifTool] Successfully copied metadata")
 
     except CalledProcessError as e:
@@ -3264,6 +3166,9 @@ def video_encoding(
     """
 
     try:
+        # ... (El código de preparación de rutas y FPS se mantiene igual) ...
+        # Copia todo el inicio de la función hasta llegar a la parte de subprocess
+
         # --- Preparación de rutas temporales ---
         base_name = os_path_splitext(video_output_path)[0]
         txt_path = f"{base_name}_frames.txt"
@@ -3278,47 +3183,35 @@ def video_encoding(
                     print(
                         f"[WARNING] Temporary file could not be deleted {temp_file}: {e}")
 
-        # --- Obtener FPS del video original ---
+        # --- Obtener FPS ---
         try:
             video_fps = get_video_fps(video_path)
             if video_fps <= 0 or video_fps > 1000:
                 raise ValueError(f"FPS inválido: {video_fps}")
-
-            # Calcular FPS finales
             final_fps = video_fps * fps_multiplier
             video_fps_str = f"{final_fps:.6f}"
-
         except Exception as e:
             print(
                 f"[WARNING] Could not obtain FPS: {e}, using 30.0 by default")
             video_fps_str = "30.000000"
 
-        # --- Crear lista de frames para FFmpeg ---
+        # --- Crear lista de frames ---
         if not create_frame_list_file(upscaled_frame_paths, txt_path):
             raise RuntimeError("Error creating the frames list file")
 
         # ==============================================================================
         #  LOGICA DE FALLBACK (INTENTOS DE CODIFICACIÓN)
         # ==============================================================================
-
-        # Intentaremos máximo 2 veces:
-        # Intento 0: El códec seleccionado por el usuario (ej. h264_nvenc)
-        # Intento 1: Fallback a CPU (x264) si el anterior falla
-
         encoding_success = False
 
         for attempt in range(2):
             try:
-                # Determinar qué códec usar en este intento
                 current_codec = selected_video_codec
-
                 if attempt == 1:
-                    # SI ESTAMOS EN EL INTENTO 1, ACTIVAMOS EL FALLBACK
                     process_status_q.put(
                         f"[LOG] [WARNING] Hardware encoding failed. Switching to CPU fallback (x264)...")
                     current_codec = 'x264'
 
-                # --- Configurar codificación ---
                 codec_settings = get_video_codec_settings(
                     current_codec, {'fps': video_fps_str})
                 encoding_command = build_encoding_command(
@@ -3327,18 +3220,17 @@ def video_encoding(
                 process_status_q.put(
                     f"[LOG] [FFMPEG] Attempt {attempt+1}: Encoding with {codec_settings['codec']}")
 
-                # --- Ejecutar FFmpeg ---
+                # --- Ejecutar FFmpeg (CORREGIDO CON ERRORS='REPLACE') ---
                 process = subprocess.Popen(
                     encoding_command,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
                     encoding='utf-8',
-                    errors='replace',
+                    errors='replace',  # <--- ESTO YA ESTABA, PERO ASEGÚRATE QUE ESTÉ PRESENTE
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
                 )
 
-                # Leer salida
                 for line in process.stdout:
                     line = line.strip()
                     if line:
@@ -3346,39 +3238,25 @@ def video_encoding(
 
                 process.wait()
 
-                # Verificar éxito
                 if process.returncode != 0:
-                    # Si falló y es el primer intento, lanzamos excepción para que el 'except' la capture y active el fallback
                     if attempt == 0:
                         raise RuntimeError(
                             f"FFmpeg failed with code {process.returncode}")
                     else:
-                        # Si falló el fallback (x264), ya es un error fatal
                         raise RuntimeError("FFmpeg CPU Fallback also failed.")
 
-                if not os_path_exists(no_audio_path):
+                if not os_path_exists(no_audio_path) or os_path_getsize(no_audio_path) < 1024:
                     if attempt == 0:
-                        raise RuntimeError("Output file missing")
+                        raise RuntimeError("Output file missing or too small")
                     else:
                         raise RuntimeError(
-                            "Output file missing after fallback")
+                            "Output file missing or too small after fallback")
 
-                # Si llegamos aquí, todo salió bien
-                output_size = os_path_getsize(no_audio_path)
-                if output_size < 1024:
-                    if attempt == 0:
-                        raise RuntimeError("Output file too small")
-                    else:
-                        raise RuntimeError(
-                            "Output file too small after fallback")
-
-                process_status_q.put(
-                    f"[LOG] [FFMPEG] Encoding complete ({output_size / (1024*1024):.1f} MB)")
+                process_status_q.put(f"[LOG] [FFMPEG] Encoding complete")
                 encoding_success = True
-                break  # Salir del bucle de intentos
+                break
 
             except Exception as e:
-                # Si falló el intento 0 (Hardware), limpiamos y permitimos que el bucle continúe al intento 1 (CPU)
                 if attempt == 0:
                     process_status_q.put(
                         f"[LOG] [WARNING] Primary encoding failed: {e}. Preparing fallback...")
@@ -3387,22 +3265,20 @@ def video_encoding(
                             os_remove(no_audio_path)
                         except:
                             pass
-                    continue  # Continúa al siguiente ciclo del for (fallback)
+                    continue
                 else:
-                    # Si falló el intento 1, relanzamos el error final
                     raise e
 
         if not encoding_success:
             raise RuntimeError("Encoding failed after all attempts.")
 
         # ==============================================================================
-        #  FIN LOGICA DE FALLBACK - CONTINUA DETECCIÓN DE AUDIO
+        #  DETECTAR AUDIO (AQUÍ ES DONDE SUELE FALLAR EL 0xe1)
         # ==============================================================================
-
-        # --- Detección de audio ---
         process_status_q.put(
             "[LOG] [FFMPEG] Checking audio track of original video...")
 
+        # ... (Código de búsqueda de ffprobe se mantiene igual) ...
         ffprobe_path = None
         try:
             ffprobe_guess = FFMPEG_EXE_PATH.replace(
@@ -3414,7 +3290,7 @@ def video_encoding(
                     "ffmpeg.exe", "ffprobe")
                 if os_path_exists(ffprobe_guess2):
                     ffprobe_path = ffprobe_guess2
-        except Exception:
+        except:
             ffprobe_path = None
 
         has_audio = False
@@ -3427,8 +3303,9 @@ def video_encoding(
                     "-show_entries", "stream=codec_name",
                     "-of", "default=noprint_wrappers=1:nokey=1", video_path
                 ]
-                probe = subprocess_run(
-                    probe_cmd, capture_output=True, text=True, timeout=30)
+                # CORRECCIÓN: Agregar errors='replace'
+                probe = subprocess_run(probe_cmd, capture_output=True, text=True,
+                                       encoding='utf-8', errors='replace', timeout=30)  # <--- CAMBIO
                 audio_codec = probe.stdout.strip()
                 has_audio = bool(audio_codec)
             except Exception as e:
@@ -3438,8 +3315,9 @@ def video_encoding(
         if not ffprobe_path or not has_audio:
             try:
                 probe_cmd = [FFMPEG_EXE_PATH, "-i", video_path]
-                probe = subprocess_run(
-                    probe_cmd, capture_output=True, text=True, timeout=20)
+                # CORRECCIÓN: Agregar errors='replace'
+                probe = subprocess_run(probe_cmd, capture_output=True, text=True,
+                                       encoding='utf-8', errors='replace', timeout=20)  # <--- CAMBIO
                 stderr_output = probe.stderr or probe.stdout or ""
                 if "Audio:" in stderr_output:
                     has_audio = True
@@ -3455,14 +3333,14 @@ def video_encoding(
                 "-i", video_path, "-i", no_audio_path,
                 "-c:v", "copy", "-c:a", "copy",
                 "-map", "1:v:0", "-map", "0:a",
-                "-shortest",
-                video_output_path
+                "-shortest", video_output_path
             ]
             try:
                 process_status_q.put(
                     "[LOG] [FFMPEG] Trying to copy audio track...")
-                subprocess_run(audio_copy_cmd, check=True,
-                               capture_output=True, text=True)
+                # CORRECCIÓN: Agregar errors='replace'
+                subprocess_run(audio_copy_cmd, check=True, capture_output=True, text=True,
+                               encoding='utf-8', errors='replace')  # <--- CAMBIO
 
                 if os_path_exists(no_audio_path):
                     os_remove(no_audio_path)
@@ -3478,12 +3356,13 @@ def video_encoding(
                 "-i", video_path, "-i", no_audio_path,
                 "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                 "-map", "1:v:0", "-map", "0:a",
-                "-shortest",
-                video_output_path
+                "-shortest", video_output_path
             ]
             try:
-                subprocess_run(audio_reencode_cmd, check=True,
-                               capture_output=True, text=True)
+                # CORRECCIÓN: Agregar errors='replace'
+                subprocess_run(audio_reencode_cmd, check=True, capture_output=True, text=True,
+                               encoding='utf-8', errors='replace')  # <--- CAMBIO
+
                 if os_path_exists(no_audio_path):
                     os_remove(no_audio_path)
                 process_status_q.put(
@@ -3793,60 +3672,141 @@ def upscale_button_command() -> None:
     global selected_frame_generation_option
     global process_upscale_orchestrator
     global stop_thread_flag
-    global process_upscale_orchestrator
-    global stop_thread_flag
+    global chain_window  # Necesario para acceder al gestor de cadenas
 
-    # --- AGREGAR CONFIRMACIÓN ---
+    # 1. Confirmación de seguridad
     if not messagebox.askyesno("Start Processing", "Do you want to start the AI processing?"):
         return
-    # ----------------------------
 
-    # Fix 2.2: Clear stop_thread_flag at the beginning of each execution
+    # 2. Limpiar bandera de parada
     stop_thread_flag.clear()
 
+    # 3. Validar entradas del usuario
     if user_input_checks():
         info_message.set("Loading")
-        cpu_number = int(os_cpu_count()/2)
+        cpu_number = int(os_cpu_count() / 2)
+
+        # --- LÓGICA DE ENCADENAMIENTO (CHAINING) ---
+        active_chain = []
+
+        # Verificar si la ventana de cadena existe y tiene pasos
+        if 'chain_window' in globals() and chain_window is not None:
+            try:
+                # Verificar si la ventana no ha sido destruida
+                if chain_window.winfo_exists():
+                    active_chain = chain_window.get_chain()
+            except Exception:
+                # Si la ventana fue cerrada, chain_window puede quedar con referencia rota
+                pass
+
+        # Determinar si vamos a usar cadena o proceso simple
+        is_chain_active = len(active_chain) > 0
+
+        # --- VISUALIZACIÓN DE LOGS (Consola) ---
         print("=" * 50)
-        print(f"> Starting:")
+        print(f"> Starting Process:")
         print(f"  Files to process: {len(selected_file_list)}")
-        print(f"  Output path: {(selected_output_path.get())}")
-        print(f"  Selected AI model: {selected_AI_model}")
-        print(
-            f"  Selected frame generation option: {selected_frame_generation_option}")
-        print(f"  Selected GPU: {selected_gpu}")
-        print(f"  AI multithreading: {selected_AI_multithreading}")
-        print(f"  Blending/factor: {selected_blending_factor}")
-        print(f"  Selected image output extension: {selected_image_extension}")
-        print(f"  Selected video output extension: {selected_video_extension}")
-        print(f"  Selected video output codec: {selected_video_codec}")
-        print(
-            f"  Tiles resolution (for GPU): {tiles_resolution}x{tiles_resolution}px")
-        print(f"  Input resize: {int(input_resize_factor * 100)}%")
-        print(f"  Output resize: {int(output_resize_factor * 100)}%")
+        print(f"  Output path: {selected_output_path.get()}")
         print(f"  CPU threads: {cpu_number}")
-        print(f"  Save frames: {selected_keep_frames}")
+
+        if is_chain_active:
+            print(
+                f"  [MODE] CHAIN PROCESSING ACTIVE ({len(active_chain)} Steps)")
+            for i, step in enumerate(active_chain):
+                print(f"    Step {i+1}: {step}")
+        else:
+            print(f"  [MODE] SINGLE PROCESSING")
+            print(f"  Selected AI model: {selected_AI_model}")
+            print(f"  Selected GPU: {selected_gpu}")
+            print(f"  Input resize: {int(input_resize_factor * 100)}%")
+            print(f"  Output resize: {int(output_resize_factor * 100)}%")
+            print(f"  Frame Gen: {selected_frame_generation_option}")
+            print(f"  VRAM/Tiles: {tiles_resolution}x{tiles_resolution}px")
+
         print("=" * 50)
+
+        # Colocar botón de STOP
         place_stop_button()
 
-        # Use FluidFrames' RIFE-based pipeline when relevant
-        if selected_AI_model in RIFE_models_list:
-            process_upscale_orchestrator = Process(
-                target=fluidframes_interpolation_pipeline,
-                args=(process_status_q, selected_file_list, selected_output_path.get(), selected_AI_model, selected_gpu,
-                      selected_frame_generation_option, selected_image_extension, selected_video_extension, selected_video_codec,
-                      input_resize_factor, output_resize_factor, cpu_number, selected_keep_frames)
-            )
-            process_upscale_orchestrator.start()
-        else:
+        # --- SELECCIÓN DE PROCESO (ORCHESTRATOR) ---
+
+        if is_chain_active:
+            # CASO A: CADENA ACTIVA
+            # Usamos el upscale_orchestrator actualizado, pasando la lista de pasos
             process_upscale_orchestrator = Process(
                 target=upscale_orchestrator,
-                args=(process_status_q, selected_file_list, selected_output_path.get(), selected_AI_model, selected_AI_multithreading,
-                      input_resize_factor, output_resize_factor, selected_gpu, tiles_resolution, selected_blending_factor,
-                      selected_keep_frames, selected_image_extension, selected_video_extension, selected_video_codec, cpu_number,)
+                args=(
+                    process_status_q,
+                    selected_file_list,
+                    selected_output_path.get(),
+                    # Se ignora si hay chain, pero se pasa por compatibilidad posicional
+                    selected_AI_model,
+                    selected_AI_multithreading,
+                    input_resize_factor,        # Se ignora si hay chain
+                    output_resize_factor,       # Se ignora si hay chain
+                    selected_gpu,               # Se ignora si hay chain
+                    tiles_resolution,
+                    selected_blending_factor,   # Se ignora si hay chain
+                    selected_keep_frames,
+                    selected_image_extension,
+                    selected_video_extension,
+                    selected_video_codec,
+                    cpu_number,
+                    active_chain                # <--- AQUÍ PASAMOS LA CADENA
+                )
             )
             process_upscale_orchestrator.start()
 
+        elif selected_AI_model in RIFE_models_list:
+            # CASO B: RIFE / INTERPOLACIÓN (Sin Cadena)
+            # FluidFrames usa su propio pipeline específico
+            process_upscale_orchestrator = Process(
+                target=fluidframes_interpolation_pipeline,
+                args=(
+                    process_status_q,
+                    selected_file_list,
+                    selected_output_path.get(),
+                    selected_AI_model,
+                    selected_gpu,
+                    selected_frame_generation_option,
+                    selected_image_extension,
+                    selected_video_extension,
+                    selected_video_codec,
+                    input_resize_factor,
+                    output_resize_factor,
+                    cpu_number,
+                    selected_keep_frames
+                )
+            )
+            process_upscale_orchestrator.start()
+
+        else:
+            # CASO C: UPSCALE / RESTAURACIÓN NORMAL (Sin Cadena)
+            # Pasamos None en el último argumento para que el orquestador cree el paso único
+            process_upscale_orchestrator = Process(
+                target=upscale_orchestrator,
+                args=(
+                    process_status_q,
+                    selected_file_list,
+                    selected_output_path.get(),
+                    selected_AI_model,
+                    selected_AI_multithreading,
+                    input_resize_factor,
+                    output_resize_factor,
+                    selected_gpu,
+                    tiles_resolution,
+                    selected_blending_factor,
+                    selected_keep_frames,
+                    selected_image_extension,
+                    selected_video_extension,
+                    selected_video_codec,
+                    cpu_number,
+                    None  # <--- SIN CADENA
+                )
+            )
+            process_upscale_orchestrator.start()
+
+        # Iniciar hilo de monitoreo de la interfaz
         thread_wait = Thread(target=check_upscale_steps)
         thread_wait.start()
 
@@ -4065,8 +4025,8 @@ def upscale_orchestrator(
     selected_output_path: str,
     selected_AI_model: str,
     selected_AI_multithreading: int,
-    input_resize_factor: int,
-    output_resize_factor: int,
+    input_resize_factor: float,
+    output_resize_factor: float,
     selected_gpu: str,
     tiles_resolution: int,
     selected_blending_factor: float,
@@ -4075,73 +4035,315 @@ def upscale_orchestrator(
     selected_video_extension: str,
     selected_video_codec: str,
     cpu_number: int,
+    # NUEVO ARGUMENTO: Lista de pasos para encadenamiento
+    chain_steps: list = None
 ) -> None:
 
     global global_status_lock
     global_status_lock = Lock()
 
-    try:
-        write_process_status(process_status_q, f"Loading AI model")
+    # Lista para rastrear carpetas temporales y limpiarlas al final
+    temp_folders_created = []
 
-        # Instanciar modelos
-        if selected_AI_model in Face_restoration_models_list:
-            AI_upscale_instance_list = [
-                AI_face_restoration(
-                    selected_AI_model,
-                    selected_gpu,
-                    input_resize_factor,
-                    output_resize_factor,
-                    tiles_resolution
-                )
-                for _ in range(selected_AI_multithreading)
-            ]
-        else:
-            AI_upscale_instance_list = [
-                AI_upscale(
-                    selected_AI_model,
-                    selected_gpu,
-                    input_resize_factor,
-                    output_resize_factor,
-                    tiles_resolution
-                )
-                for _ in range(selected_AI_multithreading)
-            ]
+    try:
+        # ---------------------------------------------------------------------
+        # 1. NORMALIZACIÓN DE LA CADENA
+        # Si no hay cadena (uso normal), creamos un paso único con los args recibidos.
+        # ---------------------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # 1. NORMALIZACIÓN DE LA CADENA
+        # ---------------------------------------------------------------------
+        if not chain_steps:
+            # Crea un paso único si no se usa el gestor de cadenas
+            # Nota: vram_limit se pasa tal cual, el orquestador calculará los tiles
+            try:
+                vram_val = float(selected_VRAM_limiter.get())
+            except:
+                vram_val = 0.0
+
+            initial_step = ProcessingStep(
+                model_name=selected_AI_model,
+                input_resize=input_resize_factor,
+                output_resize=output_resize_factor,
+                blending=selected_blending_factor,
+                vram_limit=vram_val,
+                extension=selected_image_extension if not check_if_file_is_video(
+                    selected_file_list[0]) else selected_video_extension,
+                video_codec=selected_video_codec,
+                frame_gen="OFF",
+                keep_frames=selected_keep_frames,
+                gpu=selected_gpu
+            )
+            chain_steps = [initial_step]
 
         how_many_files = len(selected_file_list)
-        for file_number in range(how_many_files):
-            file_path = selected_file_list[file_number]
-            display_number = file_number + 1  # Fix index for display
 
-            if check_if_file_is_video(file_path):
-                upscale_video(
+        # ---------------------------------------------------------------------
+        # 2. BUCLE PRINCIPAL DE ARCHIVOS
+        # ---------------------------------------------------------------------
+        for file_number in range(how_many_files):
+            # El archivo de entrada inicial
+            original_input_path = selected_file_list[file_number]
+            current_input_path = original_input_path
+
+            # Nombre base para logs
+            base_filename = os_path_basename(original_input_path)
+            display_number = file_number + 1
+
+            # -----------------------------------------------------------------
+            # 3. BUCLE DE LA CADENA DE PROCESOS (STEPS)
+            # -----------------------------------------------------------------
+            for step_index, step in enumerate(chain_steps):
+
+                # Identificar si es el último paso
+                is_last_step = (step_index == len(chain_steps) - 1)
+                step_display = f"[Step {step_index + 1}/{len(chain_steps)}]"
+
+                # --- CONFIGURACIÓN DEL PASO ACTUAL ---
+                current_model = step.model_name
+                current_input_resize = step.input_resize
+                current_output_resize = step.output_resize
+                current_blending = step.blending
+                current_gpu = step.gpu
+
+                # Determinar extensión de salida para este paso
+                is_video = check_if_file_is_video(current_input_path)
+                if is_video:
+                    # Temp video container
+                    current_extension = selected_video_extension if is_last_step else ".mp4"
+                    current_codec = step.video_codec if step.video_codec else selected_video_codec
+                else:
+                    current_extension = step.extension if step.extension else selected_image_extension
+                try:
+                    if is_video and current_extension.lower() not in [".mp4", ".mkv", ".avi", ".mov", ".webm"]:
+                        current_extension = ".mp4"
+                    if (not is_video) and current_extension.lower() not in [".png", ".jpg", ".bmp", ".tiff", ".webp"]:
+                        current_extension = ".png"
+                except Exception:
+                    pass
+
+                # --- GESTIÓN DE RUTAS DE SALIDA ---
+                if is_last_step:
+                    # El último paso va a la carpeta seleccionada por el usuario
+                    current_output_dir = selected_output_path
+                else:
+                    # Pasos intermedios van a una carpeta temporal única
+                    current_output_dir = os_path_join(
+                        os_path_dirname(original_input_path),
+                        f"warlock_temp_step_{step_index}_{int(time.time())}"
+                    )
+                    if not os_path_exists(current_output_dir):
+                        create_dir(current_output_dir)
+                        temp_folders_created.append(current_output_dir)
+
+                # --- LOG DE ESTADO ---
+                write_process_status(
                     process_status_q,
-                    file_path,
-                    display_number,
-                    selected_output_path,
-                    AI_upscale_instance_list,
-                    selected_AI_model,
-                    input_resize_factor,
-                    output_resize_factor,
-                    cpu_number,
-                    selected_video_extension,
-                    selected_blending_factor,
-                    selected_AI_multithreading,
-                    selected_keep_frames,
-                    selected_video_codec
+                    f"{display_number}. {step_display} Loading {current_model}..."
                 )
-            else:
-                upscale_image(
+
+                is_interpolation_step = (current_model in RIFE_models_list) or (step.frame_gen and step.frame_gen != "OFF")
+
+                if is_interpolation_step:
+                    # Validar que la entrada actual sea video
+                    if not is_video:
+                        write_process_status(
+                            process_status_q,
+                            f"{display_number}. {step_display} Skipping: Interpolation requires a video input"
+                        )
+                        # Mantener current_input_path sin cambios y continuar con el siguiente paso
+                        continue
+
+                    # Resolver factor de generación y modo slowmotion a partir de frame_gen del paso
+                    frame_gen_factor, slowmotion = check_frame_generation_option(step.frame_gen)
+
+                    try:
+                        AI_interp = AI_interpolation(
+                            current_model,
+                            frame_gen_factor,
+                            current_gpu,
+                            current_input_resize,
+                            current_output_resize
+                        )
+                    except Exception as e:
+                        raise RuntimeError(f"Error loading interpolation model {current_model}: {e}")
+
+                    write_process_status(
+                        process_status_q,
+                        f"{display_number}. {step_display} Interpolating video..."
+                    )
+
+                    video_container_ext = current_extension if is_last_step else ".mp4"
+                    codec_to_use = current_codec
+
+                    try:
+                        fluidframes_video_interpolate(
+                            process_status_q,
+                            current_input_path,
+                            display_number,
+                            current_output_dir,
+                            AI_interp,
+                            current_model,
+                            frame_gen_factor,
+                            slowmotion,
+                            ".png",                     # extracción temporal siempre PNG
+                            video_container_ext,
+                            codec_to_use,
+                            current_input_resize,
+                            current_output_resize,
+                            cpu_number,
+                            step.keep_frames if is_last_step else False
+                        )
+                    except Exception as e:
+                        raise RuntimeError(f"Interpolation failed: {e}")
+
+                    expected_filename = prepare_output_video_filename(
+                        current_input_path,
+                        current_output_dir,
+                        current_model,
+                        frame_gen_factor,
+                        slowmotion,
+                        current_input_resize,
+                        current_output_resize,
+                        video_container_ext
+                    )
+                else:
+                    # --- INSTANCIACIÓN DEL MODELO (UPSCALE/RESTORE) ---
+                    # Recalcular tiles si hay límite de VRAM en el paso
+                    current_tiles_resolution = tiles_resolution
+                    if step.vram_limit > 0:
+                        vram_multiplier = VRAM_model_usage.get(current_model, 1.0)
+                        current_tiles_resolution = int(
+                            (vram_multiplier * step.vram_limit) * 100)
+
+                    # Crear instancias
+                    AI_instances = []
+                    try:
+                        # Determinar clase (Face Restore vs Upscale Genérico)
+                        if current_model in Face_restoration_models_list:
+                            AI_instances = [
+                                AI_face_restoration(
+                                    current_model,
+                                    current_gpu,
+                                    current_input_resize,
+                                    current_output_resize,
+                                    current_tiles_resolution
+                                ) for _ in range(selected_AI_multithreading)
+                            ]
+                        else:
+                            AI_instances = [
+                                AI_upscale(
+                                    current_model,
+                                    current_gpu,
+                                    current_input_resize,
+                                    current_output_resize,
+                                    current_tiles_resolution
+                                ) for _ in range(selected_AI_multithreading)
+                            ]
+                    except Exception as e:
+                        raise RuntimeError(
+                            f"Error loading model {current_model}: {e}")
+
+                # --- EJECUCIÓN DEL PROCESAMIENTO ---
+                write_process_status(
                     process_status_q,
-                    file_path,
-                    display_number,
-                    selected_output_path,
-                    AI_upscale_instance_list[0],
-                    selected_AI_model,
-                    selected_image_extension,
-                    input_resize_factor,
-                    output_resize_factor,
-                    selected_blending_factor
+                    f"{display_number}. {step_display} Processing {base_filename}..."
                 )
+
+                # Predecir el nombre del archivo de salida para poder pasarlo al siguiente paso
+                if not is_interpolation_step:
+                    if is_video:
+                        # Lógica para Video
+                        upscale_video(
+                            process_status_q,
+                            current_input_path,
+                            display_number,  # Mantiene el número original
+                            current_output_dir,
+                            AI_instances,
+                            current_model,
+                            current_input_resize,
+                            current_output_resize,
+                            cpu_number,
+                            current_extension,
+                            current_blending,
+                            selected_AI_multithreading,
+                            # Solo guardar frames si es el último y el usuario quiere
+                            step.keep_frames if is_last_step else False,
+                            current_codec
+                        )
+
+                        # Calcular cuál fue el archivo resultante para usarlo de input en el siguiente paso
+                        expected_filename = prepare_output_video_filename(
+                            current_input_path,
+                            # Importante: Buscar en el dir actual (temp o final)
+                            current_output_dir,
+                            current_model,
+                            1,  # frame_gen factor (upscale es 1)
+                            False,  # slowmo
+                            current_input_resize,
+                            current_output_resize,
+                            current_extension
+                        )
+
+                    else:
+                        # Lógica para Imagen
+                        # Nota: upscale_image solo procesa una instancia, pasamos la primera
+                        upscale_image(
+                            process_status_q,
+                            current_input_path,
+                            display_number,
+                            current_output_dir,
+                            AI_instances[0],
+                            current_model,
+                            current_extension,
+                            current_input_resize,
+                            current_output_resize,
+                            current_blending
+                        )
+
+                        # Calcular archivo resultante
+                        expected_filename = prepare_output_image_filename(
+                            current_input_path,
+                            current_output_dir,
+                            current_model,
+                            current_input_resize,
+                            current_output_resize,
+                            current_extension,
+                            current_blending
+                        )
+
+                # --- PREPARACIÓN PARA EL SIGUIENTE PASO ---
+                # Verificar que el archivo se creó correctamente
+                if not os_path_exists(expected_filename):
+                    raise FileNotFoundError(
+                        f"Step {step_index+1} failed. Output file not found: {expected_filename}")
+
+                # El output de este paso es el input del siguiente
+                current_input_path = expected_filename
+
+                # Limpiar memoria VRAM/RAM entre pasos
+                try:
+                    del AI_instances
+                except:
+                    pass
+                optimize_memory_usage()
+
+            # Fin del bucle de pasos para este archivo
+
+        # ---------------------------------------------------------------------
+        # 4. LIMPIEZA FINAL
+        # ---------------------------------------------------------------------
+
+        # Eliminar carpetas temporales de encadenamiento
+        for temp_dir in temp_folders_created:
+            if os_path_exists(temp_dir):
+                try:
+                    # Usamos shutil.rmtree para borrar carpeta y contenido
+                    import shutil
+                    shutil.rmtree(temp_dir)
+                except Exception as e:
+                    print(
+                        f"Warning: Could not remove temp chain dir {temp_dir}: {e}")
 
         write_process_status(process_status_q, f"{COMPLETED_STATUS}")
 
@@ -4150,21 +4352,28 @@ def upscale_orchestrator(
 
         # Enviamos el error a la consola visual
         write_process_status(
-            process_status_q, f"[LOG] [ERROR] Detalle técnico: {error_message}")
+            process_status_q, f"[LOG] [ERROR] Technical detail: {error_message}")
 
         if "cannot convert float NaN to integer" in error_message:
-            friendly_msg = "Timeout del Driver de GPU. Intenta reiniciar sin borrar los frames."
+            friendly_msg = "GPU Driver Timeout. Try restarting without keeping frames."
             write_process_status(
                 process_status_q, f"{ERROR_STATUS}{friendly_msg}")
         elif "memory" in error_message.lower():
-            # Error específico de memoria
             write_process_status(
-                process_status_q, f"{ERROR_STATUS}Memoria VRAM insuficiente. Baja la resolución de 'Tiles' o el 'Input %'.")
+                process_status_q, f"{ERROR_STATUS}Insufficient VRAM. Lower 'Tiles resolution' or 'Input %'.")
         else:
             write_process_status(
                 process_status_q, f"{ERROR_STATUS}{error_message}")
 
-        # Mantener impresión en consola terminal por si acaso
+        # Limpiar temporales en caso de error también
+        for temp_dir in temp_folders_created:
+            if os_path_exists(temp_dir):
+                try:
+                    import shutil
+                    shutil.rmtree(temp_dir)
+                except:
+                    pass
+
         print(f"[ORCHESTRATOR ERROR] {error_message}")
 
 # ==== IMAGE PROCESSING SECTION ====
@@ -4954,7 +5163,7 @@ def place_loadFile_section():
 
     # --- 1. Crear el Frame de la Drop Zone (Inicialmente Visible) ---
     drop_zone_frame = CTkFrame(
-        master=window, fg_color=background_color, corner_radius=1)
+        master=window, fg_color=background_color, corner_radius=CORNER_RADIUS)
 
     text_drop = (" SUPPORTED FILES \n\n "
                  + "IMAGES • jpg, jpeg, png, bmp, tiff, tif, webp \n "
@@ -4970,7 +5179,7 @@ def place_loadFile_section():
         height=150,
         font=bold13,
         anchor="center",
-        corner_radius=10
+        corner_radius=CORNER_RADIUS
     )
 
     input_file_button = CTkButton(
@@ -4981,7 +5190,7 @@ def place_loadFile_section():
         height=30,
         font=bold12,
         border_width=1,
-        corner_radius=1,
+        corner_radius=CORNER_RADIUS,
         fg_color=widget_background_color,
         text_color=text_color,
         border_color=accent_color,
@@ -5012,7 +5221,7 @@ def place_loadFile_section():
 
 def place_app_name():
     background = CTkFrame(
-        master=window, fg_color=background_color, corner_radius=1)
+        master=window, fg_color=background_color, corner_radius=CORNER_RADIUS)
     app_name_label = CTkLabel(
         master=window,
         text=app_name + " " + version,
@@ -5581,25 +5790,74 @@ def place_stop_button():
         command=stop_button_command,
         text="STOP",
         icon=stop_icon,
-        width=240,    # Mismo ancho que el botón de inicio
-        height=28,    # Altura delgada (antes 30 o 45)
+        width=200,    # Ajustado a 200 (igual que el nuevo Make Magic)
+        height=28,    # Altura delgada
         border_color=error_color
     )
-    # Posición: rely=0.77 lo pone ARRIBA de la consola
-    stop_button.place(relx=0.75, rely=0.77, anchor="center")
+    # Posición: rely=0.77 y relx=0.83 (Misma que el nuevo Make Magic)
+    stop_button.place(relx=0.83, rely=0.77, anchor="center")
+
+# En Warlock-Studio.py, busca donde creas los botones principales
+
+
+def open_chain_manager():
+    global chain_window
+
+    # Callback para capturar la configuración actual de la GUI
+    def capture_current_settings():
+        # Capturamos las variables globales actuales de la GUI
+        return {
+            'model': selected_AI_model,
+            'input_resize': float(selected_input_resize_factor.get()) / 100.0,
+            'output_resize': float(selected_output_resize_factor.get()) / 100.0,
+            'blending': selected_blending_factor,
+            'vram': float(selected_VRAM_limiter.get()),
+            'ext_img': selected_image_extension,
+            'ext_vid': selected_video_extension,
+            'codec': selected_video_codec,
+            'frame_gen': selected_frame_generation_option,
+            'keep_frames': selected_keep_frames,
+            'gpu': selected_gpu
+        }
+
+    if chain_window is None or not chain_window.winfo_exists():
+        chain_window = ChainManager(window, capture_current_settings)
+    else:
+        chain_window.lift()
+
+# --- Añadir el botón en la GUI (ejemplo: al lado de settings) ---
+# Puedes añadir esto en la función `place_upscale_button` o crear `place_chain_button`
+
+
+def place_chain_button():
+    """
+    Coloca el botón Chain a la izquierda del botón Magic, en la misma fila.
+    """
+    btn_chain = create_active_button(
+        command=open_chain_manager,
+        text="⛓ Chain",
+        width=110,   # Ancho suficiente para el texto
+        height=28    # Misma altura que el botón Magic para consistencia
+    )
+    # POSICIÓN: A la izquierda (0.65)
+    btn_chain.place(relx=0.65, rely=0.77, anchor="center")
+    btn_chain.lift()
 
 
 def place_upscale_button():
+    """
+    Coloca el botón Magic desplazado a la derecha para dar espacio al Chain.
+    """
     upscale_button = create_active_button(
         command=upscale_button_command,
         text="Make Magic",
         icon=upscale_icon,
-        width=240,    # Mismo ancho que Stop
-        height=28     # Altura delgada (antes 45)
+        width=200,   # Reducido ligeramente de 240 a 200 para equilibrar el espacio
+        height=28
     )
-
-    # Posición: Exactamente la misma que el botón de Stop
-    upscale_button.place(relx=0.75, rely=0.77, anchor="center")
+    # POSICIÓN: Desplazado a la derecha (0.83)
+    # Antes estaba en 0.75 (centro absoluto del panel derecho).
+    upscale_button.place(relx=0.83, rely=0.77, anchor="center")
 
 
 # ==== MAIN APPLICATION SECTION ====
@@ -5983,6 +6241,6 @@ if __name__ == "__main__":
     manual_btn.place(relx=0.88, rely=0.05, anchor="center")
     manual_btn.lift()
     # -------------------------------
-
+    place_chain_button()
     # Iniciar Bucle Principal
     window.mainloop()
