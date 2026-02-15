@@ -51,6 +51,17 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 
 ---
 
+## 🆕 New in v6.0 — Process Chaining
+
+- Create multi-step pipelines; order steps to run sequentially per file.
+- RIFE interpolation integrates as a chain step for video sources (graceful skip on images).
+- Per-step model selection via a combobox fed by auto-discovered ONNX models in `AI-onnx/`.
+- Automatic output routing: intermediate steps use temp folders; the final step writes to your chosen output path.
+- Smart extension/codec correction by media type to prevent invalid outputs.
+- Memory-safe execution with per-step VRAM tile sizing and cleanup between steps.
+
+---
+
 ## 🖼️ Interface Capture
 
 [Capture.webm](https://github.com/user-attachments/assets/3038b58f-f671-4de4-8e14-169329859632)
@@ -80,17 +91,6 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 - **Batch Processing** – Process multiple media files simultaneously, saving time and effort.
 - **Custom Workflows** – Fine-grained control over models, resolution, output formats, and quality parameters.
 - **Open-Source & Extensible** – Fully MIT licensed, for contributors and developers.
-
----
-
-## 🆕 New in v6.0 — Process Chaining
-
-- Create multi-step pipelines; order steps to run sequentially per file.
-- RIFE interpolation integrates as a chain step for video sources (graceful skip on images).
-- Per-step model selection via a combobox fed by auto-discovered ONNX models in `AI-onnx/`.
-- Automatic output routing: intermediate steps use temp folders; the final step writes to your chosen output path.
-- Smart extension/codec correction by media type to prevent invalid outputs.
-- Memory-safe execution with per-step VRAM tile sizing and cleanup between steps.
 
 ---
 
@@ -164,4 +164,5 @@ We welcome contributions from the community.
 | **Python** | PSF License | Python Software Foundation | [Official Site](https://www.python.org) |
 | **PyInstaller** | GPLv2+ | PyInstaller Team | [GitHub](https://github.com/pyinstaller/pyinstaller) |
 | **Inno Setup** | Custom | Jordan Russell | [Official Site](http://www.jrsoftware.org/isinfo.php) |
+
 
