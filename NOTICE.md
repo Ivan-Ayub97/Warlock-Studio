@@ -11,7 +11,7 @@ These terms are provided **in addition to**, and in compliance with, the [MIT Li
 
 ## 1. Project Overview
 
-**Warlock-Studio** is a free and open-source desktop application that combines **MedIA-Wizard** and **MedIA-Witch**, and is inspired by **QualityScaler**, **FluidFrames**, and **RealScaler**. It is designed for advanced AI-driven image and video upscaling, restoration, and enhancement.
+**Warlock-Studio** is a free and open-source desktop application and is inspired by **QualityScaler**, **FluidFrames**, and **RealScaler**. It is designed for advanced AI-driven image and video upscaling, restoration, and enhancement.
 
 ---
 
@@ -55,3 +55,4 @@ By downloading, using, modifying, or distributing this software, you acknowledge
 **Iván Eduardo Chavez Ayub**
 Email: [negroayub97@gmail.com](mailto:negroayub97@gmail.com)
 GitHub: [https://github.com/Ivan-Ayub97](https://github.com/Ivan-Ayub97)
+
