@@ -68,7 +68,7 @@ It is inspired by and based on [Djdefrag](https://github.com/Djdefrag) tools suc
 
 ![UICapture](rsc/Capture2.png)
 ![UICapture](rsc/Capture3.png)
-
+![UICapture](rsc/Capture4.png)
 ---
 
 ## 🔍 Quality Comparison
